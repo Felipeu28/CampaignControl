@@ -1,0 +1,8 @@
+{
+  "name": "Campaign Control AI (Cycle 2026)",
+  "description": "The ultimate strategic command center for modern political campaigns, featuring real-time district research and opposition intelligence.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
