@@ -2216,6 +2216,18 @@ const App: React.FC = () => {
     </div>
   );
 
+  const renderGatekeeper = () => (
+  <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8">
+    {/* Copy the full function from DEPLOYMENT_FIXES.md */}
+  </div>
+);
+
+const renderOnboardingWizard = () => (
+  <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-3xl z-[1500] flex items-center justify-center p-8">
+    {/* Copy the full function from DEPLOYMENT_FIXES.md */}
+  </div>
+);
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-slate-900">
     {isInitializing && renderGatekeeper()}
