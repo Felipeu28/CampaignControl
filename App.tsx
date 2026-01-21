@@ -608,15 +608,10 @@ const App: React.FC = () => {
       const fullPrompt = `${imagePrompt.style}: ${imagePrompt.subject} set in ${imagePrompt.env}. High contrast, professional political campaign lighting, cinematic quality, ${profile.party === 'R' ? 'patriotic red and blue accents' : profile.party === 'D' ? 'modern blue and white tones' : 'independent slate and emerald tones'}.`;
       
       const response = await ai.models.generateContent({
-        model: highQualityMode ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image',
-        contents: [{ parts: [{ text: fullPrompt }] }],
-        config: {
-          imageConfig: {
-            aspectRatio: aspectRatio,
-            imageSize: highQualityMode ? "2K" : "1K"
-          }
-        }
-      });
+  model: 'gemini-2.0-flash-exp',
+  contents: [{ parts: [{ text: fullPrompt }] }]
+  // No config - Gemini 2.0 API changed
+});
 
       let base64 = "";
       for (const part of response.candidates[0].content.parts) {
@@ -664,7 +659,6 @@ const App: React.FC = () => {
             { text: `Refine this political campaign image: ${feedback}. Maintain original brand consistency.` }
           ]
         },
-        config: { imageConfig: { aspectRatio: aspectRatio } }
       });
 
       let base64 = "";
@@ -1502,31 +1496,6 @@ const App: React.FC = () => {
       </div>
     );
   };
-
-  const renderOnboardingWizard = () => (
-    <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-12">
-       <div className="bg-white w-full max-w-5xl h-[85vh] rounded-[4rem] shadow-2xl overflow-hidden flex flex-col relative animate-in slide-in-from-bottom-20">
-          <button onClick={() => setOnboardingStep(null)} className="absolute top-10 right-10 text-slate-300 hover:text-slate-800 transition-colors text-2xl z-20"><i className="fas fa-times"></i></button>
-          <div className="p-12 bg-slate-50 border-b border-slate-100 flex items-center gap-8">
-             <div className="w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-xl shadow-indigo-200"><i className="fas fa-dna"></i></div>
-             <div><h3 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter leading-none">DNA Calibrator</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Active Strategic Synthesis Stage</p></div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-12 space-y-8 bg-white">
-             {onboardingMessages.map((m, i) => (
-               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[75%] p-8 rounded-[3rem] text-xl font-medium leading-relaxed shadow-sm ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-50 text-slate-700 rounded-bl-none italic'}`}>{m.text}</div>
-               </div>
-             ))}
-             {isThinking && <div className="flex justify-start"><div className="w-20 h-10 bg-slate-50 rounded-full flex items-center justify-center gap-1 animate-pulse"><div className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div><div className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div><div className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div></div></div>}
-             <div ref={chatEndRef} />
-          </div>
-          <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4">
-             <input className="flex-1 bg-white border border-slate-200 rounded-3xl px-8 py-6 text-xl font-bold outline-none focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-inner" placeholder="Answer Strategist..." onKeyDown={e => { if (e.key === 'Enter' && e.currentTarget.value) { submitOnboardingStep(e.currentTarget.value); e.currentTarget.value = ''; } }} />
-             <button className="w-24 h-24 bg-slate-900 text-white rounded-3xl flex items-center justify-center hover:bg-indigo-600 transition-all shadow-2xl"><i className="fas fa-paper-plane text-2xl"></i></button>
-          </div>
-       </div>
-    </div>
-  );
 
   const renderCreative = () => (
     <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
