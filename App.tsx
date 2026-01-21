@@ -107,7 +107,7 @@ const DEMO_PROFILE: CampaignProfileRow = {
       constituencies: 'Local PTA, Small Business Association, Neighborhood Watch',
       unique_qualifications: 'Former school board auditor and PTA president with deep community ties.',
       staffing_plans: 'Plan to hire 1 media consultant and 2 part-time field leads.',
-      master_narrative: "Marcus is a local small business owner running on 'Practical Prosperity'—fixing infrastructure without raising taxes while protecting neighborhood character and adequately funding schools.",
+      master_narrative: "Marcus is a local small business owner running on 'Practical Prosperity'â€”fixing infrastructure without raising taxes while protecting neighborhood character and adequately funding schools.",
       source_text: '',
       source_materials: [],
       qualifications_check: { age: true, location: true, registered_voter: true, residency_length: true },
@@ -1122,7 +1122,7 @@ const App: React.FC = () => {
                   <div className="relative z-10 flex justify-between items-start">
                      <div>
                        <h4 className="text-3xl font-black italic uppercase tracking-tighter leading-none mb-2 group-hover:text-indigo-400 transition-colors">{o.name}</h4>
-                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{o.party} • {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}</p>
+                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{o.party} â€¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}</p>
                      </div>
                      <div className="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all"><i className="fas fa-crosshairs"></i></div>
                   </div>
@@ -1270,7 +1270,7 @@ const App: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-12">
         {profile.metadata.opponents.map((opp, i) => (
-          <Card key={i} title={opp.name} subtitle={`${opp.party} • ${opp.incumbent ? 'Incumbent' : 'Challenger'}`} icon="fa-user-ninja" action={
+          <Card key={i} title={opp.name} subtitle={`${opp.party} â€¢ ${opp.incumbent ? 'Incumbent' : 'Challenger'}`} icon="fa-user-ninja" action={
             <button 
               onClick={() => scanOpponent(opp.name)}
               disabled={isProbeActive}
@@ -1536,12 +1536,12 @@ const App: React.FC = () => {
                <button 
                  key={asset.id} 
                  disabled={isThinking}
-                 onClick={() => setActiveAsset(asset)}
-                 className={`w-full p-6 rounded-3xl border text-left transition-all flex justify-between items-center ${activeAsset?.id === asset.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl scale-[1.02]' : 'bg-white border-slate-100 hover:border-indigo-300'} disabled:opacity-50`}
+                 onClick={() => setActiveCreativeAsset(asset)}
+                 className={`w-full p-6 rounded-3xl border text-left transition-all flex justify-between items-center ${activeCreativeAsset?.id === asset.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl scale-[1.02]' : 'bg-white border-slate-100 hover:border-indigo-300'} disabled:opacity-50`}
                >
                   <div className="overflow-hidden">
                     <p className="text-[10px] font-black uppercase tracking-tighter truncate leading-none mb-2">{asset.title}</p>
-                    <p className={`text-[8px] font-black uppercase tracking-[0.2em] ${activeAsset?.id === asset.id ? 'text-indigo-200' : 'text-slate-400'}`}>{asset.type}</p>
+                    <p className={`text-[8px] font-black uppercase tracking-[0.2em] ${activeCreativeAsset?.id === asset.id ? 'text-indigo-200' : 'text-slate-400'}`}>{asset.type}</p>
                   </div>
                   <i className="fas fa-chevron-right text-[9px] opacity-30"></i>
                </button>
@@ -1550,17 +1550,17 @@ const App: React.FC = () => {
         </div>
 
         <div className="lg:col-span-3 h-full">
-           {activeAsset ? (
+           {activeCreativeAsset ? (
              <div className="animate-in fade-in slide-in-from-right-4 duration-500 relative h-full">
-               <Card title={activeAsset.title} subtitle={activeAsset.type} icon="fa-file-signature" action={
+               <Card title={activeCreativeAsset.title} subtitle={activeCreativeAsset.type} icon="fa-file-signature" action={
                  <div className="flex items-center gap-4">
                     <button className="text-slate-300 hover:text-indigo-600 transition-colors"><i className="fas fa-copy"></i></button>
-                    <button onClick={() => setCreativeAssets(prev => prev.filter(a => a.id !== activeAsset.id))} className="text-slate-300 hover:text-red-600 transition-colors"><i className="fas fa-trash-alt"></i></button>
+                    <button onClick={() => setCreativeAssets(prev => prev.filter(a => a.id !== activeCreativeAsset.id))} className="text-slate-300 hover:text-red-600 transition-colors"><i className="fas fa-trash-alt"></i></button>
                  </div>
                }>
                   <div className="relative group/editor h-full flex flex-col">
                     <div className="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100 italic text-xl leading-relaxed text-slate-700 font-medium mb-10 whitespace-pre-wrap shadow-inner border-l-8 border-indigo-600 flex-1">
-                       {activeAsset.content}
+                       {activeCreativeAsset.content}
                     </div>
 
                     <div className="mt-6 flex flex-wrap gap-4 items-center">
@@ -2186,16 +2186,169 @@ const App: React.FC = () => {
   );
 
   const renderGatekeeper = () => (
-  <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8">
-    {/* Copy the full function from DEPLOYMENT_FIXES.md */}
-  </div>
-);
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8 overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(99,102,241,0.1),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.08),transparent_40%)]"></div>
+      
+      <div className="relative z-10 max-w-2xl w-full animate-in zoom-in-95 duration-700">
+        <div className="text-center mb-16">
+          <div className="w-32 h-32 bg-gradient-to-br from-indigo-600 to-pink-600 rounded-3xl mx-auto mb-10 flex items-center justify-center shadow-2xl shadow-indigo-500/50 animate-pulse">
+            <i className="fas fa-shield-halved text-5xl text-white"></i>
+          </div>
+          <h1 className="text-6xl font-black text-white mb-4 tracking-tighter uppercase italic leading-none">
+            Victory<span className="text-indigo-400">Ops</span>
+          </h1>
+          <p className="text-indigo-300 text-sm font-black uppercase tracking-[0.4em]">Tactical Campaign Command System</p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-xl rounded-[3rem] p-12 border border-white/20 shadow-2xl">
+          <h2 className="text-2xl font-black text-white mb-8 uppercase tracking-tight italic">Initialize Campaign Identity</h2>
+          
+          <div className="space-y-6">
+            <div>
+              <label className="text-xs font-black text-indigo-300 uppercase tracking-widest mb-3 block">Candidate Name</label>
+              <input 
+                type="text" 
+                value={initData.name}
+                onChange={(e) => setInitData({...initData, name: e.target.value})}
+                className="w-full bg-white/10 border border-white/30 rounded-2xl px-6 py-4 text-white font-bold text-lg outline-none focus:ring-4 focus:ring-indigo-500/50 transition-all placeholder:text-white/40"
+                placeholder="Enter full name..."
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-black text-indigo-300 uppercase tracking-widest mb-3 block">Office Sought</label>
+              <input 
+                type="text"
+                value={initData.office}
+                onChange={(e) => setInitData({...initData, office: e.target.value})}
+                className="w-full bg-white/10 border border-white/30 rounded-2xl px-6 py-4 text-white font-bold text-lg outline-none focus:ring-4 focus:ring-indigo-500/50 transition-all placeholder:text-white/40"
+                placeholder="e.g., Texas House District 52"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-black text-indigo-300 uppercase tracking-widest mb-3 block">District ID</label>
+                <input 
+                  type="text"
+                  value={initData.district}
+                  onChange={(e) => setInitData({...initData, district: e.target.value})}
+                  className="w-full bg-white/10 border border-white/30 rounded-2xl px-6 py-4 text-white font-bold outline-none focus:ring-4 focus:ring-indigo-500/50 transition-all placeholder:text-white/40"
+                  placeholder="TX-HD-52"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-black text-indigo-300 uppercase tracking-widest mb-3 block">Party</label>
+                <select
+                  value={initData.party}
+                  onChange={(e) => setInitData({...initData, party: e.target.value})}
+                  className="w-full bg-white/10 border border-white/30 rounded-2xl px-6 py-4 text-white font-bold outline-none focus:ring-4 focus:ring-indigo-500/50 transition-all"
+                >
+                  <option value="D" className="bg-slate-900">Democrat</option>
+                  <option value="R" className="bg-slate-900">Republican</option>
+                  <option value="I" className="bg-slate-900">Independent</option>
+                  <option value="L" className="bg-slate-900">Libertarian</option>
+                  <option value="G" className="bg-slate-900">Green</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4 mt-10">
+            <button 
+              onClick={handleFinalizeIdentity}
+              disabled={!initData.name || !initData.office}
+              className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.3em] transition-all shadow-2xl shadow-indigo-600/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i className="fas fa-rocket mr-3"></i>
+              Launch Campaign
+            </button>
+            <button 
+              onClick={handleLoadDemo}
+              className="bg-white/10 hover:bg-white/20 text-white py-5 px-8 rounded-2xl font-black text-sm uppercase tracking-widest transition-all border border-white/30"
+            >
+              Demo
+            </button>
+          </div>
+        </div>
+
+        <p className="text-center text-indigo-400/60 text-xs font-bold uppercase tracking-widest mt-8">
+          Neural Systems • 2026 Cycle Ready
+        </p>
+      </div>
+    </div>
+  );
 
 const renderOnboardingWizard = () => (
-  <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-3xl z-[1500] flex items-center justify-center p-8">
-    {/* Copy the full function from DEPLOYMENT_FIXES.md */}
-  </div>
-);
+    <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-3xl z-[1500] flex items-center justify-center p-8">
+      <div className="max-w-4xl w-full h-[80vh] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col">
+        <div className="bg-gradient-to-r from-indigo-600 to-pink-600 p-8 flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-black text-white uppercase italic tracking-tight">DNA Interview: Step {onboardingStep}</h2>
+            <p className="text-indigo-100 text-sm font-bold mt-2">Building your campaign foundation with {profile.candidate_name}</p>
+          </div>
+          <button 
+            onClick={() => setOnboardingStep(null)}
+            className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-all"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50">
+          {onboardingMessages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[75%] p-6 rounded-[2rem] ${
+                msg.role === 'user' 
+                  ? 'bg-indigo-600 text-white rounded-br-none shadow-lg' 
+                  : 'bg-white text-slate-800 rounded-bl-none border border-slate-200 shadow-sm'
+              }`}>
+                <p className="text-base leading-relaxed font-medium">{msg.text}</p>
+              </div>
+            </div>
+          ))}
+          {isThinking && (
+            <div className="flex justify-start">
+              <div className="bg-white border border-slate-200 rounded-[2rem] rounded-bl-none p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white border-t border-slate-200 p-6">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const input = (e.target as HTMLFormElement).response.value;
+            submitOnboardingStep(input);
+            (e.target as HTMLFormElement).reset();
+          }}>
+            <div className="flex gap-4">
+              <input 
+                name="response"
+                type="text"
+                disabled={isThinking}
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-slate-800 font-bold outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all disabled:opacity-50"
+                placeholder="Type your response..."
+              />
+              <button 
+                type="submit"
+                disabled={isThinking}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg disabled:opacity-50"
+              >
+                {isThinking ? <i className="fas fa-spinner animate-spin"></i> : 'Send'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-slate-900">
@@ -2246,13 +2399,10 @@ const renderOnboardingWizard = () => (
              {activeTab === 'dashboard' && renderDashboard()}
              {activeTab === 'intelligence' && renderIntelligence()}
              {activeTab === 'branding' && renderBranding()}
-             
-             {!['dashboard', 'intelligence', 'branding'].includes(activeTab) && (
-                <div className="h-full p-32 border-8 border-dashed border-slate-100 rounded-[4rem] text-center opacity-20">
-                   <i className={`fas ${activeTab === 'branding' ? 'fa-palette' : activeTab === 'creative' ? 'fa-bullhorn' : 'fa-tools'} text-8xl mb-8`}></i>
-                   <p className="text-xl font-black uppercase tracking-[0.5em]">Sector Under Development</p>
-                </div>
-             )}
+             {activeTab === 'creative' && renderCreative()}
+             {activeTab === 'warchest' && renderWarChest()}
+             {activeTab === 'legal' && renderLegalShield()}
+             {activeTab === 'settings' && renderSettings()}
            </div>
         </main>
 
