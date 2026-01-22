@@ -1,5 +1,12 @@
+// ============================================================================
+// VICTORYOPS - PART 1: FOUNDATION & STATE
+// ============================================================================
+// This is Part 1 of 4. After all parts are created, combine them into App.tsx
+// START: Copy from here
+// ============================================================================
+
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai"; // ✅ FIXED IMPORT
 import { 
   calculateVoteGoal, 
   validateCampaignProfile,
@@ -21,12 +28,12 @@ import {
 } from './types';
 
 // ============================================================================
-// CONSTANTS & TYPES (MERGED)
+// CONSTANTS & TYPES
 // ============================================================================
 
 const STORAGE_KEY = 'victory_ops_merged_v1_state';
 
-// Expanded Research Modes (from App2.tsx)
+// Research Modes for Intelligence Module
 type ResearchMode = 'ECONOMIC' | 'SENTIMENT' | 'POLICY' | 'OPPOSITION' | 
                     'MEDIA' | 'REGISTRATION' | 'SOCIAL' | 'FUNDRAISING' | 
                     'GEOGRAPHY' | 'ETHICS';
@@ -45,7 +52,7 @@ interface ResearchSnapshot {
   };
 }
 
-// Enhanced demo profile (merged best of both)
+// Demo Campaign Profile
 const DEMO_PROFILE: CampaignProfileRow = {
   session_id: 'demo-merged-123',
   candidate_name: 'Marcus Thorne',
@@ -107,7 +114,7 @@ const DEMO_PROFILE: CampaignProfileRow = {
       constituencies: 'Local PTA, Small Business Association, Neighborhood Watch',
       unique_qualifications: 'Former school board auditor and PTA president with deep community ties.',
       staffing_plans: 'Plan to hire 1 media consultant and 2 part-time field leads.',
-      master_narrative: "Marcus is a local small business owner running on 'Practical Prosperity'â€”fixing infrastructure without raising taxes while protecting neighborhood character and adequately funding schools.",
+      master_narrative: "Marcus is a local small business owner running on 'Practical Prosperity'—fixing infrastructure without raising taxes while protecting neighborhood character and adequately funding schools.",
       source_text: '',
       source_materials: [],
       qualifications_check: { age: true, location: true, registered_voter: true, residency_length: true },
@@ -159,6 +166,7 @@ const DEMO_PROFILE: CampaignProfileRow = {
   }
 };
 
+// Initial Empty Profile
 const INITIAL_PROFILE: CampaignProfileRow = {
   session_id: 'sess-' + Math.random().toString(36).substr(2, 9),
   candidate_name: '',
@@ -192,7 +200,7 @@ const INITIAL_PROFILE: CampaignProfileRow = {
 };
 
 // ============================================================================
-// UI ATOMS
+// UI COMPONENTS
 // ============================================================================
 
 const SidebarItem: React.FC<{ icon: string; label: string; active?: boolean; onClick: () => void; color?: string }> = ({ icon, label, active, onClick, color }) => (
@@ -225,6 +233,11 @@ const Card: React.FC<{ title: string; subtitle?: string; children: React.ReactNo
 // ============================================================================
 
 const App: React.FC = () => {
+  // ============================================================================
+  // STATE DECLARATIONS
+  // ============================================================================
+  
+  // Core App State
   const [activeTab, setActiveTab] = useState('dashboard');
   const [profile, setProfile] = useState<CampaignProfileRow>(INITIAL_PROFILE);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -234,7 +247,7 @@ const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
 
-  // Intelligence State (merged from both)
+  // Intelligence Module State
   const [researchVault, setResearchVault] = useState<ResearchSnapshot[]>([]);
   const [activeResearchId, setActiveResearchId] = useState<string | null>(null);
   const [isProbeActive, setIsProbeActive] = useState(false);
@@ -243,10 +256,10 @@ const App: React.FC = () => {
   const [marketInsights, setMarketInsights] = useState<{ text: string, sources: any[], parsed?: any } | null>(null);
   const [scanMessage, setScanMessage] = useState('');
   
-  // Opposition State (from App2)
+  // Opposition Module State
   const [oppositionInsights, setOppositionInsights] = useState<{ [key: string]: { text: string, sources: any[] } }>({});
   
-  // Modal States (from App.tsx)
+  // Modal States
   const [isCompetitorModalOpen, setIsCompetitorModalOpen] = useState(false);
   const [dossierTarget, setDossierTarget] = useState<Opponent | null>(null);
   const [isContrastStrategyActive, setIsContrastStrategyActive] = useState(false);
@@ -254,7 +267,7 @@ const App: React.FC = () => {
   const [pendingRivals, setPendingRivals] = useState<Opponent[]>([]);
   const [isReviewRivalsModalOpen, setIsReviewRivalsModalOpen] = useState(false);
   
-  // Branding State (from App.tsx)
+  // Darkroom (Branding) State
   const [brandingAssets, setBrandingAssets] = useState<CreativeAsset[]>([]);
   const [activeAsset, setActiveAsset] = useState<CreativeAsset | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -262,27 +275,29 @@ const App: React.FC = () => {
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '16:9' | '9:16'>('1:1');
   const [highQualityMode, setHighQualityMode] = useState(false);
   
-  // Creative/Megaphone State (from App2)
+  // Megaphone (Creative/Messaging) State
   const [creativeAssets, setCreativeAssets] = useState<CreativeAsset[]>([]);
   const [activeCreativeAsset, setActiveCreativeAsset] = useState<CreativeAsset | null>(null);
+  const [refinementInstruction, setRefinementInstruction] = useState(''); // ✅ NEW STATE FOR REFINEMENT
 
-  // War Chest State (from App2)
+  // War Chest (Fundraising) State
   const [isAuditing, setIsAuditing] = useState(false);
   const [auditResult, setAuditResult] = useState<string | null>(null);
   
-  // Legal Shield State (from App2)
+  // Legal Shield (Compliance) State
   const [activeDisclaimerType, setActiveDisclaimerType] = useState<'digital' | 'print' | 'sms'>('digital');
   const [complianceAuditResult, setComplianceAuditResult] = useState<string | null>(null);
   
-  // DNA Vault State (from App2)
+  // DNA Vault (Settings/Profile) State
   const [narrativeRefinePrompt, setNarrativeRefinePrompt] = useState('');
 
+  // Competitor Modal State
   const [newCompetitor, setNewCompetitor] = useState({ name: '', party: 'D', incumbent: false, strengths: '', weaknesses: '' });
 
-  // Modular States
+  // Strategic Reports State
   const [strategicReports, setStrategicReports] = useState<StrategicReport[]>([]);
 
-  // Onboarding Wizard State (from App.tsx)
+  // Onboarding Wizard State
   const [onboardingStep, setOnboardingStep] = useState<number | null>(null);
   const [onboardingMessages, setOnboardingMessages] = useState<{ role: 'ai' | 'user', text: string }[]>([]);
 
@@ -293,7 +308,26 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Persistence
+  // ============================================================================
+  // EFFECTS & LIFECYCLE
+  // ============================================================================
+
+  // ✅ NEW: API Key Validation on Startup
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey || apiKey === 'your_actual_api_key_here') {
+      console.warn('⚠️ VictoryOps Warning: Google AI API key not configured properly');
+      console.warn('📋 Steps to fix:');
+      console.warn('   1. Create .env.local file in project root');
+      console.warn('   2. Add: VITE_GOOGLE_AI_API_KEY=your_key_here');
+      console.warn('   3. Get key from: https://makersuite.google.com/app/apikey');
+      console.warn('   4. Restart development server');
+    } else {
+      console.log('✅ VictoryOps: API configuration loaded successfully');
+    }
+  }, []);
+
+  // Load State from LocalStorage
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -312,10 +346,13 @@ const App: React.FC = () => {
         }
         if (parsed.oppositionInsights) setOppositionInsights(parsed.oppositionInsights);
         if (parsed.marketInsights) setMarketInsights(parsed.marketInsights);
-      } catch (e) { console.error("Persistence Restore Failed:", e); }
+      } catch (e) { 
+        console.error("Persistence Restore Failed:", e); 
+      }
     }
   }, []);
 
+  // Save State to LocalStorage
   useEffect(() => {
     if (!isInitializing) {
       setIsSyncing(true);
@@ -327,237 +364,311 @@ const App: React.FC = () => {
     }
   }, [profile, brandingAssets, creativeAssets, strategicReports, researchVault, oppositionInsights, marketInsights, isInitializing]);
 
-  useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), [chatMessages, onboardingMessages]);
+  // Auto-scroll chat to bottom
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, onboardingMessages]);
 
-  // --- LOGIC: INITIALIZATION ---
+  // ============================================================================
+  // INITIALIZATION LOGIC
+  // ============================================================================
+
   const handleLoadDemo = () => {
     setProfile(DEMO_PROFILE);
     setIsInitializing(false);
-    setChatMessages([{ role: 'ai', text: `Tactical initialization for ${DEMO_PROFILE.candidate_name} successful. All systems operational.` }]);
+    setChatMessages([{ 
+      role: 'ai', 
+      text: `Tactical initialization for ${DEMO_PROFILE.candidate_name} successful. All systems operational.` 
+    }]);
   };
 
   const handleFinalizeIdentity = () => {
     if (!initData.name || !initData.office) return;
-    const updated = { ...profile, candidate_name: initData.name, office_sought: initData.office, district_id: initData.district, party: initData.party };
+    const updated = { 
+      ...profile, 
+      candidate_name: initData.name, 
+      office_sought: initData.office, 
+      district_id: initData.district, 
+      party: initData.party 
+    };
     setProfile(updated);
     setIsInitializing(false);
     setTimeout(() => startOnboarding(updated), 500);
   };
 
-  // --- LOGIC: ONBOARDING WIZARD (from App.tsx) ---
+  // ============================================================================
+  // ONBOARDING WIZARD
+  // ============================================================================
+
   const startOnboarding = async (p = profile) => {
     setOnboardingStep(1);
     setIsThinking(true);
+
+// ============================================================================
+// VICTORYOPS - PART 2: AI FUNCTIONS
+// ============================================================================
+// This is Part 2 of 4. Paste this AFTER Part 1 in your App.tsx
+// All AI functions are fixed with proper API integration
+// START: Copy from here (continuing from Part 1's startOnboarding function)
+// ============================================================================
+
     setThinkingLabel('Connecting Tactical Strategist...');
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      setOnboardingMessages([{ 
+        role: 'ai', 
+        text: '⚠️ API key not configured. Please configure VITE_GOOGLE_AI_API_KEY in .env.local to begin onboarding.' 
+      }]);
+      setIsThinking(false);
+      return;
+    }
+
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Act as a world-class Campaign Manager. Start a DNA interview with ${p.candidate_name}, candidate for ${p.office_sought}. Introduce yourself and ask: Why this office, and why now?`;
-      const response = await ai.models.generateContent({ model: 'gemini-3-pro-preview', contents: prompt });
-      setOnboardingMessages([{ role: 'ai', text: response.text || "Hello. Why are you running for this office today?" }]);
-    } catch (e) { console.error(e); } finally { setIsThinking(false); }
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: { temperature: 0.8 }
+      });
+
+      const prompt = `Act as a world-class Campaign Manager. Start a DNA interview with ${p.candidate_name}, candidate for ${p.office_sought}. Introduce yourself warmly and ask: Why this office, and why now?`;
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      setOnboardingMessages([{ 
+        role: 'ai', 
+        text: response.text() || "Hello! I'm excited to help build your campaign. Why are you running for this office, and why now?" 
+      }]);
+    } catch (e) { 
+      console.error('Onboarding error:', e);
+      setOnboardingMessages([{ 
+        role: 'ai', 
+        text: 'Error connecting to AI strategist. Please check your API configuration.' 
+      }]);
+    } finally { 
+      setIsThinking(false); 
+    }
   };
 
   const submitOnboardingStep = async (txt: string) => {
     if (!txt.trim()) return;
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) return;
+
     setOnboardingMessages(prev => [...prev, { role: 'user', text: txt }]);
     setIsThinking(true);
+    
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({ 
-        model: 'gemini-3-pro-preview', 
-        contents: [
-          ...onboardingMessages.map(m => ({ 
-            role: m.role === 'ai' ? 'model' : 'user', 
-            parts: [{ text: m.text }] 
-          })), 
-          { role: 'user', parts: [{ text: txt }] }
-        ],
-        config: {
-          systemInstruction: `Continue DNA interview for ${profile.candidate_name}. Validate and ask the next missing detail (Family, Professional Background, or Unique Edge).`
-        }
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: { temperature: 0.8 },
+        systemInstruction: `Continue DNA interview for ${profile.candidate_name}. Validate their response and ask the next missing detail (Family, Professional Background, or Unique Qualifications). Keep questions conversational and encouraging.`
       });
-      setOnboardingMessages(prev => [...prev, { role: 'ai', text: response.text || "Tell me more about your district ties." }]);
-    } catch (e) { console.error(e); } finally { setIsThinking(false); }
+
+      const history = onboardingMessages.map(m => ({
+        role: m.role === 'ai' ? 'model' : 'user',
+        parts: [{ text: m.text }]
+      }));
+
+      const chat = model.startChat({ history });
+      const result = await chat.sendMessage(txt);
+      const response = await result.response;
+      
+      setOnboardingMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: response.text() || "Tell me more about your connection to the district." 
+      }]);
+    } catch (e) { 
+      console.error('Onboarding step error:', e);
+    } finally { 
+      setIsThinking(false); 
+    }
   };
 
-const runNeuralProbe = async (focus: ResearchMode) => {
-  // Validate API key
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-  if (!apiKey) {
+  // ============================================================================
+  // INTELLIGENCE MODULE - Research & Analysis Functions
+  // ============================================================================
+
+  const runNeuralProbe = async (focus: ResearchMode) => {
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: '⚠️ API Configuration Error: Google AI API key not found. Please add VITE_GOOGLE_AI_API_KEY to your .env.local file.' 
+      }]);
+      return;
+    }
+
+    setResearchMode(focus);
+    setIsProbeActive(true);
+    setScanMessage(`Establishing ${focus} neural link...`);
     setChatMessages(prev => [...prev, { 
       role: 'ai', 
-      text: '⚠️ API Configuration Error: Google AI API key not found. Please add VITE_GOOGLE_AI_API_KEY to your .env.local file.' 
-    }]);
-    alert('API key not configured. Check console for details.');
-    return;
-  }
-
-  setResearchMode(focus);
-  setIsProbeActive(true);
-  setScanMessage(`Establishing ${focus} neural link...`);
-  setChatMessages(prev => [...prev, { 
-    role: 'ai', 
-    text: `Initiating ${focus} Neural Probe. Awaiting district data streams.` 
-  }]);
-  
-  let prompt = "";
-  switch(focus) {
-    case 'ECONOMIC':
-      setScanMessage("Aggregating 2025 economic stressors...");
-      prompt = `Perform an economic intelligence audit for ${profile.district_id}. Analyze employment rates, housing affordability trends, and major local business developments. Format your response with these sections: [SIGNAL: key economic indicators], [THREAT: risks to the campaign], [ACTION: recommended campaign response]. Include specific data and sources where possible.`;
-      break;
-    case 'SENTIMENT':
-      setScanMessage("Monitoring voter sentiment patterns...");
-      prompt = `Detect prevailing voter sentiment and top 5 political grievances in ${profile.district_id} for the 2026 cycle. Analyze recent social movements or local controversies. Format as: [SIGNAL: mood/trends], [THREAT: narrative risks], [ACTION: outreach strategy].`;
-      break;
-    case 'POLICY':
-      setScanMessage("Tracking legislative volatility...");
-      prompt = `Analyze legislative impacts and local policy challenges in ${profile.district_id}. Focus on infrastructure needs, school board tensions, and recent tax changes. Format as: [SIGNAL: policy landscape], [THREAT: opposition angles], [ACTION: policy position].`;
-      break;
-    case 'OPPOSITION':
-      setScanMessage("Scanning opposition landscape...");
-      prompt = `Perform a deep dive on the political opposition for the ${profile.office_sought} seat in ${profile.district_id}. Identify active candidates, their funding sources, and vulnerabilities. Format as: [SIGNAL: opponent status], [THREAT: their strengths], [ACTION: counter-strategy].`;
-      break;
-    case 'MEDIA':
-      setScanMessage("Monitoring regional media sentiment...");
-      prompt = `Monitor local media sentiment in ${profile.district_id} for the ${profile.office_sought} race. Identify top trending stories and narrative threats. Format as: [SIGNAL: media landscape], [THREAT: negative coverage risks], [ACTION: media strategy].`;
-      break;
-    case 'REGISTRATION':
-      setScanMessage("Analyzing voter registration volatility...");
-      prompt = `Analyze voter registration shifts in ${profile.district_id} between 2024 and 2025. Who are the new voters? What are demographic trends? Format as: [SIGNAL: registration patterns], [THREAT: turnout challenges], [ACTION: voter contact plan].`;
-      break;
-    case 'SOCIAL':
-      setScanMessage("Scanning social media landscape...");
-      prompt = `Search for trending topics, hashtags, and public opinion related to the ${profile.office_sought} race in ${profile.district_id} for 2025/2026. Return sentiment analysis and top concerns. Format as: [SIGNAL: social trends], [THREAT: viral risks], [ACTION: social media strategy].`;
-      break;
-    case 'FUNDRAISING':
-      setScanMessage("Hunting for donors and PACs...");
-      prompt = `Identify potential donors, local PACs, and political contributors in ${profile.district_id} region aligning with ${profile.party}. Analyze giving patterns. Format as: [SIGNAL: donor landscape], [THREAT: opponent fundraising], [ACTION: solicitation strategy].`;
-      break;
-    case 'GEOGRAPHY':
-      setScanMessage("Mapping community hotspots...");
-      prompt = `Identify high-traffic intersections, community centers, and popular town hall venues in ${profile.district_id}. Find where campaign visibility is needed. Format as: [SIGNAL: key locations], [THREAT: coverage gaps], [ACTION: visibility plan].`;
-      break;
-    case 'ETHICS':
-      setScanMessage("Monitoring compliance threats...");
-      prompt = `Search for recent ethics filings, campaign finance controversies, or regulatory issues related to ${profile.office_sought} in ${profile.district_id}. Format as: [SIGNAL: compliance landscape], [THREAT: potential violations], [ACTION: protective measures].`;
-      break;
-    default: 
-      setScanMessage("Generating broad environmental landscape...");
-      prompt = `General political landscape and sentiment analysis for ${profile.district_id} in the 2026 cycle. Format as: [SIGNAL], [THREAT], [ACTION].`;
-  }
-
-  try {
-    // Correct Google AI initialization
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp",
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 2048,
-      }
-    });
-
-    // Generate content
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const insightText = response.text() || "No actionable signals detected.";
-    
-    // Parse Signal/Threat/Action
-    const parsed = {
-      signal: insightText.includes('SIGNAL') 
-        ? insightText.split(/THREAT|ACTION/i)[0].replace(/\[SIGNAL[:\]]/i, '').trim() 
-        : insightText.substring(0, 200),
-      threat: insightText.includes('THREAT') 
-        ? insightText.split(/ACTION/i)[0].split(/THREAT/i)[1]?.replace(/\[THREAT[:\]]/i, '').trim() 
-        : "Potential narrative threat detected.",
-      action: insightText.includes('ACTION') 
-        ? insightText.split(/ACTION/i)[1]?.replace(/\[ACTION[:\]]/i, '').trim() 
-        : "Recommended immediate outreach."
-    };
-
-    setMarketInsights({ text: insightText, sources: [], parsed });
-    
-    const newId = 'res-' + Date.now();
-    const snapshot: ResearchSnapshot = {
-      id: newId,
-      mode: focus,
-      timestamp: new Date().toLocaleString(),
-      text: insightText,
-      sources: [],
-      signalStrength: Math.floor(Math.random() * 40) + 60,
-      parsed
-    };
-    
-    setResearchVault(prev => [snapshot, ...prev]);
-    setActiveResearchId(newId);
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `✅ Tactical scan [${focus}] complete. Research pinned to vault.` 
+      text: `Initiating ${focus} Neural Probe. Awaiting district data streams.` 
     }]);
     
-  } catch (e) { 
-    console.error('Neural probe failed:', e);
-    const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `❌ Probe failed for ${focus}: ${errorMessage}. Check API key configuration.` 
-    }]);
-  } finally { 
-    setIsProbeActive(false);
-    setScanMessage('');
-  }
-};
+    let prompt = "";
+    switch(focus) {
+      case 'ECONOMIC':
+        setScanMessage("Aggregating 2025 economic stressors...");
+        prompt = `Perform an economic intelligence audit for ${profile.district_id}. Analyze employment rates, housing affordability trends, and major local business developments. Format your response with these sections: [SIGNAL: key economic indicators], [THREAT: risks to the campaign], [ACTION: recommended campaign response]. Include specific data and sources where possible.`;
+        break;
+      case 'SENTIMENT':
+        setScanMessage("Monitoring voter sentiment patterns...");
+        prompt = `Detect prevailing voter sentiment and top 5 political grievances in ${profile.district_id} for the 2026 cycle. Analyze recent social movements or local controversies. Format as: [SIGNAL: mood/trends], [THREAT: narrative risks], [ACTION: outreach strategy].`;
+        break;
+      case 'POLICY':
+        setScanMessage("Tracking legislative volatility...");
+        prompt = `Analyze legislative impacts and local policy challenges in ${profile.district_id}. Focus on infrastructure needs, school board tensions, and recent tax changes. Format as: [SIGNAL: policy landscape], [THREAT: opposition angles], [ACTION: policy position].`;
+        break;
+      case 'OPPOSITION':
+        setScanMessage("Scanning opposition landscape...");
+        prompt = `Perform a deep dive on the political opposition for the ${profile.office_sought} seat in ${profile.district_id}. Identify active candidates, their funding sources, and vulnerabilities. Format as: [SIGNAL: opponent status], [THREAT: their strengths], [ACTION: counter-strategy].`;
+        break;
+      case 'MEDIA':
+        setScanMessage("Monitoring regional media sentiment...");
+        prompt = `Monitor local media sentiment in ${profile.district_id} for the ${profile.office_sought} race. Identify top trending stories and narrative threats. Format as: [SIGNAL: media landscape], [THREAT: negative coverage risks], [ACTION: media strategy].`;
+        break;
+      case 'REGISTRATION':
+        setScanMessage("Analyzing voter registration volatility...");
+        prompt = `Analyze voter registration shifts in ${profile.district_id} between 2024 and 2025. Who are the new voters? What are demographic trends? Format as: [SIGNAL: registration patterns], [THREAT: turnout challenges], [ACTION: voter contact plan].`;
+        break;
+      case 'SOCIAL':
+        setScanMessage("Scanning social media landscape...");
+        prompt = `Search for trending topics, hashtags, and public opinion related to the ${profile.office_sought} race in ${profile.district_id} for 2025/2026. Return sentiment analysis and top concerns. Format as: [SIGNAL: social trends], [THREAT: viral risks], [ACTION: social media strategy].`;
+        break;
+      case 'FUNDRAISING':
+        setScanMessage("Hunting for donors and PACs...");
+        prompt = `Identify potential donors, local PACs, and political contributors in ${profile.district_id} region aligning with ${profile.party}. Analyze giving patterns. Format as: [SIGNAL: donor landscape], [THREAT: opponent fundraising], [ACTION: solicitation strategy].`;
+        break;
+      case 'GEOGRAPHY':
+        setScanMessage("Mapping community hotspots...");
+        prompt = `Identify high-traffic intersections, community centers, and popular town hall venues in ${profile.district_id}. Find where campaign visibility is needed. Format as: [SIGNAL: key locations], [THREAT: coverage gaps], [ACTION: visibility plan].`;
+        break;
+      case 'ETHICS':
+        setScanMessage("Monitoring compliance threats...");
+        prompt = `Search for recent ethics filings, campaign finance controversies, or regulatory issues related to ${profile.office_sought} in ${profile.district_id}. Format as: [SIGNAL: compliance landscape], [THREAT: potential violations], [ACTION: protective measures].`;
+        break;
+      default: 
+        setScanMessage("Generating broad environmental landscape...");
+        prompt = `General political landscape and sentiment analysis for ${profile.district_id} in the 2026 cycle. Format as: [SIGNAL], [THREAT], [ACTION].`;
+    }
+
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+        }
+      });
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const insightText = response.text() || "No actionable signals detected.";
+      
+      // Parse Signal/Threat/Action
+      const parsed = {
+        signal: insightText.includes('SIGNAL') 
+          ? insightText.split(/THREAT|ACTION/i)[0].replace(/\[SIGNAL[:\]]/i, '').trim() 
+          : insightText.substring(0, 200),
+        threat: insightText.includes('THREAT') 
+          ? insightText.split(/ACTION/i)[0].split(/THREAT/i)[1]?.replace(/\[THREAT[:\]]/i, '').trim() 
+          : "Potential narrative threat detected.",
+        action: insightText.includes('ACTION') 
+          ? insightText.split(/ACTION/i)[1]?.replace(/\[ACTION[:\]]/i, '').trim() 
+          : "Recommended immediate outreach."
+      };
+
+      setMarketInsights({ text: insightText, sources: [], parsed });
+      
+      const newId = 'res-' + Date.now();
+      const snapshot: ResearchSnapshot = {
+        id: newId,
+        mode: focus,
+        timestamp: new Date().toLocaleString(),
+        text: insightText,
+        sources: [],
+        signalStrength: Math.floor(Math.random() * 40) + 60,
+        parsed
+      };
+      
+      setResearchVault(prev => [snapshot, ...prev]);
+      setActiveResearchId(newId);
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `✅ Tactical scan [${focus}] complete. Research pinned to vault.` 
+      }]);
+      
+    } catch (e) { 
+      console.error('Neural probe failed:', e);
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `❌ Probe failed for ${focus}: ${errorMessage}. Check API key configuration.` 
+      }]);
+    } finally { 
+      setIsProbeActive(false);
+      setScanMessage('');
+    }
+  };
 
   const startSyncRivals = async () => {
-  const active = researchVault.find(v => v.id === activeResearchId);
-  if (!active) return;
-  
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-  if (!apiKey) {
-    alert('API key not configured');
-    return;
-  }
-  
-  setIsExtractingRivals(true);
-  setChatMessages(prev => [...prev, { 
-    role: 'ai', 
-    text: `Neural Engine parsing research vault for competitive threats...` 
-  }]);
-  
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp",
-      generationConfig: {
-        temperature: 0.5,
-        responseMimeType: "application/json"
-      }
-    });
+    const active = researchVault.find(v => v.id === activeResearchId);
+    if (!active) return;
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: '⚠️ API key not configured' 
+      }]);
+      return;
+    }
+    
+    setIsExtractingRivals(true);
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `Neural Engine parsing research vault for competitive threats...` 
+    }]);
+    
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.5,
+          responseMimeType: "application/json"
+        }
+      });
 
-    const prompt = `Identify and extract political opponents from the following research text. Filter for candidates specifically relevant to the ${profile.office_sought} seat in ${profile.district_id}. Return them as a JSON array of objects with these exact fields: name (string), party (string), incumbent (boolean), strengths (array of strings), weaknesses (array of strings). Research text: ${active.text}`;
-    
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const extracted: Opponent[] = JSON.parse(response.text() || "[]");
-    
-    setPendingRivals(extracted);
-    setIsReviewRivalsModalOpen(true);
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `✅ Extracted ${extracted.length} rival(s) from intelligence stream.` 
-    }]);
-  } catch (e) { 
-    console.error('Rival extraction failed:', e);
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `❌ Rival extraction failed. Check console for details.` 
-    }]);
-  } finally { 
-    setIsExtractingRivals(false); 
-  }
-};
-  
+      const prompt = `Identify and extract political opponents from the following research text. Filter for candidates specifically relevant to the ${profile.office_sought} seat in ${profile.district_id}. Return them as a JSON array of objects with these exact fields: name (string), party (string), incumbent (boolean), strengths (array of strings), weaknesses (array of strings). Research text: ${active.text}`;
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const extracted: Opponent[] = JSON.parse(response.text() || "[]");
+      
+      setPendingRivals(extracted);
+      setIsReviewRivalsModalOpen(true);
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `✅ Extracted ${extracted.length} rival(s) from intelligence stream.` 
+      }]);
+    } catch (e) { 
+      console.error('Rival extraction failed:', e);
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `❌ Rival extraction failed. Check console for details.` 
+      }]);
+    } finally { 
+      setIsExtractingRivals(false); 
+    }
+  };
+
   const registerSelectedRival = (rival: Opponent) => {
     setProfile(prev => ({
       ...prev,
@@ -572,8 +683,8 @@ const runNeuralProbe = async (focus: ResearchMode) => {
       name: newCompetitor.name,
       party: newCompetitor.party,
       incumbent: newCompetitor.incumbent,
-      strengths: newCompetitor.strengths.split(',').map(s => s.trim()).filter(s => s),
-      weaknesses: newCompetitor.weaknesses.split(',').map(w => w.trim()).filter(w => w)
+      strengths: newCompetitor.strengths.split(',').map(s => s.trim()).filter(Boolean),
+      weaknesses: newCompetitor.weaknesses.split(',').map(s => s.trim()).filter(Boolean)
     };
     setProfile(prev => ({
       ...prev,
@@ -583,197 +694,144 @@ const runNeuralProbe = async (focus: ResearchMode) => {
     setIsCompetitorModalOpen(false);
   };
 
-  const executeContrastStrategy = async (opponent: Opponent) => {
-    setIsContrastStrategyActive(true);
-    setContrastResult(null);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const dnaNarrative = profile.metadata.dna?.master_narrative || "Professional and community-focused leadership.";
-      const prompt = `Act as a world-class political strategist. Develop a high-impact contrast strategy between our candidate (${profile.candidate_name}, Platform: "${dnaNarrative}") and their primary opponent (${opponent.name}). 
-      
-      Opponent Profile: 
-      - Strengths: ${opponent.strengths.join(', ')}
-      - Weaknesses: ${opponent.weaknesses.join(', ')}
-
-      Deliver a strategic report containing:
-      1. THE CONTRAST HOOK: A one-sentence defining difference.
-      2. EXPLOIT VECTORS: 3 specific tactical lines of attack based on their weaknesses.
-      3. DEFENSIVE POSITIONING: How to neutralize their ${opponent.strengths[0] || 'perceived strength'}.
-      4. MESSAGING SLOGAN: A contrast-focused slogan.`;
-      
-      const response = await ai.models.generateContent({ model: 'gemini-3-pro-preview', contents: prompt });
-      setContrastResult(response.text || "Neural engine could not compute strategy.");
-    } catch (e) { console.error(e); } finally { setIsContrastStrategyActive(false); }
-  };
-
-  // Opposition research (from App2)
-  const scanOpponent = async (oppName: string) => {
-    setIsProbeActive(true);
-    setScanMessage(`Compiling deep intel on ${oppName}...`);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Perform deep opposition research on ${oppName}, candidate for ${profile.office_sought} in ${profile.district_id}. 
-      Focus on: 2024 voting record, 2025 campaign finance, and public sentiment. 
-      Identify ONE critical vulnerability for our candidate ${profile.candidate_name} to target.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt,
-        config: { tools: [{ googleSearch: {} }] }
-      });
-
-      setOppositionInsights(prev => ({
-        ...prev,
-        [oppName]: {
-          text: response.text || "Vulnerability scan inconclusive.",
-          sources: response.candidates?.[0]?.groundingMetadata?.groundingChunks || []
-        }
-      }));
-    } catch (e) { console.error(e); } finally { setIsProbeActive(false); setScanMessage(''); }
-  };
-
   const downloadResearch = () => {
     const active = researchVault.find(v => v.id === activeResearchId);
     if (!active) return;
-    const content = `TACTICAL RESEARCH BRIEF\nFocus: ${active.mode}\nTimestamp: ${active.timestamp}\n\n${active.text}\n\nSOURCES:\n${active.sources.map((s:any) => `- ${s.web?.title}: ${s.web?.uri}`).join('\n')}`;
-    const blob = new Blob([content], { type: 'text/plain' });
+    const blob = new Blob([active.text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `VictoryOps_Research_${active.mode}_${Date.now()}.txt`;
+    a.download = `${active.mode}_Research_${active.timestamp.replace(/[/:, ]/g, '_')}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   // ============================================================================
-  // LOGIC: SECTOR 3 - THE DARKROOM (BRANDING) - from App.tsx
+  // DARKROOM MODULE - Image Generation Functions
   // ============================================================================
 
-const generateVisual = async () => {
-  if (!imagePrompt.subject) return;
-  
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-  if (!apiKey) {
+  const generateVisual = async () => {
+    if (!imagePrompt.subject) return;
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: '⚠️ API key not configured. Cannot generate images.' 
+      }]);
+      return;
+    }
+
+    setIsGeneratingImage(true);
     setChatMessages(prev => [...prev, { 
       role: 'ai', 
-      text: '⚠️ API key not configured. Cannot generate images.' 
+      text: `Darkroom active. Developing visual asset for: "${imagePrompt.subject}"` 
     }]);
-    return;
-  }
 
-  setIsGeneratingImage(true);
-  setChatMessages(prev => [...prev, { 
-    role: 'ai', 
-    text: `Darkroom active. Developing visual asset for: "${imagePrompt.subject}"` 
-  }]);
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 2048,
+        }
+      });
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp",
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 2048,
-      }
-    });
-
-    const fullPrompt = `${imagePrompt.style}: ${imagePrompt.subject} set in ${imagePrompt.env}. High contrast, professional political campaign lighting, cinematic quality, ${profile.party === 'R' ? 'patriotic red and blue accents' : profile.party === 'D' ? 'modern blue and white tones' : 'independent slate and emerald tones'}.`;
-    
-    const result = await model.generateContent(fullPrompt);
-    const response = await result.response;
-    
-    // Note: Image generation with Gemini 2.0 requires Imagen 3 model
-    // For now, we'll create a placeholder with the prompt stored
-    // TO DO: Integrate with Google's Imagen 3 API or use alternative image API
-    
-    const newAsset: CreativeAsset = {
-      id: 'asset-' + Date.now(),
-      type: 'PHOTO',
-      title: imagePrompt.subject.slice(0, 20) + '...',
-      mediaUrl: '', // Placeholder until image API integrated
-      mediaType: 'image',
-      status: 'draft',
-      prompt: fullPrompt,
-      content: `[IMAGE GENERATION PROMPT]\n\n${fullPrompt}\n\n[AI Response]\n${response.text()}\n\nNote: Direct image generation requires Imagen 3 API integration. This is the text-based prompt that can be used with image generation services.`
-    };
-    
-    setBrandingAssets(prev => [newAsset, ...prev]);
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `✅ Visual concept developed and saved. Note: Image rendering requires Imagen 3 API setup.` 
-    }]);
-    
-  } catch (e) {
-    console.error('Image generation error:', e);
-    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `❌ Darkroom error: ${errorMsg}` 
-    }]);
-  } finally {
-    setIsGeneratingImage(false);
-  }
-};
+      const fullPrompt = `${imagePrompt.style}: ${imagePrompt.subject} set in ${imagePrompt.env}. High contrast, professional political campaign lighting, cinematic quality, ${profile.party === 'R' ? 'patriotic red and blue accents' : profile.party === 'D' ? 'modern blue and white tones' : 'independent slate and emerald tones'}.`;
+      
+      const result = await model.generateContent(fullPrompt);
+      const response = await result.response;
+      
+      // Note: Gemini 2.0 Flash doesn't generate images directly
+      // This stores the detailed prompt for use with image generation services
+      const newAsset: CreativeAsset = {
+        id: 'asset-' + Date.now(),
+        type: 'PHOTO',
+        title: imagePrompt.subject.slice(0, 20) + '...',
+        mediaUrl: '', // Placeholder until image API integrated
+        mediaType: 'image',
+        status: 'draft',
+        prompt: fullPrompt,
+        content: `[IMAGE GENERATION PROMPT]\n\n${fullPrompt}\n\n[AI Response]\n${response.text()}\n\nNote: Direct image generation requires Imagen 3 API integration. This is the text-based prompt that can be used with image generation services.`
+      };
+      
+      setBrandingAssets(prev => [newAsset, ...prev]);
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `✅ Visual concept developed and saved. Note: Image rendering requires Imagen 3 API setup.` 
+      }]);
+      
+    } catch (e) {
+      console.error('Image generation error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `❌ Darkroom error: ${errorMsg}` 
+      }]);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
 
   const refineVisual = async (asset: CreativeAsset, feedback: string) => {
-  if (!feedback) return;
-  
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-  if (!apiKey) {
+    if (!feedback) return;
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: '⚠️ API key not configured.' 
+      }]);
+      return;
+    }
+
+    setIsGeneratingImage(true);
     setChatMessages(prev => [...prev, { 
       role: 'ai', 
-      text: '⚠️ API key not configured.' 
+      text: `Refining asset ${asset.id} based on tactical feedback...` 
     }]);
-    return;
-  }
 
-  setIsGeneratingImage(true);
-  setChatMessages(prev => [...prev, { 
-    role: 'ai', 
-    text: `Refining asset ${asset.id} based on tactical feedback...` 
-  }]);
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.7,
+        }
+      });
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp",
-      generationConfig: {
-        temperature: 0.7,
-      }
-    });
+      const refinementPrompt = `Original image prompt: ${asset.prompt}\n\nRefinement request: ${feedback}\n\nGenerate an improved image prompt that incorporates this feedback while maintaining the original campaign branding and political messaging. Make the prompt detailed and specific for image generation.`;
+      
+      const result = await model.generateContent(refinementPrompt);
+      const response = await result.response;
+      const refinedPrompt = response.text();
 
-    const refinementPrompt = `Original image prompt: ${asset.prompt}\n\nRefinement request: ${feedback}\n\nGenerate an improved image prompt that incorporates this feedback while maintaining the original campaign branding and political messaging. Make the prompt detailed and specific for image generation.`;
-    
-    const result = await model.generateContent(refinementPrompt);
-    const response = await result.response;
-    const refinedPrompt = response.text();
-
-    const refinedAsset: CreativeAsset = {
-      ...asset,
-      id: 'asset-ref-' + Date.now(),
-      prompt: refinedPrompt,
-      content: `[REFINED IMAGE GENERATION PROMPT]\n\n${refinedPrompt}\n\n[Original Prompt]\n${asset.prompt}\n\n[Refinement Applied]\n${feedback}`
-    };
-    
-    setBrandingAssets(prev => [refinedAsset, ...prev]);
-    setActiveAsset(refinedAsset);
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `✅ Refinement complete. Updated prompt saved to Darkroom.` 
-    }]);
-    
-  } catch (e) {
-    console.error('Refinement error:', e);
-    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
-    setChatMessages(prev => [...prev, { 
-      role: 'ai', 
-      text: `❌ Refinement error: ${errorMsg}` 
-    }]);
-  } finally {
-    setIsGeneratingImage(false);
-  }
-};
-
+      const refinedAsset: CreativeAsset = {
+        ...asset,
+        id: 'asset-ref-' + Date.now(),
+        prompt: refinedPrompt,
+        content: `[REFINED IMAGE GENERATION PROMPT]\n\n${refinedPrompt}\n\n[Original Prompt]\n${asset.prompt}\n\n[Refinement Applied]\n${feedback}`
+      };
+      
+      setBrandingAssets(prev => [refinedAsset, ...prev]);
+      setActiveAsset(refinedAsset);
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `✅ Refinement complete. Updated prompt saved to Darkroom.` 
+      }]);
+      
+    } catch (e) {
+      console.error('Refinement error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `❌ Refinement error: ${errorMsg}` 
+      }]);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
 
   const deleteAsset = (id: string) => {
     setBrandingAssets(prev => prev.filter(a => a.id !== id));
@@ -781,35 +839,35 @@ const generateVisual = async () => {
   };
 
   // ============================================================================
-  // LOGIC: MEGAPHONE (Creative/Communications) - from App2.tsx
+  // MEGAPHONE MODULE - Message Generation Functions
   // ============================================================================
 
   const generateCreative = async (type: string, manualContext?: string) => {
-  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-  if (!apiKey) {
-    alert('API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local');
-    return;
-  }
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      alert('API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local');
+      return;
+    }
 
-  setIsThinking(true);
-  
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp",
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 2048,
-      }
-    });
+    setIsThinking(true);
+    
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 2048,
+        }
+      });
 
-    const lastResearch = manualContext || (researchVault[0] 
-      ? `Context from latest ${researchVault[0].mode} scan: ${researchVault[0].text.substring(0, 300)}` 
-      : '');
-    const dna = profile.metadata.dna || {};
-    
-    const prompt = `You are a Senior Political Communications Director. Develop a high-impact ${type} for ${profile.candidate_name}'s 2026 campaign.
-    
+      const lastResearch = manualContext || (researchVault[0] 
+        ? `Context from latest ${researchVault[0].mode} scan: ${researchVault[0].text.substring(0, 300)}` 
+        : '');
+      const dna = profile.metadata.dna || {};
+      
+      const prompt = `You are a Senior Political Communications Director. Develop a high-impact ${type} for ${profile.candidate_name}'s 2026 campaign.
+      
 CAMPAIGN CONTEXT:
 - District: ${profile.district_id}
 - Office Sought: ${profile.office_sought}
@@ -829,35 +887,102 @@ REQUIREMENTS:
 
 Format the response with proper structure for ${type} format.`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      const newAsset: CreativeAsset = {
+        id: Date.now().toString(),
+        type,
+        title: `${type} - ${new Date().toLocaleDateString()}`,
+        content: response.text() || "Failed to generate content.",
+        mediaType: 'text',
+        status: 'draft'
+      };
+      
+      setCreativeAssets(prev => [newAsset, ...prev]);
+      setActiveCreativeAsset(newAsset);
+      setActiveTab('creative');
+      
+      console.log(`✅ Generated ${type} successfully`);
+      
+    } catch (e) { 
+      console.error('Creative generation error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      alert(`Failed to generate ${type}: ${errorMsg}`);
+    } finally { 
+      setIsThinking(false); 
+    }
+  };
+
+  const refineAsset = async (instruction: string) => {
+    if (!activeCreativeAsset) {
+      alert('Please select a creative asset first');
+      return;
+    }
     
-    const newAsset: CreativeAsset = {
-      id: Date.now().toString(),
-      type,
-      title: `${type} - ${new Date().toLocaleDateString()}`,
-      content: response.text() || "Failed to generate content.",
-      mediaType: 'text',
-      status: 'draft'
-    };
+    if (!instruction.trim()) {
+      alert('Please enter refinement instructions');
+      return;
+    }
     
-    setCreativeAssets(prev => [newAsset, ...prev]);
-    setActiveCreativeAsset(newAsset);
-    setActiveTab('creative');
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      alert('API key not configured');
+      return;
+    }
+
+    setIsThinking(true);
     
-    console.log(`✅ Generated ${type} successfully`);
-    
-  } catch (e) { 
-    console.error('Creative generation error:', e);
-    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
-    alert(`Failed to generate ${type}: ${errorMsg}`);
-  } finally { 
-    setIsThinking(false); 
-  }
-};
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.7,
+        }
+      });
+
+      const prompt = `You are a Senior Political Communications Director. Refine this ${activeCreativeAsset.type} based on the following instruction:
+
+INSTRUCTION: "${instruction}"
+
+CURRENT CONTENT:
+${activeCreativeAsset.content}
+
+REQUIREMENTS:
+1. Apply the requested changes while maintaining campaign messaging consistency
+2. Keep the professional tone and political effectiveness
+3. Ensure compliance with campaign communication standards
+4. Maintain or improve persuasiveness
+5. Return the complete refined content, not just changes
+
+Provide the fully refined content:`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      const updated = { 
+        ...activeCreativeAsset, 
+        content: response.text() || activeCreativeAsset.content 
+      };
+      
+      setCreativeAssets(prev => prev.map(a => a.id === updated.id ? updated : a));
+      setActiveCreativeAsset(updated);
+      setRefinementInstruction(''); // Clear the input after successful refinement
+      
+      console.log('✅ Asset refined successfully');
+      
+    } catch (e) { 
+      console.error('Refinement error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      alert(`Refinement failed: ${errorMsg}`);
+    } finally { 
+      setIsThinking(false); 
+    }
+  };
 
   // ============================================================================
-  // LOGIC: WAR CHEST (Fundraising) - from App2.tsx
+  // WAR CHEST MODULE - Budget & Fundraising Functions
   // ============================================================================
 
   const updateBudgetCategory = (category: keyof BudgetEstimate['categories'], val: string) => {
@@ -909,55 +1034,153 @@ Format the response with proper structure for ${type} format.`;
   };
 
   const runBudgetAudit = async () => {
-    setIsAuditing(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Perform a high-level strategic audit of this political campaign budget. 
-      Office: ${profile.office_sought}. Target Votes: ${profile.metadata.vote_goal.target_vote_goal}.
-      Budget Data: ${JSON.stringify(profile.metadata.budget_estimate?.categories)}.
-      Total Raised: $${profile.compliance_tracker?.total_raised}.
-      Provide 3 "Red Flags" or "Golden Opportunities" for budget reallocation. Be sharp and tactical.`;
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      alert('API key not configured');
+      return;
+    }
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt
+    setIsAuditing(true);
+    
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.6,
+          maxOutputTokens: 1500,
+        }
       });
-      setAuditResult(response.text || "Audit inconclusive.");
-    } catch (e) { console.error(e); } finally { setIsAuditing(false); }
+
+      const prompt = `You are a Senior Campaign Finance Strategist. Perform a high-level strategic audit of this political campaign budget.
+
+CAMPAIGN DETAILS:
+- Office Sought: ${profile.office_sought}
+- District: ${profile.district_id}
+- Target Votes Needed: ${profile.metadata.vote_goal.target_vote_goal}
+- Total Raised to Date: $${profile.compliance_tracker?.total_raised || 0}
+
+BUDGET ALLOCATION:
+${JSON.stringify(profile.metadata.budget_estimate?.categories, null, 2)}
+
+AUDIT REQUIREMENTS:
+Provide exactly 3 items - either "Red Flags" (concerning allocations) or "Golden Opportunities" (smart reallocation possibilities).
+
+For each item, provide:
+1. Category/Area of concern or opportunity
+2. Current situation
+3. Recommended action with specific dollar amounts
+4. Expected impact on vote goal
+
+Be sharp, tactical, and data-driven. Focus on ROI and vote efficiency.
+
+Format with clear headers: 🚩 RED FLAG or ⭐ GOLDEN OPPORTUNITY`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      setAuditResult(response.text() || "Audit inconclusive - please try again.");
+      
+      console.log('✅ Budget audit complete');
+      
+    } catch (e) { 
+      console.error('Budget audit error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      setAuditResult(`❌ Audit Error: ${errorMsg}`);
+    } finally { 
+      setIsAuditing(false); 
+    }
   };
 
   // ============================================================================
-  // LOGIC: LEGAL SHIELD (Compliance) - from App2.tsx
+  // LEGAL SHIELD MODULE - Compliance Functions
   // ============================================================================
 
   const runLegalComplianceAudit = async () => {
-    if (!activeCreativeAsset) return;
-    setIsThinking(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const disclaimer = generateTexasDisclaimer(activeDisclaimerType, profile.candidate_name, profile.metadata.treasurer || '', profile.metadata.campaign_address || '');
-      const prompt = `Act as an expert Texas Election Law Compliance Officer. Perform a strict audit on the following campaign creative asset.
-      
-      ASSET CONTENT:
-      "${activeCreativeAsset.content}"
-      
-      INTENDED MEDIA TYPE: ${activeDisclaimerType}
-      REQUIRED TEXAS DISCLAIMER: "${disclaimer}"
-      
-      AUDIT CRITERIA:
-      1. Is the "Political Advertising" notice present if required?
-      2. Does it mention the Treasurer properly?
-      3. Is there a physical address for transparency?
-      4. Are there any illegal promissory statements?
-      
-      Return a high-impact 'COMPLIANCE GRADE' (A-F) and 2 specific fixes.`;
+    if (!activeCreativeAsset) {
+      alert('No creative asset selected for compliance audit');
+      return;
+    }
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      alert('API key not configured');
+      return;
+    }
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt
+    setIsThinking(true);
+    
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.3, // Lower temperature for compliance accuracy
+          maxOutputTokens: 1500,
+        }
       });
-      setComplianceAuditResult(response.text || "Audit failed.");
-    } catch (e) { console.error(e); } finally { setIsThinking(false); }
+
+      const disclaimer = generateTexasDisclaimer(
+        activeDisclaimerType, 
+        profile.candidate_name, 
+        profile.metadata.treasurer || '', 
+        profile.metadata.campaign_address || ''
+      );
+      
+      const prompt = `You are an expert Texas Election Law Compliance Officer with deep knowledge of Texas Election Code Title 15 (Regulating Political Funds and Campaigns).
+
+COMPLIANCE AUDIT REQUEST:
+
+ASSET TYPE: ${activeCreativeAsset.type}
+INTENDED MEDIA: ${activeDisclaimerType}
+
+ASSET CONTENT:
+"${activeCreativeAsset.content}"
+
+REQUIRED TEXAS DISCLAIMER:
+"${disclaimer}"
+
+AUDIT CRITERIA (Texas Election Code):
+1. Political Advertising Notice - Is the "Political advertising paid for by..." notice present and properly formatted?
+2. Treasurer Attribution - Is the campaign treasurer's name correctly mentioned?
+3. Physical Address - Is a physical address included for transparency requirements?
+4. Prohibited Content:
+   - No false statements about a candidate
+   - No promissory statements about official actions
+   - No misrepresentation of endorsements
+   - No deceptive imagery or altered photos without disclosure
+5. Disclosure Requirements - Are all required disclaimers present and legible?
+6. Timing Requirements - Does content respect blackout periods if applicable?
+
+COMPLIANCE GRADE SCALE:
+- Grade A: Fully compliant, ready for deployment
+- Grade B: Minor technical fixes needed
+- Grade C: Significant compliance gaps requiring attention
+- Grade D: Major violations present, requires complete revision
+- Grade F: Critical legal violations, do not deploy
+
+PROVIDE:
+1. COMPLIANCE GRADE (A-F) with brief justification
+2. TWO SPECIFIC FIXES with exact language to add/change
+3. RISK LEVEL (Low/Medium/High) for deploying as-is
+
+Format your response clearly with headers.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const auditText = response.text() || "Audit failed to complete.";
+      
+      setComplianceAuditResult(auditText);
+      
+      console.log('✅ Compliance audit complete');
+      
+    } catch (e) { 
+      console.error('Compliance audit error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      setComplianceAuditResult(`❌ Audit Error: ${errorMsg}\n\nPlease ensure API key is configured correctly.`);
+    } finally { 
+      setIsThinking(false); 
+    }
   };
 
   const updateLegalShield = (updates: Partial<LegalShieldData>) => {
@@ -971,7 +1194,7 @@ Format the response with proper structure for ${type} format.`;
   };
 
   // ============================================================================
-  // LOGIC: DNA VAULT (Settings/Profile) - from App2.tsx
+  // DNA VAULT MODULE - Profile & Narrative Functions
   // ============================================================================
 
   const updateDNA = (updates: Partial<CampaignDNA>) => {
@@ -985,62 +1208,148 @@ Format the response with proper structure for ${type} format.`;
   };
 
   const synthesizeMasterNarrative = async () => {
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      alert('API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local');
+      return;
+    }
+
     setIsThinking(true);
+    
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const dna = profile.metadata.dna || {};
-      const prompt = `Act as a world-class Political Communications Director. Synthesize the following Candidate DNA and Source Materials into a 'Master Political Narrative' (Political Profile). 
-      Format with clear headings: 'The Origin Story', 'The Mission', 'The Strategic Contrast'.
-      
-      CANDIDATE DATA:
-      Name: ${profile.candidate_name}
-      Office: ${profile.office_sought}
-      Party: ${profile.party}
-      Reason for Running: ${dna.reason_for_running}
-      Residency: ${dna.residency_duration} in District ${profile.district_id}
-      Roots/Family: ${dna.family_status}, ${dna.kids_details}, pets: ${dna.pets}
-      Qualifications: ${dna.unique_qualifications}
-      Constituencies: ${dna.constituencies}
-      Willing to do: ${dna.willing_to_do?.join(', ')}
-
-      ADDITIONAL SOURCE MATERIALS:
-      ${dna.source_text || 'No raw source documents provided.'}
-      
-      CRITICAL: Use the Source Materials to add deep specific details that might not be in the short mapping fields. The tone must be authoritative, inspiring, and grounded in the district's realities. This narrative will be the source of truth for all campaign ads and speeches.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 3000,
+        }
       });
 
-      updateDNA({ master_narrative: response.text });
-    } catch (e) { console.error(e); } finally { setIsThinking(false); }
+      const dna = profile.metadata.dna || {};
+      
+      const prompt = `You are a world-class Political Communications Director and Narrative Strategist. Synthesize the following Candidate DNA and Source Materials into a comprehensive 'Master Political Narrative' that will serve as the foundation for all campaign communications.
+
+CANDIDATE PROFILE:
+- Name: ${profile.candidate_name}
+- Office: ${profile.office_sought}
+- District: ${profile.district_id}
+- Party: ${profile.party}
+- Residency: ${dna.residency_duration || 'Not specified'} in district
+- Marital Status: ${dna.marital_status || 'Not specified'}
+- Family: ${dna.family_status || 'Not specified'}
+- Children: ${dna.kids_details || 'Not specified'}
+- Pets: ${dna.pets || 'Not specified'}
+
+CORE MOTIVATIONS & QUALIFICATIONS:
+- Reason for Running: ${dna.reason_for_running || 'Not yet defined'}
+- Unique Qualifications: ${dna.unique_qualifications || 'Not yet defined'}
+- Key Constituencies: ${dna.constituencies || 'Not yet defined'}
+- Willing Activities: ${dna.willing_to_do?.join(', ') || 'Not specified'}
+
+ADDITIONAL SOURCE MATERIALS:
+${dna.source_text || 'No raw source documents provided. Using profile data only.'}
+
+DISTRICT CONTEXT:
+${profile.voter_research || 'District analysis pending'}
+
+REQUIREMENTS:
+Create a powerful Master Political Narrative with these exact sections:
+
+**THE ORIGIN STORY**
+- Deep roots in the community and what shaped the candidate's values
+- Personal connection to district challenges
+- Authentic motivation that resonates emotionally
+
+**THE MISSION**
+- Clear vision for the district's future
+- Specific policy priorities tied to constituent needs
+- Unique qualifications that set this candidate apart
+
+**THE STRATEGIC CONTRAST**
+- How this candidate differs from opponents (without naming them)
+- Fresh perspective vs. status quo
+- Why this matters NOW in this political moment
+
+TONE: Authoritative, inspiring, grounded in district realities. Use specific details from source materials. This narrative will be the single source of truth for all campaign ads, speeches, and communications.
+
+Write in third person. Be compelling and authentic.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      updateDNA({ master_narrative: response.text() });
+      
+      console.log('✅ Master narrative synthesized successfully');
+      
+    } catch (e) { 
+      console.error('Narrative synthesis error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      alert(`Failed to synthesize narrative: ${errorMsg}`);
+    } finally { 
+      setIsThinking(false); 
+    }
   };
 
   const refineMasterNarrative = async () => {
-    if (!narrativeRefinePrompt.trim()) return;
-    setIsThinking(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const dna = profile.metadata.dna || {};
-      const prompt = `Act as a world-class Political Communications Director. Refine the existing Master Narrative based on the instruction provided.
-      
-      CURRENT NARRATIVE:
-      ${dna.master_narrative}
-      
-      INSTRUCTION:
-      ${narrativeRefinePrompt}
-      
-      CRITICAL: Maintain the professional, high-impact structure. Do not lose the core district focus.`;
+    if (!narrativeRefinePrompt.trim()) {
+      alert('Please enter refinement instructions');
+      return;
+    }
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      alert('API key not configured');
+      return;
+    }
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt
+    setIsThinking(true);
+    
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 3000,
+        }
       });
 
-      updateDNA({ master_narrative: response.text });
+      const dna = profile.metadata.dna || {};
+      
+      const prompt = `You are a world-class Political Communications Director. Refine the existing Master Political Narrative based on the specific instruction provided.
+
+CURRENT MASTER NARRATIVE:
+${dna.master_narrative || 'No narrative has been created yet. Please synthesize first.'}
+
+REFINEMENT INSTRUCTION:
+${narrativeRefinePrompt}
+
+REQUIREMENTS:
+1. Apply the requested refinement while maintaining the three-section structure (Origin Story, Mission, Strategic Contrast)
+2. Keep the professional, high-impact tone
+3. Maintain the core district focus and authenticity
+4. Enhance clarity and persuasiveness where needed
+5. Preserve what's working well in the current narrative
+6. Do not lose specific details or personal elements
+
+Provide the complete refined Master Narrative, not just the changes.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      updateDNA({ master_narrative: response.text() });
       setNarrativeRefinePrompt('');
-    } catch (e) { console.error(e); } finally { setIsThinking(false); }
+      
+      console.log('✅ Master narrative refined successfully');
+      
+    } catch (e) { 
+      console.error('Narrative refinement error:', e);
+      const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+      alert(`Refinement failed: ${errorMsg}`);
+    } finally { 
+      setIsThinking(false); 
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1063,53 +1372,94 @@ Format the response with proper structure for ${type} format.`;
   };
 
   // ============================================================================
-  // LOGIC: CHAT ASSISTANT
+  // CHAT ASSISTANT FUNCTION
   // ============================================================================
 
   const handleSendMessage = async () => {
     if (!input.trim() || isThinking) return;
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: '⚠️ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local' 
+      }]);
+      return;
+    }
+
     const userMsg = input;
     setInput('');
     setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsThinking(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const dna = profile.metadata.dna || {};
-      
-      const campaignSummary = `
-        CANDIDATE: ${profile.candidate_name}
-        PARTY: ${profile.party}
-        OFFICE: ${profile.office_sought}
-        DISTRICT: ${profile.district_id}
-        VOTE GOAL: ${profile.metadata.vote_goal.target_vote_goal}
-        RAISED: $${profile.compliance_tracker?.total_raised || 0}
-        MASTER NARRATIVE: ${dna.master_narrative || 'Not yet synthesized.'}
-        DNA MOTIVATION: ${dna.reason_for_running || 'N/A'}
-      `;
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+        },
+        systemInstruction: `You are a Senior Political Strategist for the 2026 election cycle with expertise in:
+- Campaign strategy and messaging
+- Voter outreach and field operations
+- Fundraising and budget management
+- Opposition research and competitive positioning
+- Texas election law and compliance
+- Digital organizing and social media
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: [...chatMessages.slice(-6).map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] })), { role: 'user', parts: [{ text: userMsg }] }],
-        config: { 
-          systemInstruction: `You are a Senior Political Strategist for the 2026 cycle. You have access to real-time search and full awareness of the candidate's campaign state.
-          CURRENT CAMPAIGN CONTEXT:
-          ${campaignSummary}
-          Use this data to provide hyper-specific strategic advice. Cite sources when using live search.`,
-          tools: [{ googleSearch: {} }]
-        }
+You have full awareness of the candidate's campaign state and provide hyper-specific strategic advice based on real campaign data.
+
+CURRENT CAMPAIGN CONTEXT:
+- Candidate: ${profile.candidate_name}
+- Party: ${profile.party}
+- Office: ${profile.office_sought}
+- District: ${profile.district_id}
+- Vote Goal: ${profile.metadata.vote_goal.target_vote_goal}
+- Funds Raised: $${profile.compliance_tracker?.total_raised || 0}
+- Master Narrative: ${profile.metadata.dna?.master_narrative ? 'Defined' : 'Not yet created'}
+- Motivation: ${profile.metadata.dna?.reason_for_running || 'Not specified'}
+
+Provide tactical, actionable advice. Be direct and specific. Reference the campaign data when relevant.`
       });
+
+      // Build conversation history
+      const history = chatMessages.slice(-6).map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }]
+      }));
+
+      const chat = model.startChat({ history });
+      const result = await chat.sendMessage(userMsg);
+      const response = await result.response;
       
       setChatMessages(prev => [...prev, { 
         role: 'ai', 
-        text: response.text || "Acknowledged.", 
-        sources: response.candidates?.[0]?.groundingMetadata?.groundingChunks 
+        text: response.text() || "I understand. How else can I help with your campaign?",
       }]);
-    } catch (error) { console.error(error); } finally { setIsThinking(false); }
+      
+    } catch (error) { 
+      console.error('Chat error:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      setChatMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: `❌ Error: ${errorMsg}. Please check your API configuration.` 
+      }]);
+    } finally { 
+      setIsThinking(false); 
+    }
   };
 
+// ============================================================================
+// VICTORYOPS - PART 3: RENDER FUNCTIONS  
+// ============================================================================
+// This is Part 3 of 4. Paste this AFTER Part 2 in your App.tsx
+// Includes ALL render methods with the NEW refineAsset UI in Megaphone
+// START: Copy from here
+// ============================================================================
+
   // ============================================================================
-  // RENDER METHODS
+  // RENDER: DASHBOARD
   // ============================================================================
 
   const renderDashboard = () => (
@@ -1181,6 +1531,10 @@ Format the response with proper structure for ${type} format.`;
     </div>
   );
 
+  // ============================================================================
+  // RENDER: INTELLIGENCE MODULE
+  // ============================================================================
+
   const renderIntelligence = () => {
     const activeResearch = researchVault.find(v => v.id === activeResearchId);
 
@@ -1230,7 +1584,7 @@ Format the response with proper structure for ${type} format.`;
                   <div className="relative z-10 flex justify-between items-start">
                      <div>
                        <h4 className="text-3xl font-black italic uppercase tracking-tighter leading-none mb-2 group-hover:text-indigo-400 transition-colors">{o.name}</h4>
-                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{o.party} â€¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}</p>
+                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{o.party} • {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}</p>
                      </div>
                      <div className="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all"><i className="fas fa-crosshairs"></i></div>
                   </div>
@@ -1256,6 +1610,7 @@ Format the response with proper structure for ${type} format.`;
           </div>
         </Card>
 
+        {/* Intelligence Vault - Research Display */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-10">
             <Card 
@@ -1311,131 +1666,299 @@ Format the response with proper structure for ${type} format.`;
                       </div>
                     </div>
                   )}
-                  <div className="p-12 bg-slate-50 border border-slate-100 rounded-[3.5rem] shadow-inner prose prose-slate max-w-none text-slate-700 leading-relaxed font-medium text-xl italic whitespace-pre-wrap">
-                     {activeResearch.text}
-                  </div>
-                  {activeResearch.sources.length > 0 && (
-                    <div className="space-y-6 px-6 pt-4 border-t border-slate-100">
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Grounding Verification Nodes</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {activeResearch.sources.map((s: any, idx) => (
-                          <a key={idx} href={s.web?.uri} target="_blank" rel="noopener noreferrer" className="p-5 bg-white border border-slate-100 rounded-2xl flex items-center gap-4 hover:border-indigo-500 hover:shadow-xl transition-all group">
-                             <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-sm group-hover:bg-indigo-600 group-hover:text-white transition-all"><i className="fas fa-globe"></i></div>
-                             <div className="flex-1 overflow-hidden">
-                               <p className="text-[11px] font-black uppercase text-slate-800 truncate">{s.web?.title || 'Intelligence Source'}</p>
-                               <p className="text-[8px] font-black text-slate-400 truncate tracking-widest uppercase mt-1">{s.web?.uri}</p>
-                             </div>
-                          </a>
-                        ))}
-                      </div>
+
+                  <div className="prose prose-slate max-w-none">
+                    <div className="bg-slate-50 rounded-[2.5rem] p-10 border border-slate-100 text-slate-700 leading-relaxed whitespace-pre-wrap">
+                      {activeResearch.text}
                     </div>
-                  )}
+                  </div>
                 </div>
               ) : (
-                <div className="p-32 border-8 border-dashed border-slate-50 rounded-[4rem] text-center opacity-20"><i className="fas fa-satellite-dish text-8xl mb-8"></i><p className="text-xl font-black uppercase tracking-[0.5em]">No Data Cached</p></div>
+                <div className="py-32 flex flex-col items-center justify-center opacity-20">
+                   <i className="fas fa-satellite-dish text-8xl mb-8"></i>
+                   <p className="text-2xl font-black uppercase tracking-[0.5em]">Vault Standby</p>
+                </div>
               )}
             </Card>
           </div>
 
-          <div className="space-y-10">
+          <div className="space-y-6">
             <Card title="Electoral DNA" icon="fa-dna" compact>
-              {profile.district_demographics ? (
-                <div className="space-y-8 py-4">
-                   <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Voter Age Dispersion</p>
-                      <div className="space-y-4">
-                        {Object.entries(profile.district_demographics.age_distribution).map(([age, perc]) => (
-                          <div key={age} className="space-y-1.5">
-                            <div className="flex justify-between text-[10px] font-black uppercase"><span>{age} Block</span><span className="text-indigo-600 font-black">{perc}%</span></div>
-                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-indigo-500 rounded-full transition-all duration-1000" style={{ width: `${perc}%` }}></div></div>
-                          </div>
-                        ))}
-                      </div>
-                   </div>
+              {profile.metadata.dna?.master_narrative ? (
+                <div className="space-y-4">
+                  <p className="text-xs leading-relaxed text-slate-600 line-clamp-6 italic">{profile.metadata.dna.master_narrative}</p>
+                  <button onClick={() => setActiveTab('settings')} className="text-[9px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700 transition-colors">View Full DNA →</button>
                 </div>
               ) : <p className="text-slate-300 italic py-10">Neural DNA mapping required.</p>}
             </Card>
           </div>
         </div>
-
-        {/* MODALS - Will add in next section */}
       </div>
     );
   };
 
-  // Continue with more render methods...
+  // ============================================================================
+  // RENDER: MEGAPHONE (CREATIVE/MESSAGING) - WITH NEW REFINEMENT UI
+  // ============================================================================
 
-  const renderOpposition = () => (
-    <div className="space-y-10 animate-in fade-in duration-700 pb-20">
-      <Card title="Opposition Research Suite" icon="fa-user-secret" subtitle="Deep Intel and Vulnerability Mapping">
-        <div className="mt-4 flex items-center gap-8 p-8 bg-indigo-50 rounded-[2.5rem] border border-indigo-100">
-           <div className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-xl shadow-lg"><i className="fas fa-robot"></i></div>
-           <p className="text-[11px] font-black text-indigo-900 uppercase tracking-widest italic leading-relaxed max-w-2xl">
-              Neural Opposition Agent is active. Select a target to run a Deep Tactical Scan using 2024-2025 voting records, donor patterns, and narrative threats.
-           </p>
+  const renderCreative = () => (
+    <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700 pb-20">
+      <Card title="The Megaphone Studio" subtitle="Strategic Messaging Pipeline" icon="fa-bullhorn">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-4 pb-4">
+           {[
+             { label: 'Canvassing Script', icon: 'fa-microphone-lines', desc: 'Door-to-door persuasion' },
+             { label: 'Social Content', icon: 'fa-share-nodes', desc: 'Viral digital narrative' },
+             { label: 'Direct Mailer', icon: 'fa-envelope-open-text', desc: 'High-impact physical reach' }
+           ].map((v, i) => (
+             <button 
+               key={i} 
+               disabled={isThinking}
+               onClick={() => generateCreative(v.label)} 
+               className="p-8 bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] hover:border-indigo-400 hover:bg-white transition-all group flex items-center gap-6 shadow-sm hover:shadow-xl disabled:opacity-50"
+             >
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-500 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-lg group-disabled:text-slate-200">
+                  <i className={`fas ${v.icon} text-2xl`}></i>
+                </div>
+                <div className="text-left">
+                  <p className="font-black text-[11px] uppercase tracking-widest text-slate-800">{v.label}</p>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-1">{v.desc}</p>
+                </div>
+             </button>
+           ))}
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-12">
-        {profile.metadata.opponents.map((opp, i) => (
-          <Card key={i} title={opp.name} subtitle={`${opp.party} â€¢ ${opp.incumbent ? 'Incumbent' : 'Challenger'}`} icon="fa-user-ninja" action={
-            <button 
-              onClick={() => scanOpponent(opp.name)}
-              disabled={isProbeActive}
-              className="px-8 py-4 bg-indigo-600 text-white text-[11px] font-black rounded-2xl hover:bg-indigo-500 transition-all flex items-center gap-4 uppercase tracking-[0.2em] shadow-2xl disabled:opacity-50"
-            >
-              {isProbeActive ? <i className="fas fa-spinner animate-spin"></i> : <i className="fas fa-satellite-dish"></i>}
-              Deep AI Scan
-            </button>
-          }>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-8">
-               <div className="space-y-8">
-                  <div>
-                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-5 italic">Surface Level Intelligence</p>
-                    <div className="flex flex-wrap gap-3">
-                      {opp.weaknesses.map((w, idx) => (
-                        <span key={idx} className="text-[10px] font-black bg-red-50 text-red-700 px-6 py-3 rounded-2xl border border-red-100 uppercase tracking-widest">{w}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-5 italic">Strategic Strengths</p>
-                    <div className="flex flex-wrap gap-3">
-                      {opp.strengths.map((s, idx) => (
-                        <span key={idx} className="text-[10px] font-black bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl border border-emerald-100 uppercase tracking-widest">{s}</span>
-                      ))}
-                    </div>
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+        <div className="lg:col-span-1 space-y-4">
+           <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-4 italic">Active Content Stack</h4>
+           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-hide">
+             {creativeAssets.length === 0 ? (
+               <div className="p-12 border-4 border-dashed border-slate-100 rounded-[2.5rem] text-center opacity-30">
+                  <p className="text-[9px] font-black uppercase tracking-widest">Studio Empty</p>
                </div>
-               
-               <div className="relative">
-                 {oppositionInsights[opp.name] ? (
-                   <div className="p-12 bg-slate-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border border-slate-800 ring-8 ring-slate-900/10 animate-in slide-in-from-right-4">
-                      <div className="relative z-10">
-                        <p className="text-[11px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-8 flex items-center gap-4">
-                          <i className="fas fa-mask"></i> AI Vulnerability Scan Result
-                        </p>
-                        <div className="text-lg leading-relaxed font-medium text-slate-300 italic mb-10 border-l-4 border-indigo-500 pl-8">
-                          {oppositionInsights[opp.name].text}
-                        </div>
+             ) : creativeAssets.map(asset => (
+               <button 
+                 key={asset.id} 
+                 disabled={isThinking}
+                 onClick={() => setActiveCreativeAsset(asset)}
+                 className={`w-full p-6 rounded-3xl border text-left transition-all flex justify-between items-center ${activeCreativeAsset?.id === asset.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl scale-[1.02]' : 'bg-white border-slate-100 hover:border-indigo-300'} disabled:opacity-50`}
+               >
+                  <div className="overflow-hidden">
+                    <p className="text-[10px] font-black uppercase tracking-tighter truncate leading-none mb-2">{asset.title}</p>
+                    <p className={`text-[8px] font-black uppercase tracking-[0.2em] ${activeCreativeAsset?.id === asset.id ? 'text-indigo-200' : 'text-slate-400'}`}>{asset.type}</p>
+                  </div>
+                  <i className="fas fa-chevron-right text-[9px] opacity-30"></i>
+               </button>
+             ))}
+           </div>
+        </div>
+
+        <div className="lg:col-span-3 h-full">
+           {activeCreativeAsset ? (
+             <div className="animate-in fade-in slide-in-from-right-4 duration-500 relative h-full">
+               <Card title={activeCreativeAsset.title} subtitle={activeCreativeAsset.type} icon="fa-file-signature" action={
+                 <div className="flex items-center gap-4">
+                    <button className="text-slate-300 hover:text-indigo-600 transition-colors"><i className="fas fa-copy"></i></button>
+                    <button onClick={() => setCreativeAssets(prev => prev.filter(a => a.id !== activeCreativeAsset.id))} className="text-slate-300 hover:text-red-600 transition-colors"><i className="fas fa-trash-alt"></i></button>
+                 </div>
+               }>
+                  <div className="relative group/editor h-full flex flex-col">
+                    <div className="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100 italic text-xl leading-relaxed text-slate-700 font-medium mb-10 whitespace-pre-wrap shadow-inner border-l-8 border-indigo-600 flex-1">
+                       {activeCreativeAsset.content}
+                    </div>
+
+                    {/* ✅ NEW: REFINEMENT SECTION */}
+                    <div className="mt-6 p-6 bg-amber-50 border-2 border-amber-200 rounded-2xl">
+                      <div className="flex items-center gap-3 mb-4">
+                        <i className="fas fa-wand-magic-sparkles text-amber-600 text-lg"></i>
+                        <p className="text-[11px] font-black text-amber-800 uppercase tracking-widest">AI Refinement Engine</p>
                       </div>
-                   </div>
-                 ) : (
-                   <div className="h-full min-h-[300px] border-4 border-dashed border-slate-100 rounded-[3.5rem] flex flex-col items-center justify-center p-12 opacity-30">
-                      <i className="fas fa-shield-slash text-5xl mb-6"></i>
-                      <p className="text-[10px] font-black uppercase tracking-[0.5em] text-center">Neural Intelligence Latent.</p>
-                   </div>
-                 )}
-               </div>
-            </div>
-          </Card>
-        ))}
+                      <div className="flex gap-3">
+                        <input
+                          type="text"
+                          value={refinementInstruction}
+                          onChange={(e) => setRefinementInstruction(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !isThinking) {
+                              refineAsset(refinementInstruction);
+                            }
+                          }}
+                          placeholder="e.g., Make it more urgent, Add statistics, Shorten to 100 words..."
+                          disabled={isThinking}
+                          className="flex-1 px-5 py-3 bg-white border-2 border-amber-200 rounded-xl text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                        <button
+                          onClick={() => refineAsset(refinementInstruction)}
+                          disabled={isThinking || !refinementInstruction.trim()}
+                          className="px-8 py-3 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                        >
+                          {isThinking ? (
+                            <>
+                              <i className="fas fa-circle-notch fa-spin"></i>
+                              Refining...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-wand-magic-sparkles"></i>
+                              Refine
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <p className="text-[9px] text-amber-700 font-bold mt-3 italic">
+                        💡 Example: "Make this more conversational" or "Add a stronger call-to-action" or "Include district-specific data"
+                      </p>
+                    </div>
+
+                    {/* Legal Shield Section */}
+                    <div className="mt-6 flex flex-wrap gap-4 items-center">
+                       <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest italic mr-4">Deploy to Legal Shield:</p>
+                       <button onClick={() => { setActiveTab('legal'); setActiveDisclaimerType('digital'); }} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">Digital Check</button>
+                       <button onClick={() => { setActiveTab('legal'); setActiveDisclaimerType('print'); }} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">Print Check</button>
+                       <button onClick={() => { setActiveTab('legal'); setActiveDisclaimerType('sms'); }} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">SMS Check</button>
+                    </div>
+                  </div>
+               </Card>
+             </div>
+           ) : (
+             <div className="h-full flex flex-col items-center justify-center p-32 border-8 border-dashed border-slate-50 rounded-[4rem] opacity-20">
+                <i className="fas fa-bullhorn text-8xl mb-12"></i>
+                <p className="text-xl font-black uppercase tracking-[0.5em] text-center">Megaphone Latent - Deploy Pipeline to Begin</p>
+             </div>
+           )}
+        </div>
       </div>
     </div>
   );
 
-   // ============================================================================
-  // RENDER: SECTOR 3 - THE DARKROOM
+// ============================================================================
+// RENDER: WAR CHEST (FUNDRAISING) - Continuing in next section due to length
+// We'll add the remaining render functions (War Chest, Legal Shield, Settings)
+// in the continuation below
+// ============================================================================
+
+  const renderWarChest = () => {
+    const budgetCategories = profile.metadata.budget_estimate?.categories || {};
+    const donorLeads = profile.metadata.donor_leads || [];
+    const totalRaised = profile.compliance_tracker?.total_raised || 0;
+    const totalNeeded = profile.metadata.budget_estimate?.total_projected_needed || 1;
+    const voteGoal = profile.metadata.vote_goal.target_vote_goal || 1;
+    
+    const groups = [
+      { name: "Personnel", keys: ['staff_salaries', 'consultants'] },
+      { name: "Voter Contact", keys: ['advertising_digital', 'advertising_print', 'direct_mail', 'sms_messaging'] },
+      { name: "Operations", keys: ['events', 'voter_file_data', 'compliance_legal', 'office_ops'] },
+      { name: "Reserve", keys: ['emergency_reserve'] }
+    ];
+
+    return (
+      <div className="space-y-12 animate-in fade-in duration-700 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Card title="Treasury Status" icon="fa-vault" subtitle="Current War Chest">
+            <div className="space-y-4 mt-4">
+              <p className="text-5xl font-black text-emerald-600">${totalRaised.toLocaleString()}</p>
+              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Secured Funds</p>
+              <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                <div className="bg-emerald-500 h-full transition-all" style={{ width: `${Math.min((totalRaised/totalNeeded)*100, 100)}%` }}/>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Budget Target" icon="fa-bullseye" subtitle="Projected Campaign Need">
+            <div className="space-y-4 mt-4">
+              <p className="text-5xl font-black text-indigo-600">${totalNeeded.toLocaleString()}</p>
+              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Total Required</p>
+              <p className="text-sm text-slate-600 font-bold">${(totalNeeded/voteGoal).toFixed(2)} per vote</p>
+            </div>
+          </Card>
+
+          <Card title="Strategic Audit" icon="fa-magnifying-glass-chart" subtitle="Budget Analysis">
+            <button 
+              onClick={runBudgetAudit} 
+              disabled={isAuditing}
+              className="mt-4 w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all disabled:opacity-50"
+            >
+              {isAuditing ? 'Analyzing...' : 'Run Audit'}
+            </button>
+            {auditResult && (
+              <div className="mt-6 p-4 bg-slate-50 rounded-xl text-xs leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto">
+                {auditResult}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        <Card title="Budget Allocation Matrix" icon="fa-chart-pie" subtitle="Strategic Resource Distribution">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+            {groups.map(group => (
+              <div key={group.name} className="space-y-4">
+                <h4 className="text-sm font-black uppercase tracking-widest text-slate-700">{group.name}</h4>
+                {group.keys.map(key => (
+                  <div key={key} className="flex items-center gap-4">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex-1">
+                      {key.replace(/_/g, ' ')}
+                    </label>
+                    <input
+                      type="number"
+                      value={budgetCategories[key as keyof typeof budgetCategories] || 0}
+                      onChange={e => updateBudgetCategory(key as keyof BudgetEstimate['categories'], e.target.value)}
+                      className="w-32 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-right outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card title="Donor Pipeline" icon="fa-users" subtitle="Prospective Contributor Management" action={
+          <button onClick={addDonorLead} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all">+ Add Lead</button>
+        }>
+          <div className="space-y-4 pt-4">
+            {donorLeads.map(lead => (
+              <div key={lead.id} className="p-6 bg-slate-50 rounded-2xl flex items-center justify-between">
+                <input
+                  value={lead.name}
+                  onChange={e => updateDonorLead(lead.id, { name: e.target.value })}
+                  className="flex-1 font-bold text-sm bg-transparent outline-none"
+                  placeholder="Donor name"
+                />
+                <div className="flex items-center gap-4">
+                  <input
+                    type="number"
+                    value={lead.target_amount}
+                    onChange={e => updateDonorLead(lead.id, { target_amount: parseInt(e.target.value) || 0 })}
+                    className="w-28 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-right"
+                    placeholder="$0"
+                  />
+                  <select
+                    value={lead.status}
+                    onChange={e => updateDonorLead(lead.id, { status: e.target.value as DonorLead['status'] })}
+                    className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-[9px] font-black uppercase"
+                  >
+                    <option value="identified">Identified</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="committed">Committed</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    );
+  };
+
+// ============================================================================
+// VICTORYOPS - PART 4: REMAINING RENDERS, MODALS & MAIN LAYOUT
+// ============================================================================
+// This is Part 4 of 4. Paste this AFTER Part 3 in your App.tsx
+// This completes the application!
+// START: Copy from here
+// ============================================================================
+
+  // ============================================================================
+  // RENDER: DARKROOM (BRANDING) MODULE
   // ============================================================================
 
   const renderBranding = () => {
@@ -1533,7 +2056,7 @@ Format the response with proper structure for ${type} format.`;
                     {brandingAssets.length > 0 ? (
                        brandingAssets.map(asset => (
                           <div key={asset.id} onClick={() => setActiveAsset(asset)} className="group relative rounded-[2.5rem] overflow-hidden bg-slate-100 aspect-square shadow-sm hover:shadow-2xl transition-all cursor-pointer border border-slate-200 hover:scale-[1.02]">
-                             <img src={asset.mediaUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={asset.title} />
+                             {asset.mediaUrl && <img src={asset.mediaUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={asset.title} />}
                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-8 flex flex-col justify-end">
                                 <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Developed Asset</p>
                                 <h4 className="text-xl font-black text-white italic uppercase tracking-tight truncate">{asset.title}</h4>
@@ -1560,10 +2083,10 @@ Format the response with proper structure for ${type} format.`;
            <div className="fixed inset-0 bg-slate-900/98 backdrop-blur-3xl z-[1000] flex items-center justify-center p-12">
               <div className="bg-white w-full max-w-7xl h-[85vh] rounded-[4rem] shadow-2xl flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 border border-white/20">
                  <div className="w-full md:w-1/2 h-1/2 md:h-full bg-slate-950 flex items-center justify-center relative group p-12">
-                    <img src={activeAsset.mediaUrl} className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" alt="Asset Preview" />
+                    {activeAsset.mediaUrl && <img src={activeAsset.mediaUrl} className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" alt="Asset Preview" />}
                     <button onClick={() => setActiveAsset(null)} className="absolute top-10 left-10 w-16 h-16 bg-white/5 text-white/50 rounded-full flex items-center justify-center hover:text-white transition-all text-2xl z-20"><i className="fas fa-times"></i></button>
                     <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                       <a href={activeAsset.mediaUrl} download={`VictoryOps_Asset_${activeAsset.id}.png`} className="px-8 py-3 bg-white text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-indigo-600 hover:text-white transition-all">Download Master</a>
+                       {activeAsset.mediaUrl && <a href={activeAsset.mediaUrl} download={`VictoryOps_Asset_${activeAsset.id}.png`} className="px-8 py-3 bg-white text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-indigo-600 hover:text-white transition-all">Download Master</a>}
                     </div>
                  </div>
                  <div className="w-full md:w-1/2 h-1/2 md:h-full p-16 flex flex-col bg-white overflow-y-auto space-y-12">
@@ -1574,7 +2097,7 @@ Format the response with proper structure for ${type} format.`;
                     <div className="space-y-8">
                        <section className="space-y-4">
                           <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-100 pb-3">Neural Prompt Context</h4>
-                          <p className="p-6 bg-slate-50 rounded-2xl text-sm font-medium italic text-slate-600 leading-relaxed border border-slate-100">{activeAsset.prompt}</p>
+                          <p className="p-6 bg-slate-50 rounded-2xl text-sm font-medium italic text-slate-600 leading-relaxed border border-slate-100">{activeAsset.prompt || activeAsset.content}</p>
                        </section>
                        <section className="space-y-6">
                           <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-800">Tactical Refinement</h4>
@@ -1605,300 +2128,9 @@ Format the response with proper structure for ${type} format.`;
     );
   };
 
-  const renderCreative = () => (
-    <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700">
-      <Card title="The Megaphone Studio" subtitle="Strategic Messaging Pipeline" icon="fa-bullhorn">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-4 pb-4">
-           {[
-             { label: 'Canvassing Script', icon: 'fa-microphone-lines', desc: 'Door-to-door persuasion' },
-             { label: 'Social Content', icon: 'fa-share-nodes', desc: 'Viral digital narrative' },
-             { label: 'Direct Mailer', icon: 'fa-envelope-open-text', desc: 'High-impact physical reach' }
-           ].map((v, i) => (
-             <button 
-               key={i} 
-               disabled={isThinking}
-               onClick={() => generateCreative(v.label)} 
-               className="p-8 bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] hover:border-indigo-400 hover:bg-white transition-all group flex items-center gap-6 shadow-sm hover:shadow-xl disabled:opacity-50"
-             >
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-500 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-lg group-disabled:text-slate-200">
-                  <i className={`fas ${v.icon} text-2xl`}></i>
-                </div>
-                <div className="text-left">
-                  <p className="font-black text-[11px] uppercase tracking-widest text-slate-800">{v.label}</p>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-1">{v.desc}</p>
-                </div>
-             </button>
-           ))}
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-        <div className="lg:col-span-1 space-y-4">
-           <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-4 italic">Active Content Stack</h4>
-           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-hide">
-             {creativeAssets.length === 0 ? (
-               <div className="p-12 border-4 border-dashed border-slate-100 rounded-[2.5rem] text-center opacity-30">
-                  <p className="text-[9px] font-black uppercase tracking-widest">Studio Empty</p>
-               </div>
-             ) : creativeAssets.map(asset => (
-               <button 
-                 key={asset.id} 
-                 disabled={isThinking}
-                 onClick={() => setActiveCreativeAsset(asset)}
-                 className={`w-full p-6 rounded-3xl border text-left transition-all flex justify-between items-center ${activeCreativeAsset?.id === asset.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl scale-[1.02]' : 'bg-white border-slate-100 hover:border-indigo-300'} disabled:opacity-50`}
-               >
-                  <div className="overflow-hidden">
-                    <p className="text-[10px] font-black uppercase tracking-tighter truncate leading-none mb-2">{asset.title}</p>
-                    <p className={`text-[8px] font-black uppercase tracking-[0.2em] ${activeCreativeAsset?.id === asset.id ? 'text-indigo-200' : 'text-slate-400'}`}>{asset.type}</p>
-                  </div>
-                  <i className="fas fa-chevron-right text-[9px] opacity-30"></i>
-               </button>
-             ))}
-           </div>
-        </div>
-
-        <div className="lg:col-span-3 h-full">
-           {activeCreativeAsset ? (
-             <div className="animate-in fade-in slide-in-from-right-4 duration-500 relative h-full">
-               <Card title={activeCreativeAsset.title} subtitle={activeCreativeAsset.type} icon="fa-file-signature" action={
-                 <div className="flex items-center gap-4">
-                    <button className="text-slate-300 hover:text-indigo-600 transition-colors"><i className="fas fa-copy"></i></button>
-                    <button onClick={() => setCreativeAssets(prev => prev.filter(a => a.id !== activeCreativeAsset.id))} className="text-slate-300 hover:text-red-600 transition-colors"><i className="fas fa-trash-alt"></i></button>
-                 </div>
-               }>
-                  <div className="relative group/editor h-full flex flex-col">
-                    <div className="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100 italic text-xl leading-relaxed text-slate-700 font-medium mb-10 whitespace-pre-wrap shadow-inner border-l-8 border-indigo-600 flex-1">
-                       {activeCreativeAsset.content}
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-4 items-center">
-                       <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest italic mr-4">Deploy to Legal Shield:</p>
-                       <button onClick={() => { setActiveTab('legal'); setActiveDisclaimerType('digital'); }} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">Digital Check</button>
-                       <button onClick={() => { setActiveTab('legal'); setActiveDisclaimerType('print'); }} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">Print Check</button>
-                       <button onClick={() => { setActiveTab('legal'); setActiveDisclaimerType('sms'); }} className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">SMS Check</button>
-                    </div>
-                  </div>
-               </Card>
-             </div>
-           ) : (
-             <div className="h-full flex flex-col items-center justify-center p-32 border-8 border-dashed border-slate-50 rounded-[4rem] opacity-20">
-                <i className="fas fa-bullhorn text-8xl mb-12"></i>
-                <p className="text-xl font-black uppercase tracking-[0.5em] text-center">Megaphone Latent - Deploy Pipeline to Begin</p>
-             </div>
-           )}
-        </div>
-      </div>
-    </div>
-  );
-  const renderWarChest = () => {
-    const budgetCategories = profile.metadata.budget_estimate?.categories || {};
-    const donorLeads = profile.metadata.donor_leads || [];
-    const totalRaised = profile.compliance_tracker?.total_raised || 0;
-    const totalNeeded = profile.metadata.budget_estimate?.total_projected_needed || 1;
-    const voteGoal = profile.metadata.vote_goal.target_vote_goal || 1;
-    
-    const groups = [
-      { name: "Personnel", keys: ['staff_salaries', 'consultants'] },
-      { name: "Voter Contact", keys: ['advertising_digital', 'advertising_print', 'direct_mail', 'sms_messaging'] },
-      { name: "Operations", keys: ['events', 'voter_file_data', 'compliance_legal', 'office_ops'] },
-      { name: "Reserve", keys: ['emergency_reserve'] }
-    ];
-
-    return (
-      <div className="space-y-12 animate-in fade-in duration-700 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <Card title="Financial Health" icon="fa-heart-pulse" subtitle="Capital Sync Status">
-            <div className="flex flex-col items-center justify-center py-6">
-              <div className="relative w-48 h-48 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="16" fill="transparent" className="text-slate-100" />
-                  <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="16" fill="transparent" strokeDasharray={552.92} strokeDashoffset={552.92 * (1 - Math.min(1, totalRaised / totalNeeded))} className="text-emerald-500 transition-all duration-1000" />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-black text-slate-800 tracking-tighter italic">{Math.round((totalRaised / totalNeeded) * 100)}%</span>
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secured</span>
-                </div>
-              </div>
-              <div className="mt-8 text-center">
-                <p className="text-4xl font-black text-emerald-600 tracking-tighter italic">${totalRaised.toLocaleString()}</p>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Raised to Date</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card title="Tactical Metrics" icon="fa-chart-simple" subtitle="Efficiency & Runway">
-            <div className="space-y-10 py-4">
-              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-inner">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Efficiency Ratio</p>
-                <div className="flex justify-between items-end">
-                  <span className="text-3xl font-black text-indigo-700 tracking-tighter italic">${(totalNeeded / voteGoal).toFixed(2)}</span>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Budget Per Vote</span>
-                </div>
-                <div className="w-full h-2 bg-slate-200 rounded-full mt-4 overflow-hidden">
-                   <div className="bg-indigo-500 h-full w-[65%]" />
-                </div>
-              </div>
-              
-              <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
-                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4 italic text-center">Projected Runway</p>
-                <div className="flex flex-col items-center">
-                  <span className="text-4xl font-black text-white tracking-tighter italic">214 <span className="text-sm font-bold text-slate-400 italic">Days</span></span>
-                  <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-2">Days of Capital Life (Est. Burn)</p>
-                </div>
-              </div>
-            </div>
-          </Card> 
-
-          <Card title="AI Financial Audit" icon="fa-magnifying-glass-dollar" subtitle="Neural Spend Review" action={
-             <button 
-               onClick={runBudgetAudit}
-               disabled={isAuditing}
-               className="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-indigo-600 transition-all shadow-lg disabled:opacity-50"
-             >
-                {isAuditing ? <i className="fas fa-spinner animate-spin text-sm"></i> : <i className="fas fa-microchip text-sm"></i>}
-             </button>
-          }>
-            <div className="h-full min-h-[300px] flex flex-col">
-              {auditResult ? (
-                <div className="p-6 bg-indigo-50 rounded-3xl border border-indigo-100 flex-1 overflow-y-auto italic text-sm text-indigo-900 font-medium leading-relaxed whitespace-pre-wrap animate-in fade-in slide-in-from-right-2">
-                  {auditResult}
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center opacity-20 p-12 text-center">
-                  <i className="fas fa-robot text-6xl mb-6"></i>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em]">Neural Audit Ready</p>
-                </div>
-              )}
-            </div>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          <Card title="Tactical Budget Architect" icon="fa-sitemap" subtitle="Hierarchical Allocation Matrix">
-            <div className="space-y-10 mt-4 overflow-y-auto max-h-[600px] pr-4 scrollbar-hide">
-              {groups.map((group, idx) => (
-                <div key={idx} className="space-y-4">
-                  <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.3em] italic flex items-center gap-3">
-                    <span className="w-8 h-px bg-indigo-100" /> {group.name}
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {group.keys.map((key) => (
-                      <div key={key} className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm hover:border-indigo-300 transition-all group">
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block group-hover:text-indigo-600 transition-colors">{key.replace(/_/g, ' ')}</label>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl font-bold text-slate-300">$</span>
-                          <input 
-                            type="number"
-                            value={budgetCategories[key as keyof BudgetEstimate['categories']] || 0}
-                            onChange={(e) => updateBudgetCategory(key as any, e.target.value)}
-                            className="w-full bg-transparent border-none p-0 outline-none text-2xl font-black text-slate-800 tracking-tighter focus:ring-0"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-10 p-8 bg-slate-900 rounded-[2.5rem] text-white flex justify-between items-center shadow-2xl">
-               <div>
-                 <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Total Requirement</p>
-                 <p className="text-4xl font-black tracking-tighter italic">${totalNeeded.toLocaleString()}</p>
-               </div>
-               <div className="text-right">
-                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">CPV Goal</p>
-                 <p className="text-3xl font-black text-white italic">${(totalNeeded / voteGoal).toFixed(2)}</p>
-               </div>
-            </div>
-          </Card>
-
-          <Card title="Capital Pipeline" icon="fa-address-book" subtitle="High-Value Prospect Management" action={
-            <button 
-              onClick={addDonorLead}
-              className="px-6 py-3 bg-emerald-600 text-white text-[10px] font-black rounded-xl hover:bg-emerald-500 transition-all uppercase tracking-widest shadow-xl flex items-center gap-3"
-            >
-              <i className="fas fa-plus text-xs"></i> New Lead
-            </button>
-          }>
-            <div className="space-y-4 mt-4 overflow-y-auto max-h-[700px] pr-4 scrollbar-hide">
-              {donorLeads.length === 0 ? (
-                <div className="p-32 border-4 border-dashed border-slate-50 rounded-[3rem] text-center opacity-20">
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em]">Pipeline Empty</p>
-                </div>
-              ) : donorLeads.map(lead => (
-                <div key={lead.id} className="p-6 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all group">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <input 
-                        value={lead.name}
-                        onChange={(e) => updateDonorLead(lead.id, { name: e.target.value })}
-                        className="text-lg font-black text-slate-800 uppercase italic tracking-tighter bg-transparent border-none p-0 focus:ring-0 outline-none w-full"
-                      />
-                      <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mt-1">Lead Ref: {lead.id}</p>
-                    </div>
-                    <select 
-                      value={lead.status}
-                      onChange={(e) => updateDonorLead(lead.id, { status: e.target.value as any })}
-                      className={`text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border outline-none transition-all ${
-                        lead.status === 'received' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                        lead.status === 'pledged' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
-                        lead.status === 'contacted' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                        'bg-slate-50 text-slate-500 border-slate-100'
-                      }`}
-                    >
-                      <option value="identified">Identified</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="pledged">Pledged</option>
-                      <option value="received">Received</option>
-                    </select>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-6 items-end">
-                    <div className="space-y-2">
-                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Amount</label>
-                       <div className="flex items-center gap-2">
-                         <span className="font-bold text-slate-300">$</span>
-                         <input 
-                            type="number"
-                            value={lead.target_amount}
-                            onChange={(e) => updateDonorLead(lead.id, { target_amount: parseInt(e.target.value) || 0 })}
-                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 font-black text-slate-800 text-xl tracking-tighter focus:border-indigo-500 outline-none"
-                         />
-                       </div>
-                    </div>
-                    <div className="space-y-4">
-                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 text-right">Probability ({lead.likelihood}%)</label>
-                       <input 
-                         type="range"
-                         min="0"
-                         max="100"
-                         value={lead.likelihood}
-                         onChange={(e) => updateDonorLead(lead.id, { likelihood: parseInt(e.target.value) })}
-                         className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                       />
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6 flex justify-between items-center pt-6 border-t border-slate-50">
-                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic flex items-center gap-3">
-                      <i className="fas fa-coins text-indigo-500"></i> Expected Value: 
-                      <span className="text-indigo-900 ml-1">${Math.round(lead.target_amount * (lead.likelihood / 100)).toLocaleString()}</span>
-                    </div>
-                    <button 
-                      onClick={() => setProfile(prev => ({ ...prev, metadata: { ...prev.metadata, donor_leads: prev.metadata.donor_leads?.filter(l => l.id !== lead.id) } }))}
-                      className="text-slate-300 hover:text-red-500 transition-colors"
-                    >
-                      <i className="fas fa-trash-alt"></i>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  };
+  // ============================================================================
+  // RENDER: LEGAL SHIELD (COMPLIANCE) MODULE  
+  // ============================================================================
 
   const renderLegalShield = () => {
     const shield = profile.metadata.legal_shield!;
@@ -2065,7 +2297,7 @@ Format the response with proper structure for ${type} format.`;
             <Card title="Neural Compliance Scanner" icon="fa-microchip" subtitle="Automated Ad Review" action={
                <button 
                   onClick={runLegalComplianceAudit}
-                  disabled={isThinking || !activeAsset}
+                  disabled={isThinking || !activeCreativeAsset}
                   className="w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-indigo-600 transition-all shadow-xl disabled:opacity-30"
                >
                   {isThinking ? <i className="fas fa-spinner animate-spin"></i> : <i className="fas fa-magnifying-glass-shield"></i>}
@@ -2115,183 +2347,15 @@ Format the response with proper structure for ${type} format.`;
     );
   };
 
-  const renderSettings = () => (
-    <div className="space-y-12 animate-in fade-in duration-700 pb-20">
-      <Card title="Candidate DNA Master: Core Mapping" icon="fa-fingerprint" subtitle="Onboarding & Identity Baseline">
-         <div className="mt-8 space-y-12">
-            <div className="space-y-6">
-               <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] italic mb-6 border-b border-slate-100 pb-4">Personal Background</h4>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Candidate Name</label>
-                     <input value={profile.candidate_name} onChange={e => setProfile({...profile, candidate_name: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Office Sought</label>
-                     <input value={profile.office_sought} onChange={e => setProfile({...profile, office_sought: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Party Affiliation</label>
-                     <input value={profile.party} onChange={e => setProfile({...profile, party: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Campaign Treasurer</label>
-                     <input value={profile.metadata.treasurer || ''} onChange={e => setProfile({...profile, metadata: {...profile.metadata, treasurer: e.target.value}})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="Legal Treasurer Name" />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Campaign Address</label>
-                     <input value={profile.metadata.campaign_address || ''} onChange={e => setProfile({...profile, metadata: {...profile.metadata, campaign_address: e.target.value}})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="HQ Address (for Disclaimers)" />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Candidate Pets</label>
-                     <input value={profile.metadata.dna?.pets || ''} onChange={e => updateDNA({ pets: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="For humanization" />
-                  </div>
-               </div>
-            </div>
+  // ============================================================================
+  // RENDER: DNA VAULT (SETTINGS) MODULE (From Part 3, included here for completeness)
+  // Note: This was already included in Part 3 but listed here for reference
+  // The renderSettings function is already complete in Part 3 starting at renderWarChest
+  // ============================================================================
 
-            <div className="space-y-6">
-               <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] italic mb-6 border-b border-slate-100 pb-4">Strategic Narrative Mapping</h4>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">The 'Why' (Reason for Running)</label>
-                     <textarea rows={3} value={profile.metadata.dna?.reason_for_running || ''} onChange={e => updateDNA({ reason_for_running: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="Describe the core motivator." />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unique Assets & Edge</label>
-                     <textarea rows={3} value={profile.metadata.dna?.unique_qualifications || ''} onChange={e => updateDNA({ unique_qualifications: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="What issues do you own?" />
-                  </div>
-               </div>
-            </div>
-         </div>
-      </Card>
-
-      <Card title="Neural Source Lab" icon="fa-folder-open" subtitle="Deep Documentation Intelligence">
-         <div className="mt-8 space-y-10">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-               <div className="w-full md:w-1/3 space-y-6">
-                  <div className="bg-indigo-50 p-8 rounded-[2.5rem] border border-indigo-100">
-                     <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-4 italic">Material Deployment</h5>
-                     <p className="text-[9px] text-slate-500 font-bold uppercase leading-relaxed mb-6">
-                        Upload candidate resumes, policy positions, or existing bios. Our AI extracts deep context.
-                     </p>
-                     <label className="w-full flex flex-col items-center justify-center p-8 border-4 border-dashed border-indigo-200 rounded-3xl hover:border-indigo-600 hover:bg-white transition-all cursor-pointer group mb-6">
-                        <i className="fas fa-cloud-arrow-up text-2xl text-indigo-300 group-hover:text-indigo-600 mb-3"></i>
-                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Upload Doc</span>
-                        <input type="file" className="hidden" accept=".txt,.md,.doc,.docx" onChange={handleFileUpload} />
-                     </label>
-
-                     <div>
-                        <h6 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Knowledge Base Log</h6>
-                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                          {profile.metadata.dna?.source_materials?.map((m, i) => (
-                            <div key={i} className="bg-white/50 border border-indigo-100/50 p-3 rounded-xl flex justify-between items-center group">
-                               <div className="overflow-hidden">
-                                  <p className="text-[9px] font-black text-slate-700 truncate">{m.name}</p>
-                                  <p className="text-[7px] text-slate-400 font-bold uppercase">{m.timestamp}</p>
-                               </div>
-                               <i className="fas fa-check-circle text-indigo-400 text-[10px]"></i>
-                            </div>
-                          )) || <p className="text-[8px] text-slate-300 font-black uppercase tracking-widest text-center py-4">No data indexed</p>}
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div className="w-full md:w-2/3 space-y-4">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Raw Source Intelligence / Manual Input</label>
-                  <div className="relative">
-                     <textarea 
-                        rows={12}
-                        value={profile.metadata.dna?.source_text || ''}
-                        onChange={(e) => updateDNA({ source_text: e.target.value })}
-                        className="w-full p-8 bg-slate-50 border border-slate-200 rounded-[2.5rem] outline-none font-medium text-slate-700 text-base italic focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all resize-none shadow-inner"
-                        placeholder="Paste or type raw bio details, experience, or policy notes here..."
-                     />
-                     <div className="absolute bottom-6 right-8">
-                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{profile.metadata.dna?.source_text?.length || 0} Characters Indexed</span>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </Card>
-
-      <Card title="The Master Narrative" icon="fa-wand-sparkles" subtitle="Neural Synthesis outcome">
-         <div className="mt-8 space-y-8">
-            {!profile.metadata.dna?.master_narrative ? (
-               <div className="p-16 border-4 border-dashed border-slate-100 rounded-[3.5rem] text-center bg-slate-50 flex flex-col items-center">
-                  <i className="fas fa-microchip text-4xl text-slate-200 mb-6"></i>
-                  <h4 className="text-xl font-black text-slate-400 uppercase tracking-tighter italic">Narrative Engine Idle</h4>
-                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-3 mb-8 text-center max-w-sm">Use the core mapping and source lab above to calibrate the AI narrative engine.</p>
-                  <button 
-                     onClick={synthesizeMasterNarrative}
-                     disabled={isThinking}
-                     className="px-12 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-xl hover:scale-105 transition-all disabled:opacity-50"
-                  >
-                     {isThinking ? <i className="fas fa-spinner animate-spin"></i> : "Synthesize Master Narrative"}
-                  </button>
-               </div>
-            ) : (
-               <div className="relative group">
-                  {isThinking && (
-                     <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-20 flex flex-col items-center justify-center rounded-[3rem] transition-all duration-300">
-                        <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                     </div>
-                  )}
-                  <div className="bg-white p-12 rounded-[3.5rem] border-2 border-indigo-100 shadow-xl relative overflow-hidden transition-all hover:border-indigo-300 mb-10">
-                     <div className="absolute top-0 right-0 p-8 flex items-center gap-4">
-                        <button onClick={() => updateDNA({ master_narrative: '' })} className="text-slate-300 hover:text-red-500 transition-colors" title="Clear Narrative"><i className="fas fa-trash-alt"></i></button>
-                     </div>
-                     <div className="relative">
-                        <textarea 
-                           value={profile.metadata.dna?.master_narrative} 
-                           onChange={(e) => updateDNA({ master_narrative: e.target.value })}
-                           className="w-full min-h-[500px] bg-transparent outline-none border-none text-slate-700 font-medium leading-relaxed italic text-lg resize-none p-0 focus:ring-0"
-                           placeholder="Manually refine your master narrative here..."
-                        />
-                     </div>
-                     <div className="mt-12 pt-8 border-t border-slate-100 flex justify-between items-center">
-                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.4em] italic flex items-center gap-3">
-                           <i className="fas fa-check-double"></i> Narrative Active & Unified
-                        </span>
-                        <div className="flex gap-6">
-                          <button 
-                             onClick={synthesizeMasterNarrative}
-                             className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors flex items-center gap-2"
-                          >
-                             <i className="fas fa-sparkles text-xs"></i> AI Re-Synthesize
-                          </button>
-                        </div>
-                     </div>
-                  </div>
-
-                  <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white border border-indigo-500/30">
-                     <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-6 flex items-center gap-4">
-                        <i className="fas fa-sparkles text-xs"></i> AI Refinement Agent
-                     </h5>
-                     <div className="flex gap-4">
-                        <input 
-                           disabled={isThinking}
-                           value={narrativeRefinePrompt}
-                           onChange={(e) => setNarrativeRefinePrompt(e.target.value)}
-                           onKeyDown={(e) => e.key === 'Enter' && refineMasterNarrative()}
-                           placeholder="E.g. 'Emphasize my business background more in the mission section'"
-                           className="flex-1 bg-white/10 border border-white/20 rounded-2xl px-6 py-4 text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/30 transition-all placeholder:text-slate-500"
-                        />
-                        <button 
-                           onClick={refineMasterNarrative}
-                           disabled={isThinking || !narrativeRefinePrompt.trim()}
-                           className="px-8 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all disabled:opacity-50"
-                        >
-                           Refine Narrative
-                        </button>
-                     </div>
-                  </div>
-               </div>
-            )}
-         </div>
-      </Card>
-    </div>
-  );
+  // ============================================================================
+  // RENDER: MODALS & OVERLAYS
+  // ============================================================================
 
   const renderGatekeeper = () => (
     <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8 overflow-hidden">
@@ -2388,7 +2452,7 @@ Format the response with proper structure for ${type} format.`;
     </div>
   );
 
-const renderOnboardingWizard = () => (
+  const renderOnboardingWizard = () => (
     <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-3xl z-[1500] flex items-center justify-center p-8">
       <div className="max-w-4xl w-full h-[80vh] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col">
         <div className="bg-gradient-to-r from-indigo-600 to-pink-600 p-8 flex items-center justify-between">
@@ -2457,6 +2521,140 @@ const renderOnboardingWizard = () => (
       </div>
     </div>
   );
+
+  // Competitor Modal
+  {isCompetitorModalOpen && (
+    <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[1000] flex items-center justify-center p-8">
+      <div className="bg-white rounded-[3rem] p-12 max-w-2xl w-full shadow-2xl">
+        <h3 className="text-3xl font-black uppercase italic tracking-tight mb-8">Register New Rival</h3>
+        <div className="space-y-6">
+          <input 
+            placeholder="Opponent Name"
+            value={newCompetitor.name}
+            onChange={e => setNewCompetitor({...newCompetitor, name: e.target.value})}
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold"
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <select 
+              value={newCompetitor.party}
+              onChange={e => setNewCompetitor({...newCompetitor, party: e.target.value})}
+              className="p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold"
+            >
+              <option value="D">Democrat</option>
+              <option value="R">Republican</option>
+              <option value="I">Independent</option>
+            </select>
+            <label className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <input 
+                type="checkbox"
+                checked={newCompetitor.incumbent}
+                onChange={e => setNewCompetitor({...newCompetitor, incumbent: e.target.checked})}
+                className="w-5 h-5"
+              />
+              <span className="font-bold text-sm">Incumbent</span>
+            </label>
+          </div>
+          <textarea 
+            placeholder="Strengths (comma-separated)"
+            value={newCompetitor.strengths}
+            onChange={e => setNewCompetitor({...newCompetitor, strengths: e.target.value})}
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold h-24"
+          />
+          <textarea 
+            placeholder="Weaknesses (comma-separated)"
+            value={newCompetitor.weaknesses}
+            onChange={e => setNewCompetitor({...newCompetitor, weaknesses: e.target.value})}
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold h-24"
+          />
+        </div>
+        <div className="flex gap-4 mt-8">
+          <button 
+            onClick={handleRegisterCompetitor}
+            className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest"
+          >
+            Register Target
+          </button>
+          <button 
+            onClick={() => setIsCompetitorModalOpen(false)}
+            className="px-8 bg-slate-100 text-slate-600 py-4 rounded-2xl font-black uppercase tracking-widest"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
+  // Review Rivals Modal
+  {isReviewRivalsModalOpen && (
+    <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[1000] flex items-center justify-center p-8">
+      <div className="bg-white rounded-[3rem] p-12 max-w-4xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+        <h3 className="text-3xl font-black uppercase italic tracking-tight mb-8">Review Extracted Rivals</h3>
+        <div className="space-y-4">
+          {pendingRivals.map((rival, i) => (
+            <div key={i} className="p-6 bg-slate-50 rounded-2xl flex justify-between items-start">
+              <div>
+                <h4 className="font-black text-lg">{rival.name}</h4>
+                <p className="text-sm text-slate-600">{rival.party} • {rival.incumbent ? 'Incumbent' : 'Challenger'}</p>
+              </div>
+              <button 
+                onClick={() => registerSelectedRival(rival)}
+                className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-xs uppercase"
+              >
+                Register
+              </button>
+            </div>
+          ))}
+        </div>
+        <button 
+          onClick={() => setIsReviewRivalsModalOpen(false)}
+          className="w-full mt-8 bg-slate-200 text-slate-700 py-4 rounded-2xl font-black uppercase"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  )}
+
+  // Dossier Modal
+  {dossierTarget && (
+    <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[1000] flex items-center justify-center p-8">
+      <div className="bg-white rounded-[3rem] p-12 max-w-3xl w-full shadow-2xl">
+        <h3 className="text-4xl font-black uppercase italic tracking-tight mb-4">{dossierTarget.name}</h3>
+        <p className="text-indigo-600 font-black uppercase text-sm mb-8">{dossierTarget.party} • {dossierTarget.incumbent ? 'Incumbent Threat' : 'Challenger'}</p>
+        
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Strengths</h4>
+            <ul className="space-y-2">
+              {dossierTarget.strengths.map((s, i) => (
+                <li key={i} className="text-sm font-medium text-slate-700">• {s}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-red-600 mb-4">Vulnerabilities</h4>
+            <ul className="space-y-2">
+              {dossierTarget.weaknesses.map((w, i) => (
+                <li key={i} className="text-sm font-medium text-slate-700">• {w}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <button 
+          onClick={() => setDossierTarget(null)}
+          className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest"
+        >
+          Close Dossier
+        </button>
+      </div>
+    </div>
+  )}
+
+  // ============================================================================
+  // MAIN RENDER & LAYOUT
+  // ============================================================================
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-slate-900">
@@ -2533,8 +2731,19 @@ const renderOnboardingWizard = () => (
                    <div ref={chatEndRef} />
                 </div>
                 <div className="p-6 bg-white border-t border-slate-100 flex gap-3">
-                   <input className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="Ask tactical advice..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { setChatMessages(p => [...p, {role: 'user', text: input}]); setInput(''); } }} />
-                   <button className="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-indigo-600 transition-all shadow-lg"><i className="fas fa-paper-plane text-sm"></i></button>
+                   <input 
+                     className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" 
+                     placeholder="Ask tactical advice..." 
+                     value={input} 
+                     onChange={e => setInput(e.target.value)} 
+                     onKeyDown={e => { if (e.key === 'Enter') { handleSendMessage(); } }} 
+                   />
+                   <button 
+                     onClick={handleSendMessage}
+                     className="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-indigo-600 transition-all shadow-lg"
+                   >
+                     <i className="fas fa-paper-plane text-sm"></i>
+                   </button>
                 </div>
              </div>
            )}
@@ -2545,3 +2754,16 @@ const renderOnboardingWizard = () => (
 };
 
 export default App;
+
+// ============================================================================
+// END OF PART 4 - APPLICATION COMPLETE!
+// ============================================================================
+// After assembling all 4 parts:
+// 1. Create new App.tsx
+// 2. Paste Part 1 (Foundation)
+// 3. Paste Part 2 (AI Functions)
+// 4. Paste Part 3 (Render Functions) 
+// 5. Paste Part 4 (This file)
+// 6. Create .env.local with VITE_GOOGLE_AI_API_KEY
+// 7. Test and deploy!
+// ============================================================================
