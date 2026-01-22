@@ -37,3 +37,6 @@ lerna-debug.log*
 # Misc
 *.tsbuildinfo
 .vercel
+
+.env.local
+.env*.local
