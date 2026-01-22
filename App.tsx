@@ -649,95 +649,131 @@ const runNeuralProbe = async (focus: ResearchMode) => {
   // LOGIC: SECTOR 3 - THE DARKROOM (BRANDING) - from App.tsx
   // ============================================================================
 
-  const generateVisual = async () => {
-    if (!imagePrompt.subject) return;
-    setIsGeneratingImage(true);
-    setChatMessages(prev => [...prev, { role: 'ai', text: `Darkroom active. Developing visual asset for: "${imagePrompt.subject}"` }]);
+const generateVisual = async () => {
+  if (!imagePrompt.subject) return;
+  
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: '⚠️ API key not configured. Cannot generate images.' 
+    }]);
+    return;
+  }
 
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const fullPrompt = `${imagePrompt.style}: ${imagePrompt.subject} set in ${imagePrompt.env}. High contrast, professional political campaign lighting, cinematic quality, ${profile.party === 'R' ? 'patriotic red and blue accents' : profile.party === 'D' ? 'modern blue and white tones' : 'independent slate and emerald tones'}.`;
-      
-      const response = await ai.models.generateContent({
-  model: 'gemini-2.0-flash-exp',
-  contents: [{ parts: [{ text: fullPrompt }] }]
-  // No config - Gemini 2.0 API changed
-});
+  setIsGeneratingImage(true);
+  setChatMessages(prev => [...prev, { 
+    role: 'ai', 
+    text: `Darkroom active. Developing visual asset for: "${imagePrompt.subject}"` 
+  }]);
 
-      let base64 = "";
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          base64 = part.inlineData.data;
-          break;
-        }
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash-exp",
+      generationConfig: {
+        temperature: 0.8,
+        maxOutputTokens: 2048,
       }
+    });
 
-      if (base64) {
-        const newAsset: CreativeAsset = {
-          id: 'asset-' + Date.now(),
-          type: 'PHOTO',
-          title: imagePrompt.subject.slice(0, 20) + '...',
-          mediaUrl: `data:image/png;base64,${base64}`,
-          mediaType: 'image',
-          status: 'final',
-          prompt: fullPrompt
-        };
-        setBrandingAssets(prev => [newAsset, ...prev]);
-        setChatMessages(prev => [...prev, { role: 'ai', text: `Visual asset developed and pinned to gallery.` }]);
-      }
-    } catch (e) {
-      console.error(e);
-      setChatMessages(prev => [...prev, { role: 'ai', text: `Film exposure failure. Check Satellite Link.` }]);
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  };
+    const fullPrompt = `${imagePrompt.style}: ${imagePrompt.subject} set in ${imagePrompt.env}. High contrast, professional political campaign lighting, cinematic quality, ${profile.party === 'R' ? 'patriotic red and blue accents' : profile.party === 'D' ? 'modern blue and white tones' : 'independent slate and emerald tones'}.`;
+    
+    const result = await model.generateContent(fullPrompt);
+    const response = await result.response;
+    
+    // Note: Image generation with Gemini 2.0 requires Imagen 3 model
+    // For now, we'll create a placeholder with the prompt stored
+    // TO DO: Integrate with Google's Imagen 3 API or use alternative image API
+    
+    const newAsset: CreativeAsset = {
+      id: 'asset-' + Date.now(),
+      type: 'PHOTO',
+      title: imagePrompt.subject.slice(0, 20) + '...',
+      mediaUrl: '', // Placeholder until image API integrated
+      mediaType: 'image',
+      status: 'draft',
+      prompt: fullPrompt,
+      content: `[IMAGE GENERATION PROMPT]\n\n${fullPrompt}\n\n[AI Response]\n${response.text()}\n\nNote: Direct image generation requires Imagen 3 API integration. This is the text-based prompt that can be used with image generation services.`
+    };
+    
+    setBrandingAssets(prev => [newAsset, ...prev]);
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `✅ Visual concept developed and saved. Note: Image rendering requires Imagen 3 API setup.` 
+    }]);
+    
+  } catch (e) {
+    console.error('Image generation error:', e);
+    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `❌ Darkroom error: ${errorMsg}` 
+    }]);
+  } finally {
+    setIsGeneratingImage(false);
+  }
+};
 
   const refineVisual = async (asset: CreativeAsset, feedback: string) => {
-    if (!feedback) return;
-    setIsGeneratingImage(true);
-    setChatMessages(prev => [...prev, { role: 'ai', text: `Refining asset ${asset.id} based on tactical feedback...` }]);
+  if (!feedback) return;
+  
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: '⚠️ API key not configured.' 
+    }]);
+    return;
+  }
 
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const base64Data = asset.mediaUrl?.split(',')[1];
-      
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-          parts: [
-            { inlineData: { data: base64Data!, mimeType: 'image/png' } },
-            { text: `Refine this political campaign image: ${feedback}. Maintain original brand consistency.` }
-          ]
-        },
-      });
+  setIsGeneratingImage(true);
+  setChatMessages(prev => [...prev, { 
+    role: 'ai', 
+    text: `Refining asset ${asset.id} based on tactical feedback...` 
+  }]);
 
-      let base64 = "";
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          base64 = part.inlineData.data;
-          break;
-        }
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash-exp",
+      generationConfig: {
+        temperature: 0.7,
       }
+    });
 
-      if (base64) {
-        const refinedAsset: CreativeAsset = {
-          ...asset,
-          id: 'asset-ref-' + Date.now(),
-          mediaUrl: `data:image/png;base64,${base64}`,
-          prompt: asset.prompt + " | Refinement: " + feedback
-        };
-        setBrandingAssets(prev => [refinedAsset, ...prev]);
-        setActiveAsset(refinedAsset);
-        setChatMessages(prev => [...prev, { role: 'ai', text: `Refinement complete. New version added to Darkroom.` }]);
-      }
-    } catch (e) {
-      console.error(e);
-      setChatMessages(prev => [...prev, { role: 'ai', text: `Refinement error. Darkroom link severed.` }]);
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  };
+    const refinementPrompt = `Original image prompt: ${asset.prompt}\n\nRefinement request: ${feedback}\n\nGenerate an improved image prompt that incorporates this feedback while maintaining the original campaign branding and political messaging. Make the prompt detailed and specific for image generation.`;
+    
+    const result = await model.generateContent(refinementPrompt);
+    const response = await result.response;
+    const refinedPrompt = response.text();
+
+    const refinedAsset: CreativeAsset = {
+      ...asset,
+      id: 'asset-ref-' + Date.now(),
+      prompt: refinedPrompt,
+      content: `[REFINED IMAGE GENERATION PROMPT]\n\n${refinedPrompt}\n\n[Original Prompt]\n${asset.prompt}\n\n[Refinement Applied]\n${feedback}`
+    };
+    
+    setBrandingAssets(prev => [refinedAsset, ...prev]);
+    setActiveAsset(refinedAsset);
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `✅ Refinement complete. Updated prompt saved to Darkroom.` 
+    }]);
+    
+  } catch (e) {
+    console.error('Refinement error:', e);
+    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `❌ Refinement error: ${errorMsg}` 
+    }]);
+  } finally {
+    setIsGeneratingImage(false);
+  }
+};
+
 
   const deleteAsset = (id: string) => {
     setBrandingAssets(prev => prev.filter(a => a.id !== id));
@@ -749,55 +785,76 @@ const runNeuralProbe = async (focus: ResearchMode) => {
   // ============================================================================
 
   const generateCreative = async (type: string, manualContext?: string) => {
-    setIsThinking(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const lastResearch = manualContext || (researchVault[0] ? `Context from latest ${researchVault[0].mode} scan: ${researchVault[0].text.substring(0, 300)}` : '');
-      const dna = profile.metadata.dna || {};
-      const prompt = `Develop a high-impact ${type} for ${profile.candidate_name}'s 2026 campaign. 
-      District: ${profile.district_id}. 
-      Candidate Profile: 
-      Master Narrative: ${dna.master_narrative || 'N/A'}.
-      Reason for Running: ${dna.reason_for_running || 'N/A'}.
-      Focus: ${profile.voter_research || 'N/A'}.
-      ${lastResearch}
-      Style: Persuasive, professional, and data-grounded. Provide clear headlines and body copy.`;
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    alert('API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local');
+    return;
+  }
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt,
-        config: { tools: [{ googleSearch: {} }] }
-      });
+  setIsThinking(true);
+  
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash-exp",
+      generationConfig: {
+        temperature: 0.8,
+        maxOutputTokens: 2048,
+      }
+    });
 
-      const newAsset: CreativeAsset = {
-        id: Date.now().toString(),
-        type,
-        title: `${type} - ${new Date().toLocaleDateString()}`,
-        content: response.text || "Failed to generate.",
-        mediaType: 'text',
-        status: 'draft'
-      };
-      setCreativeAssets(prev => [newAsset, ...prev]);
-      setActiveCreativeAsset(newAsset);
-      setActiveTab('creative');
-    } catch (e) { console.error(e); } finally { setIsThinking(false); }
-  };
+    const lastResearch = manualContext || (researchVault[0] 
+      ? `Context from latest ${researchVault[0].mode} scan: ${researchVault[0].text.substring(0, 300)}` 
+      : '');
+    const dna = profile.metadata.dna || {};
+    
+    const prompt = `You are a Senior Political Communications Director. Develop a high-impact ${type} for ${profile.candidate_name}'s 2026 campaign.
+    
+CAMPAIGN CONTEXT:
+- District: ${profile.district_id}
+- Office Sought: ${profile.office_sought}
+- Party: ${profile.party}
+- Master Narrative: ${dna.master_narrative || 'Building grassroots momentum for change'}
+- Reason for Running: ${dna.reason_for_running || 'To serve the community'}
+- District Focus: ${profile.voter_research || 'Serving all constituents'}
+- Recent Intelligence: ${lastResearch}
 
-  const refineAsset = async (instruction: string) => {
-    if (!activeCreativeAsset) return;
-    setIsThinking(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Refine this ${activeCreativeAsset.type} based on: "${instruction}".
-      CURRENT CONTENT:
-      ${activeCreativeAsset.content}`;
+REQUIREMENTS:
+1. Create compelling ${type} content that resonates with district voters
+2. Include clear headlines and body copy
+3. Be persuasive, professional, and data-grounded
+4. Match the candidate's authentic voice and values
+5. Address key district concerns
+6. Include a clear call-to-action
 
-      const response = await ai.models.generateContent({ model: 'gemini-3-pro-preview', contents: prompt });
-      const updated = { ...activeCreativeAsset, content: response.text || activeCreativeAsset.content };
-      setCreativeAssets(prev => prev.map(a => a.id === updated.id ? updated : a));
-      setActiveCreativeAsset(updated);
-    } catch (e) { console.error(e); } finally { setIsThinking(false); }
-  };
+Format the response with proper structure for ${type} format.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    
+    const newAsset: CreativeAsset = {
+      id: Date.now().toString(),
+      type,
+      title: `${type} - ${new Date().toLocaleDateString()}`,
+      content: response.text() || "Failed to generate content.",
+      mediaType: 'text',
+      status: 'draft'
+    };
+    
+    setCreativeAssets(prev => [newAsset, ...prev]);
+    setActiveCreativeAsset(newAsset);
+    setActiveTab('creative');
+    
+    console.log(`✅ Generated ${type} successfully`);
+    
+  } catch (e) { 
+    console.error('Creative generation error:', e);
+    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+    alert(`Failed to generate ${type}: ${errorMsg}`);
+  } finally { 
+    setIsThinking(false); 
+  }
+};
 
   // ============================================================================
   // LOGIC: WAR CHEST (Fundraising) - from App2.tsx
