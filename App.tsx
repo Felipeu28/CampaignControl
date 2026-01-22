@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { 
   calculateVoteGoal, 
   validateCampaignProfile,
@@ -380,133 +380,184 @@ const App: React.FC = () => {
     } catch (e) { console.error(e); } finally { setIsThinking(false); }
   };
 
-  // ============================================================================
-  // LOGIC: INTELLIGENCE & THREAT MATRIX (MERGED)
-  // ============================================================================
+const runNeuralProbe = async (focus: ResearchMode) => {
+  // Validate API key
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: '⚠️ API Configuration Error: Google AI API key not found. Please add VITE_GOOGLE_AI_API_KEY to your .env.local file.' 
+    }]);
+    alert('API key not configured. Check console for details.');
+    return;
+  }
 
-  const runNeuralProbe = async (focus: ResearchMode) => {
-    setResearchMode(focus);
-    setIsProbeActive(true);
-    setScanMessage(`Establishing ${focus} neural link...`);
-    setChatMessages(prev => [...prev, { role: 'ai', text: `Initiating ${focus} Neural Probe. Awaiting district data streams.` }]);
+  setResearchMode(focus);
+  setIsProbeActive(true);
+  setScanMessage(`Establishing ${focus} neural link...`);
+  setChatMessages(prev => [...prev, { 
+    role: 'ai', 
+    text: `Initiating ${focus} Neural Probe. Awaiting district data streams.` 
+  }]);
+  
+  let prompt = "";
+  switch(focus) {
+    case 'ECONOMIC':
+      setScanMessage("Aggregating 2025 economic stressors...");
+      prompt = `Perform an economic intelligence audit for ${profile.district_id}. Analyze employment rates, housing affordability trends, and major local business developments. Format your response with these sections: [SIGNAL: key economic indicators], [THREAT: risks to the campaign], [ACTION: recommended campaign response]. Include specific data and sources where possible.`;
+      break;
+    case 'SENTIMENT':
+      setScanMessage("Monitoring voter sentiment patterns...");
+      prompt = `Detect prevailing voter sentiment and top 5 political grievances in ${profile.district_id} for the 2026 cycle. Analyze recent social movements or local controversies. Format as: [SIGNAL: mood/trends], [THREAT: narrative risks], [ACTION: outreach strategy].`;
+      break;
+    case 'POLICY':
+      setScanMessage("Tracking legislative volatility...");
+      prompt = `Analyze legislative impacts and local policy challenges in ${profile.district_id}. Focus on infrastructure needs, school board tensions, and recent tax changes. Format as: [SIGNAL: policy landscape], [THREAT: opposition angles], [ACTION: policy position].`;
+      break;
+    case 'OPPOSITION':
+      setScanMessage("Scanning opposition landscape...");
+      prompt = `Perform a deep dive on the political opposition for the ${profile.office_sought} seat in ${profile.district_id}. Identify active candidates, their funding sources, and vulnerabilities. Format as: [SIGNAL: opponent status], [THREAT: their strengths], [ACTION: counter-strategy].`;
+      break;
+    case 'MEDIA':
+      setScanMessage("Monitoring regional media sentiment...");
+      prompt = `Monitor local media sentiment in ${profile.district_id} for the ${profile.office_sought} race. Identify top trending stories and narrative threats. Format as: [SIGNAL: media landscape], [THREAT: negative coverage risks], [ACTION: media strategy].`;
+      break;
+    case 'REGISTRATION':
+      setScanMessage("Analyzing voter registration volatility...");
+      prompt = `Analyze voter registration shifts in ${profile.district_id} between 2024 and 2025. Who are the new voters? What are demographic trends? Format as: [SIGNAL: registration patterns], [THREAT: turnout challenges], [ACTION: voter contact plan].`;
+      break;
+    case 'SOCIAL':
+      setScanMessage("Scanning social media landscape...");
+      prompt = `Search for trending topics, hashtags, and public opinion related to the ${profile.office_sought} race in ${profile.district_id} for 2025/2026. Return sentiment analysis and top concerns. Format as: [SIGNAL: social trends], [THREAT: viral risks], [ACTION: social media strategy].`;
+      break;
+    case 'FUNDRAISING':
+      setScanMessage("Hunting for donors and PACs...");
+      prompt = `Identify potential donors, local PACs, and political contributors in ${profile.district_id} region aligning with ${profile.party}. Analyze giving patterns. Format as: [SIGNAL: donor landscape], [THREAT: opponent fundraising], [ACTION: solicitation strategy].`;
+      break;
+    case 'GEOGRAPHY':
+      setScanMessage("Mapping community hotspots...");
+      prompt = `Identify high-traffic intersections, community centers, and popular town hall venues in ${profile.district_id}. Find where campaign visibility is needed. Format as: [SIGNAL: key locations], [THREAT: coverage gaps], [ACTION: visibility plan].`;
+      break;
+    case 'ETHICS':
+      setScanMessage("Monitoring compliance threats...");
+      prompt = `Search for recent ethics filings, campaign finance controversies, or regulatory issues related to ${profile.office_sought} in ${profile.district_id}. Format as: [SIGNAL: compliance landscape], [THREAT: potential violations], [ACTION: protective measures].`;
+      break;
+    default: 
+      setScanMessage("Generating broad environmental landscape...");
+      prompt = `General political landscape and sentiment analysis for ${profile.district_id} in the 2026 cycle. Format as: [SIGNAL], [THREAT], [ACTION].`;
+  }
+
+  try {
+    // Correct Google AI initialization
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash-exp",
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+      }
+    });
+
+    // Generate content
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const insightText = response.text() || "No actionable signals detected.";
     
-    let prompt = "";
-    switch(focus) {
-      case 'ECONOMIC':
-        setScanMessage("Aggregating 2025 economic stressors...");
-        prompt = `Perform an economic intelligence audit for ${profile.district_id}. Analyze employment rates, housing affordability trends, and major local business developments. Format as: [SIGNAL], [THREAT], [ACTION]. Cite real news URLs.`;
-        break;
-      case 'SENTIMENT':
-        setScanMessage("Monitoring voter sentiment patterns...");
-        prompt = `Detect prevailing voter sentiment and top 5 political grievances in ${profile.district_id} for the 2026 cycle. Analyze recent social movements or local controversies. Format as: [SIGNAL], [THREAT], [ACTION]. Cite real news URLs.`;
-        break;
-      case 'POLICY':
-        setScanMessage("Tracking legislative volatility...");
-        prompt = `Analyze legislative impacts and local policy challenges in ${profile.district_id}. Focus on infrastructure needs, school board tensions, and recent tax changes. Format as: [SIGNAL], [THREAT], [ACTION]. Cite real news URLs.`;
-        break;
-      case 'OPPOSITION':
-        setScanMessage("Scanning opposition landscape...");
-        prompt = `Perform a deep dive on the political opposition for the ${profile.office_sought} seat in ${profile.district_id}. Identify names of active candidates, their funding sources, and their vulnerabilities. Format as: [SIGNAL], [THREAT], [ACTION]. Cite news URLs.`;
-        break;
-      case 'MEDIA':
-        setScanMessage("Monitoring regional media sentiment...");
-        prompt = `Monitor local media sentiment in ${profile.district_id} for the ${profile.office_sought} race. Identify top trending stories and narrative threats. Format as: [SIGNAL], [THREAT], [ACTION]. Cite real news URLs.`;
-        break;
-      case 'REGISTRATION':
-        setScanMessage("Analyzing voter registration volatility...");
-        prompt = `Analyze voter registration shifts in ${profile.district_id} between 2024 and 2025. Who are the new voters? What are demographic trends? Format as: [SIGNAL], [THREAT], [ACTION]. Cite real news URLs.`;
-        break;
-      case 'SOCIAL':
-        setScanMessage("Scanning X (Twitter) and Reddit...");
-        prompt = `Search for trending topics, hashtags, and public opinion on X (Twitter) and Reddit related to the ${profile.office_sought} race in ${profile.district_id} for 2025/2026. Return a "Sentiment Delta" and Top 3 concerns. Format as: [SIGNAL], [THREAT], [ACTION].`;
-        break;
-      case 'FUNDRAISING':
-        setScanMessage("Hunting for donors and PACs...");
-        prompt = `Search for potential donors, local PACS, and political contributors in ${profile.district_id} region aligning with ${profile.party}. Analyze giving patterns. Format as: [SIGNAL], [THREAT], [ACTION]. Cite real news URLs.`;
-        break;
-      case 'GEOGRAPHY':
-        setScanMessage("Mapping community hotspots...");
-        prompt = `Search for high-traffic intersections, community centers, and popular town hall venues in ${profile.district_id}. Identify where campaign visibility is lowest. Format as: [SIGNAL], [THREAT], [ACTION].`;
-        break;
-      case 'ETHICS':
-        setScanMessage("Monitoring compliance threats...");
-        prompt = `Search for recent ethics filings, campaign finance controversies, or narrative threats related to ${profile.office_sought} in ${profile.district_id}. Format as: [SIGNAL], [THREAT], [ACTION]. Cite real news URLs.`;
-        break;
-      default: 
-        setScanMessage("Generating broad environmental landscape...");
-        prompt = `General political landscape and sentiment analysis for ${profile.district_id} in the 2026 cycle. Format as: [SIGNAL], [THREAT], [ACTION].`;
-    }
+    // Parse Signal/Threat/Action
+    const parsed = {
+      signal: insightText.includes('SIGNAL') 
+        ? insightText.split(/THREAT|ACTION/i)[0].replace(/\[SIGNAL[:\]]/i, '').trim() 
+        : insightText.substring(0, 200),
+      threat: insightText.includes('THREAT') 
+        ? insightText.split(/ACTION/i)[0].split(/THREAT/i)[1]?.replace(/\[THREAT[:\]]/i, '').trim() 
+        : "Potential narrative threat detected.",
+      action: insightText.includes('ACTION') 
+        ? insightText.split(/ACTION/i)[1]?.replace(/\[ACTION[:\]]/i, '').trim() 
+        : "Recommended immediate outreach."
+    };
 
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt,
-        config: { tools: [{ googleSearch: {} }] }
-      });
-
-      const insightText = response.text || "No actionable signals detected.";
-      const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-      
-      // Parse Signal/Threat/Action (from App2)
-      const parsed = {
-        signal: insightText.includes('SIGNAL') ? insightText.split(/THREAT|ACTION/i)[0].replace(/\[SIGNAL\]/i, '').trim() : insightText.substring(0, 200),
-        threat: insightText.includes('THREAT') ? insightText.split(/ACTION/i)[0].split(/THREAT/i)[1]?.trim() : "Potential narrative threat detected.",
-        action: insightText.includes('ACTION') ? insightText.split(/ACTION/i)[1]?.trim() : "Recommended immediate outreach."
-      };
-
-      setMarketInsights({ text: insightText, sources, parsed });
-      
-      const newId = 'res-' + Date.now();
-      const snapshot: ResearchSnapshot = {
-        id: newId,
-        mode: focus,
-        timestamp: new Date().toLocaleString(),
-        text: insightText,
-        sources,
-        signalStrength: Math.floor(Math.random() * 40) + 60,
-        parsed
-      };
-      
-      setResearchVault(prev => [snapshot, ...prev]);
-      setActiveResearchId(newId);
-      setChatMessages(prev => [...prev, { role: 'ai', text: `Tactical scan [${focus}] complete. Research pinned to vault.` }]);
-    } catch (e) { 
-      console.error(e);
-      setChatMessages(prev => [...prev, { role: 'ai', text: `Probe failed for ${focus}. Neural link severed.` }]);
-    } finally { 
-      setIsProbeActive(false);
-      setScanMessage('');
-    }
-  };
+    setMarketInsights({ text: insightText, sources: [], parsed });
+    
+    const newId = 'res-' + Date.now();
+    const snapshot: ResearchSnapshot = {
+      id: newId,
+      mode: focus,
+      timestamp: new Date().toLocaleString(),
+      text: insightText,
+      sources: [],
+      signalStrength: Math.floor(Math.random() * 40) + 60,
+      parsed
+    };
+    
+    setResearchVault(prev => [snapshot, ...prev]);
+    setActiveResearchId(newId);
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `✅ Tactical scan [${focus}] complete. Research pinned to vault.` 
+    }]);
+    
+  } catch (e) { 
+    console.error('Neural probe failed:', e);
+    const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `❌ Probe failed for ${focus}: ${errorMessage}. Check API key configuration.` 
+    }]);
+  } finally { 
+    setIsProbeActive(false);
+    setScanMessage('');
+  }
+};
 
   const startSyncRivals = async () => {
-    const active = researchVault.find(v => v.id === activeResearchId);
-    if (!active) return;
-    
-    setIsExtractingRivals(true);
-    setChatMessages(prev => [...prev, { role: 'ai', text: `Neural Engine parsing research vault for competitive threats...` }]);
-    
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: `Identify and extract political opponents from the following research text. Filter for candidates specifically relevant to the ${profile.office_sought} seat in ${profile.district_id}. Return them as a JSON list of objects with fields: name, party, incumbent (boolean), strengths (list of strings), weaknesses (list of strings). Research text: ${active.text}`,
-        config: { responseMimeType: "application/json" }
-      });
+  const active = researchVault.find(v => v.id === activeResearchId);
+  if (!active) return;
+  
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    alert('API key not configured');
+    return;
+  }
+  
+  setIsExtractingRivals(true);
+  setChatMessages(prev => [...prev, { 
+    role: 'ai', 
+    text: `Neural Engine parsing research vault for competitive threats...` 
+  }]);
+  
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash-exp",
+      generationConfig: {
+        temperature: 0.5,
+        responseMimeType: "application/json"
+      }
+    });
 
-      const extracted: Opponent[] = JSON.parse(response.text || "[]");
-      setPendingRivals(extracted);
-      setIsReviewRivalsModalOpen(true);
-      setChatMessages(prev => [...prev, { role: 'ai', text: `Parsed ${extracted.length} potential targets. Awaiting command to register.` }]);
-    } catch (e) { 
-      console.error(e);
-      setChatMessages(prev => [...prev, { role: 'ai', text: `Rival extraction failed. Neural link unstable.` }]);
-    } finally { 
-      setIsExtractingRivals(false); 
-    }
-  };
-
+    const prompt = `Identify and extract political opponents from the following research text. Filter for candidates specifically relevant to the ${profile.office_sought} seat in ${profile.district_id}. Return them as a JSON array of objects with these exact fields: name (string), party (string), incumbent (boolean), strengths (array of strings), weaknesses (array of strings). Research text: ${active.text}`;
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const extracted: Opponent[] = JSON.parse(response.text() || "[]");
+    
+    setPendingRivals(extracted);
+    setIsReviewRivalsModalOpen(true);
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `✅ Extracted ${extracted.length} rival(s) from intelligence stream.` 
+    }]);
+  } catch (e) { 
+    console.error('Rival extraction failed:', e);
+    setChatMessages(prev => [...prev, { 
+      role: 'ai', 
+      text: `❌ Rival extraction failed. Check console for details.` 
+    }]);
+  } finally { 
+    setIsExtractingRivals(false); 
+  }
+};
+  
   const registerSelectedRival = (rival: Opponent) => {
     setProfile(prev => ({
       ...prev,
