@@ -1948,7 +1948,187 @@ Provide tactical, actionable advice. Be direct and specific. Reference the campa
       </div>
     );
   };
+// ============================================================================
+  // RENDER: DNA VAULT (SETTINGS) MODULE
+  // ============================================================================
 
+  const renderSettings = () => (
+    <div className="space-y-12 animate-in fade-in duration-700 pb-20">
+      <Card title="Candidate DNA Master: Core Mapping" icon="fa-fingerprint" subtitle="Onboarding & Identity Baseline">
+         <div className="mt-8 space-y-12">
+            <div className="space-y-6">
+               <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] italic mb-6 border-b border-slate-100 pb-4">Personal Background</h4>
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Candidate Name</label>
+                     <input value={profile.candidate_name} onChange={e => setProfile({...profile, candidate_name: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Office Sought</label>
+                     <input value={profile.office_sought} onChange={e => setProfile({...profile, office_sought: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Party Affiliation</label>
+                     <input value={profile.party} onChange={e => setProfile({...profile, party: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Campaign Treasurer</label>
+                     <input value={profile.metadata.treasurer || ''} onChange={e => setProfile({...profile, metadata: {...profile.metadata, treasurer: e.target.value}})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="Legal Treasurer Name" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Campaign Address</label>
+                     <input value={profile.metadata.campaign_address || ''} onChange={e => setProfile({...profile, metadata: {...profile.metadata, campaign_address: e.target.value}})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="HQ Address (for Disclaimers)" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Candidate Pets</label>
+                     <input value={profile.metadata.dna?.pets || ''} onChange={e => updateDNA({ pets: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="For humanization" />
+                  </div>
+               </div>
+            </div>
+
+            <div className="space-y-6">
+               <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] italic mb-6 border-b border-slate-100 pb-4">Strategic Narrative Mapping</h4>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">The 'Why' (Reason for Running)</label>
+                     <textarea rows={3} value={profile.metadata.dna?.reason_for_running || ''} onChange={e => updateDNA({ reason_for_running: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="Describe the core motivator." />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unique Assets & Edge</label>
+                     <textarea rows={3} value={profile.metadata.dna?.unique_qualifications || ''} onChange={e => updateDNA({ unique_qualifications: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-800 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all" placeholder="What issues do you own?" />
+                  </div>
+               </div>
+            </div>
+         </div>
+      </Card>
+
+      <Card title="Neural Source Lab" icon="fa-folder-open" subtitle="Deep Documentation Intelligence">
+         <div className="mt-8 space-y-10">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+               <div className="w-full md:w-1/3 space-y-6">
+                  <div className="bg-indigo-50 p-8 rounded-[2.5rem] border border-indigo-100">
+                     <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-4 italic">Material Deployment</h5>
+                     <p className="text-[9px] text-slate-500 font-bold uppercase leading-relaxed mb-6">
+                        Upload candidate resumes, policy positions, or existing bios. Our AI extracts deep context.
+                     </p>
+                     <label className="w-full flex flex-col items-center justify-center p-8 border-4 border-dashed border-indigo-200 rounded-3xl hover:border-indigo-600 hover:bg-white transition-all cursor-pointer group mb-6">
+                        <i className="fas fa-cloud-arrow-up text-2xl text-indigo-300 group-hover:text-indigo-600 mb-3"></i>
+                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Upload Doc</span>
+                        <input type="file" className="hidden" accept=".txt,.md,.doc,.docx" onChange={handleFileUpload} />
+                     </label>
+
+                     <div>
+                        <h6 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 italic">Knowledge Base Log</h6>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                          {profile.metadata.dna?.source_materials?.map((m, i) => (
+                            <div key={i} className="bg-white/50 border border-indigo-100/50 p-3 rounded-xl flex justify-between items-center group">
+                               <div className="overflow-hidden">
+                                  <p className="text-[9px] font-black text-slate-700 truncate">{m.name}</p>
+                                  <p className="text-[7px] text-slate-400 font-bold uppercase">{m.timestamp}</p>
+                               </div>
+                               <i className="fas fa-check-circle text-indigo-400 text-[10px]"></i>
+                            </div>
+                          )) || <p className="text-[8px] text-slate-300 font-black uppercase tracking-widest text-center py-4">No data indexed</p>}
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div className="w-full md:w-2/3 space-y-4">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Raw Source Intelligence / Manual Input</label>
+                  <div className="relative">
+                     <textarea 
+                        rows={12}
+                        value={profile.metadata.dna?.source_text || ''}
+                        onChange={(e) => updateDNA({ source_text: e.target.value })}
+                        className="w-full p-8 bg-slate-50 border border-slate-200 rounded-[2.5rem] outline-none font-medium text-slate-700 text-base italic focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all resize-none shadow-inner"
+                        placeholder="Paste or type raw bio details, experience, or policy notes here..."
+                     />
+                     <div className="absolute bottom-6 right-8">
+                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{profile.metadata.dna?.source_text?.length || 0} Characters Indexed</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </Card>
+
+      <Card title="The Master Narrative" icon="fa-wand-sparkles" subtitle="Neural Synthesis outcome">
+         <div className="mt-8 space-y-8">
+            {!profile.metadata.dna?.master_narrative ? (
+               <div className="p-16 border-4 border-dashed border-slate-100 rounded-[3.5rem] text-center bg-slate-50 flex flex-col items-center">
+                  <i className="fas fa-microchip text-4xl text-slate-200 mb-6"></i>
+                  <h4 className="text-xl font-black text-slate-400 uppercase tracking-tighter italic">Narrative Engine Idle</h4>
+                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-3 mb-8 text-center max-w-sm">Use the core mapping and source lab above to calibrate the AI narrative engine.</p>
+                  <button 
+                     onClick={synthesizeMasterNarrative}
+                     disabled={isThinking}
+                     className="px-12 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-xl hover:scale-105 transition-all disabled:opacity-50"
+                  >
+                     {isThinking ? <i className="fas fa-spinner animate-spin"></i> : "Synthesize Master Narrative"}
+                  </button>
+               </div>
+            ) : (
+               <div className="relative group">
+                  {isThinking && (
+                     <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-20 flex flex-col items-center justify-center rounded-[3rem] transition-all duration-300">
+                        <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                     </div>
+                  )}
+                  <div className="bg-white p-12 rounded-[3.5rem] border-2 border-indigo-100 shadow-xl relative overflow-hidden transition-all hover:border-indigo-300 mb-10">
+                     <div className="absolute top-0 right-0 p-8 flex items-center gap-4">
+                        <button onClick={() => updateDNA({ master_narrative: '' })} className="text-slate-300 hover:text-red-500 transition-colors" title="Clear Narrative"><i className="fas fa-trash-alt"></i></button>
+                     </div>
+                     <div className="relative">
+                        <textarea 
+                           value={profile.metadata.dna?.master_narrative} 
+                           onChange={(e) => updateDNA({ master_narrative: e.target.value })}
+                           className="w-full min-h-[500px] bg-transparent outline-none border-none text-slate-700 font-medium leading-relaxed italic text-lg resize-none p-0 focus:ring-0"
+                           placeholder="Manually refine your master narrative here..."
+                        />
+                     </div>
+                     <div className="mt-12 pt-8 border-t border-slate-100 flex justify-between items-center">
+                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.4em] italic flex items-center gap-3">
+                           <i className="fas fa-check-double"></i> Narrative Active & Unified
+                        </span>
+                        <div className="flex gap-6">
+                          <button 
+                             onClick={synthesizeMasterNarrative}
+                             className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors flex items-center gap-2"
+                          >
+                             <i className="fas fa-sparkles text-xs"></i> AI Re-Synthesize
+                          </button>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white border border-indigo-500/30">
+                     <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-6 flex items-center gap-4">
+                        <i className="fas fa-sparkles text-xs"></i> AI Refinement Agent
+                     </h5>
+                     <div className="flex gap-4">
+                        <input 
+                           disabled={isThinking}
+                           value={narrativeRefinePrompt}
+                           onChange={(e) => setNarrativeRefinePrompt(e.target.value)}
+                           onKeyDown={(e) => e.key === 'Enter' && refineMasterNarrative()}
+                           placeholder="E.g. 'Emphasize my business background more in the mission section'"
+                           className="flex-1 bg-white/10 border border-white/20 rounded-2xl px-6 py-4 text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/30 transition-all placeholder:text-slate-500"
+                        />
+                        <button 
+                           onClick={refineMasterNarrative}
+                           disabled={isThinking || !narrativeRefinePrompt.trim()}
+                           className="px-8 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all disabled:opacity-50"
+                        >
+                           Refine Narrative
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            )}
+         </div>
+      </Card>
+    </div>
+  );
 // ============================================================================
 // VICTORYOPS - PART 4: REMAINING RENDERS, MODALS & MAIN LAYOUT
 // ============================================================================
