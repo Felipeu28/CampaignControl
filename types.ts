@@ -97,10 +97,11 @@ export interface LegalShieldData {
     fee_paid: boolean;
     signatures_required: number;
     signatures_collected: number;
-    safety_buffer_percentage: number; // usually 20%
-    deadline?: string;    // Added
-    status?: 'not_started' | 'in_progress' | 'complete';  // Added
+    safety_buffer_percentage: number;
+    deadline?: string;
+    status?: 'not_started' | 'in_progress' | 'complete';
   };
+  disclaimers: Record<string, string>;  // ✅ THIS LINE IS KEY
   required_forms: {
     name: string;
     description: string;
@@ -108,14 +109,11 @@ export interface LegalShieldData {
     link?: string;
   }[];
   reporting_schedule: ComplianceDeadline[];
-  
-  // Added for App.tsx compatibility:
   tec_reporting?: {
     next_deadline: string;
     report_type: string;
     auto_reminders: boolean;
   };
-  
   tec_forms?: Record<string, {
     required: boolean;
     filed: boolean;
