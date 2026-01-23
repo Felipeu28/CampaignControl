@@ -3614,18 +3614,17 @@ Keep responses under 100 words.`
       </div>
     </div>
   );
-  // ============================================================================
+    // ============================================================================
   // MAIN APP RENDER
   // ============================================================================
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
-    {!isInitialized && renderGatekeeper()}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
+      {/* Gatekeeper Overlay */}
+      {!isInitialized && renderGatekeeper()}
+
       {/* Sidebar Navigation */}
       <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 shadow-xl z-40 p-8 flex flex-col">
-        {!isInitialized && (
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8">
-        <div className="max-w-2xl w-full">
         {/* Logo */}
         <div className="mb-12">
           <h1 className="text-3xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
@@ -3681,7 +3680,7 @@ Keep responses under 100 words.`
                   Command Assistant
                 </p>
               </div>
-              <button 
+              <button
                 onClick={() => setIsChatOpen(false)}
                 className="text-white/70 hover:text-white transition-colors"
               >
@@ -3693,11 +3692,13 @@ Keep responses under 100 words.`
             <div className="h-96 overflow-y-auto p-6 space-y-4 bg-slate-50">
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl ${
-                    msg.role === 'user' 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-white text-slate-700 border border-slate-200'
-                  }`}>
+                  <div
+                    className={`max-w-[80%] p-4 rounded-2xl ${
+                      msg.role === 'user'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-white text-slate-700 border border-slate-200'
+                    }`}
+                  >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   </div>
                 </div>
@@ -3722,7 +3723,11 @@ Keep responses under 100 words.`
                   disabled={loadingStates.chat || !chatInput.trim()}
                   className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all disabled:opacity-50"
                 >
-                  {loadingStates.chat ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
+                  {loadingStates.chat ? (
+                    <i className="fas fa-circle-notch fa-spin"></i>
+                  ) : (
+                    <i className="fas fa-paper-plane"></i>
+                  )}
                 </button>
               </div>
             </div>
@@ -3876,8 +3881,8 @@ Keep responses under 100 words.`
               {onboardingMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] p-6 rounded-3xl ${
-                    msg.role === 'user' 
-                      ? 'bg-indigo-600 text-white' 
+                    msg.role === 'user'
+                      ? 'bg-indigo-600 text-white'
                       : 'bg-slate-50 text-slate-700'
                   }`}>
                     <p className="leading-relaxed">{msg.text}</p>
@@ -3914,8 +3919,5 @@ Keep responses under 100 words.`
           </div>
         </div>
       )}
-    </div>  {/* ← CRITICAL: This closes the main app div */}
-  );  {/* ← CRITICAL: This closes the return statement */}
-}  {/* ← CRITICAL: This closes the App function */}
-
-export default App;  {/* ← CRITICAL: This must be the last line */}
+    </div>
+  );
