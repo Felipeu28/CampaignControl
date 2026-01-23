@@ -3922,3 +3922,5 @@ Keep responses under 100 words.`
     </div>
   );
 }
+
+export default App;
