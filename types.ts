@@ -1,4 +1,3 @@
-
 // ============================================================================
 // SECTION 1: POLITICAL CAMPAIGN SCHEMA - TYPES & INTERFACES
 // ============================================================================
@@ -20,7 +19,13 @@ export interface CampaignDNA {
   staffing_plans?: string;
   master_narrative?: string; // AI-generated political profile
   source_text?: string; // Raw input material (resumes, bios, papers)
-  source_materials?: { name: string; timestamp: string }[]; // Metadata for ingested docs
+  source_materials?: { 
+    name: string; 
+    timestamp?: string;      // Made optional
+    type?: string;           // For file type
+    size?: number;           // For file size
+    uploadedAt?: string;     // For upload timestamp
+  }[]; // Metadata for ingested docs
   qualifications_check?: {
     age: boolean;
     location: boolean;
@@ -29,6 +34,11 @@ export interface CampaignDNA {
   };
   willing_to_do?: string[];
   unwilling_to_do?: string[];
+  
+  // Added for App.tsx compatibility:
+  core_values?: string[];
+  personal_story?: string;
+  policy_priorities?: string[];
 }
 
 export interface DonorLead {
@@ -38,6 +48,7 @@ export interface DonorLead {
   likelihood: number; // 0-100
   status: 'identified' | 'contacted' | 'pledged' | 'received';
   notes?: string;
+  probability?: number;  // Alias for likelihood (App.tsx compatibility)
 }
 
 export interface FundraisingIntel {
@@ -68,7 +79,7 @@ export interface BudgetEstimate {
     emergency_reserve: number;
   };
   total_projected_needed: number;
-  cost_per_vote: number;
+  cost_per_vote?: number;  // Made optional
 }
 
 export interface ComplianceDeadline {
@@ -87,6 +98,8 @@ export interface LegalShieldData {
     signatures_required: number;
     signatures_collected: number;
     safety_buffer_percentage: number; // usually 20%
+    deadline?: string;    // Added
+    status?: 'not_started' | 'in_progress' | 'complete';  // Added
   };
   required_forms: {
     name: string;
@@ -95,6 +108,19 @@ export interface LegalShieldData {
     link?: string;
   }[];
   reporting_schedule: ComplianceDeadline[];
+  
+  // Added for App.tsx compatibility:
+  tec_reporting?: {
+    next_deadline: string;
+    report_type: string;
+    auto_reminders: boolean;
+  };
+  
+  tec_forms?: Record<string, {
+    required: boolean;
+    filed: boolean;
+    date_filed: string | null;
+  }>;
 }
 
 export interface CampaignProfileRow {
@@ -219,6 +245,12 @@ export interface VoteGoal {
     persuasion_target: number;
     gotv_target: number;
   };
+  
+  // Added aliases for calculateVoteGoal compatibility:
+  total_registered?: number;
+  expected_turnout_rate?: number;
+  target_vote_share?: number;
+  opponent_count?: number;
 }
 
 export interface FieldPlan {
@@ -280,4 +312,5 @@ export interface CreativeAsset {
   mediaType: 'text' | 'image' | 'video';
   status: 'draft' | 'final';
   prompt?: string; // The AI prompt used to generate
+  metadata?: any;  // Added for enhanced asset tracking
 }
