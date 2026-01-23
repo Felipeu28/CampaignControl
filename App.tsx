@@ -3623,6 +3623,9 @@ Keep responses under 100 words.`
        {!isInitialized && renderGatekeeper()}
       {/* Sidebar Navigation */}
       <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 shadow-xl z-40 p-8 flex flex-col">
+        {!isInitialized && (
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8">
+        <div className="max-w-2xl w-full">
         {/* Logo */}
         <div className="mb-12">
           <h1 className="text-3xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
