@@ -233,10 +233,20 @@ const DEMO_PROFILE: CampaignProfileRow = {
     voter_segments: [],
     vote_goal: calculateVoteGoal(82000, 0.44, 0.05, 2),
     field_plan: {
-      doors_to_knock: 22000,
-      phone_calls_to_make: 35000,
-      volunteers_needed: 75,
-      weeks_until_election: 52,
+  doors_to_knock: 22000,
+  phone_calls_to_make: 35000,
+  volunteers_needed: 75,
+  weeks_until_election: 52,
+  weekly_goals: {
+    doors_per_week: 423,
+    calls_per_week: 673,
+    volunteer_shifts_per_week: 15
+  },
+  priority_precincts: ['PCT-001', 'PCT-015', 'PCT-042'],
+  canvassing_universes: {
+    persuasion: 8500,
+    gotv: 12000
+  }
     },
     budget_estimate: {
       total_projected_needed: 180000,
@@ -255,32 +265,36 @@ const DEMO_PROFILE: CampaignProfileRow = {
       }
     },
     donor_leads: [
-      {
-        id: 'donor-1',
-        name: 'Tech Alliance PAC',
-        target_amount: 5000,
-        probability: 0.7,
-        status: 'contacted' as const,
-        notes: 'Interested in tech-friendly policies'
-      },
-      {
-        id: 'donor-2',
-        name: 'Education First Coalition',
-        target_amount: 3500,
-        probability: 0.6,
-        status: 'identified' as const,
-        notes: 'School funding advocates'
-      }
-    ],
-    legal_shield: {
-      ballot_access: {
-        method: 'signatures' as const,
-        signatures_required: 500,
-        signatures_collected: 342,
-        safety_buffer_percentage: 20,
-        deadline: '2025-03-01',
-        status: 'in_progress' as const
-      },
+  {
+    id: 'donor-1',
+    name: 'Tech Alliance PAC',
+    target_amount: 5000,
+    likelihood: 70,
+    probability: 0.7,
+    status: 'contacted' as const,
+    notes: 'Interested in tech-friendly policies'
+  },
+  {
+    id: 'donor-2',
+    name: 'Education First Coalition',
+    target_amount: 3500,
+    likelihood: 60,
+    probability: 0.6,
+    status: 'identified' as const,
+    notes: 'School funding advocates'
+  }
+],
+legal_shield: {
+  ballot_access: {
+    method: 'signatures' as const,
+    fee_amount: 750,
+    fee_paid: false,
+    signatures_required: 500,
+    signatures_collected: 342,
+    safety_buffer_percentage: 20,
+    deadline: '2025-03-01',
+    status: 'in_progress' as const
+  },
       disclaimers: {},
       tec_reporting: {
         next_deadline: '2025-07-15',
@@ -510,15 +524,16 @@ function App() {
   /**
    * Add new donor lead
    */
-  const addDonorLead = () => {
-    const newLead: DonorLead = {
-      id: 'donor-' + Date.now(),
-      name: '',
-      target_amount: 0,
-      probability: 0.5,
-      status: 'identified',
-      notes: ''
-    };
+ const addDonorLead = () => {
+  const newLead: DonorLead = {
+    id: 'donor-' + Date.now(),
+    name: '',
+    target_amount: 0,
+    likelihood: 50,
+    probability: 0.5,
+    status: 'identified',
+    notes: ''
+  };
     
     setProfile(prev => ({
       ...prev,
