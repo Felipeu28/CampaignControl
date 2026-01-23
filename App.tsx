@@ -330,12 +330,175 @@ legal_shield: {
       }
     },
     dna: {
+      // ============================================
+      // CANDIDATE DNA - Who We Are
+      // ============================================
       reason_for_running: '',
       core_values: [],
       personal_story: '',
       policy_priorities: [],
       master_narrative: '',
-      source_materials: []
+      source_materials: [],
+      
+      // ============================================
+      // DISTRICT INTELLIGENCE - Our Battlefield
+      // ============================================
+      district_intelligence: {
+        demographics: {
+          population: null,
+          median_age: null,
+          median_income: null,
+          education_level: null,
+          racial_composition: null,
+          urban_rural_mix: null,
+          last_updated: null
+        },
+        political_landscape: {
+          registration_breakdown: null, // { R: 45, D: 40, I: 15 }
+          recent_election_results: null,
+          swing_district: null,
+          partisan_lean: null, // 'R+5', 'D+3', 'EVEN'
+          voter_turnout_history: null,
+          last_updated: null
+        },
+        key_issues: {
+          top_priorities: [], // From grounding and research
+          economic_concerns: [],
+          social_issues: [],
+          local_hot_topics: [],
+          last_updated: null
+        },
+        media_landscape: {
+          local_news_outlets: [],
+          influential_voices: [],
+          social_media_reach: null,
+          coverage_history: null,
+          last_updated: null
+        },
+        geographic_intel: {
+          key_neighborhoods: [],
+          priority_precincts: [],
+          strong_areas: [],
+          weak_areas: [],
+          last_updated: null
+        }
+      },
+      
+      // ============================================
+      // OPPOSITION INTELLIGENCE - Who We're Fighting
+      // ============================================
+      opposition_intelligence: {
+        known_opponents: [], // From grounding + deep scans
+        incumbent_analysis: {
+          name: null,
+          tenure: null,
+          voting_record_summary: null,
+          major_accomplishments: [],
+          vulnerabilities: [],
+          approval_rating: null,
+          last_updated: null
+        },
+        competitive_positioning: {
+          our_advantages: [],
+          our_challenges: [],
+          contrast_points: [],
+          attack_vulnerabilities: [],
+          last_updated: null
+        },
+        opposition_research_snapshots: [], // Historical deep scans
+        last_comprehensive_scan: null
+      },
+      
+      // ============================================
+      // COMPLIANCE INTELLIGENCE - Rules of Engagement
+      // ============================================
+      compliance_intelligence: {
+        filing_requirements: {
+          forms_needed: [],
+          deadlines: [],
+          fees: null,
+          signature_requirements: null,
+          last_updated: null
+        },
+        contribution_rules: {
+          individual_limit: null,
+          pac_limit: null,
+          corporate_restrictions: null,
+          prohibited_sources: [],
+          last_updated: null
+        },
+        reporting_requirements: {
+          frequency: null,
+          platforms: [],
+          next_deadline: null,
+          last_updated: null
+        },
+        ballot_access: {
+          method: null,
+          status: null,
+          progress: null,
+          last_updated: null
+        }
+      },
+      
+      // ============================================
+      // FUNDRAISING INTELLIGENCE - Money Landscape
+      // ============================================
+      fundraising_intelligence: {
+        district_wealth: {
+          median_household_income: null,
+          high_net_worth_concentration: null,
+          major_employers: [],
+          donor_potential_score: null,
+          last_updated: null
+        },
+        typical_race_costs: {
+          low_range: null,
+          high_range: null,
+          average: null,
+          recommended_budget: null,
+          last_updated: null
+        },
+        donor_landscape: {
+          known_major_donors: [],
+          pac_presence: [],
+          bundler_networks: [],
+          fundraising_events_history: [],
+          last_updated: null
+        },
+        competitive_fundraising: {
+          opponent_warchest_estimates: [],
+          spending_patterns: null,
+          last_updated: null
+        }
+      },
+      
+      // ============================================
+      // STRATEGIC SYNTHESIS - Our Battle Plan
+      // ============================================
+      strategic_synthesis: {
+        campaign_thesis: null, // AI-generated from all intel
+        winning_coalition: null, // Target voter segments
+        theory_of_victory: null, // Path to 50%+1
+        key_messages: [],
+        contrast_strategy: null,
+        resource_allocation_strategy: null,
+        last_synthesized: null
+      },
+      
+      // ============================================
+      // INTELLIGENCE METADATA
+      // ============================================
+      intelligence_completeness: {
+        candidate_dna: 0, // 0-100% complete
+        district_intel: 0,
+        opposition_intel: 0,
+        compliance_intel: 0,
+        fundraising_intel: 0,
+        overall_score: 0
+      },
+      last_full_refresh: null,
+      intelligence_version: '1.0'
     }
   }
 };
@@ -688,6 +851,190 @@ function App() {
       role: 'ai',
       text: `Ã¢Å“â€¦ Uploaded ${files.length} document(s) to DNA Vault. Source materials indexed.`
     }]);
+  };
+
+  // ============================================================================
+  // DNA INTELLIGENCE SYSTEM - Central Brain Functions
+  // ============================================================================
+  
+  /**
+   * Check if intelligence data is recent enough to use
+   */
+  const isIntelligenceFresh = (lastUpdated: string | null, maxAgeDays: number = 7): boolean => {
+    if (!lastUpdated) return false;
+    const ageInDays = (Date.now() - new Date(lastUpdated).getTime()) / (1000 * 60 * 60 * 24);
+    return ageInDays < maxAgeDays;
+  };
+  
+  /**
+   * Get district intelligence from DNA or trigger refresh
+   */
+  const getDistrictIntelligence = async (forceRefresh: boolean = false) => {
+    const intel = profile.metadata.dna?.district_intelligence;
+    
+    // Check if we have fresh data
+    if (!forceRefresh && intel?.key_issues?.last_updated && 
+        isIntelligenceFresh(intel.key_issues.last_updated, 7)) {
+      return {
+        source: 'dna_vault',
+        data: intel,
+        note: `From campaign intelligence (updated ${new Date(intel.key_issues.last_updated).toLocaleDateString()})`
+      };
+    }
+    
+    // Need to refresh - will be implemented in research functions
+    return {
+      source: 'needs_refresh',
+      data: intel,
+      note: 'Intelligence outdated or missing - run district research to update'
+    };
+  };
+  
+  /**
+   * Get opposition intelligence from DNA or trigger refresh  
+   */
+  const getOppositionIntelligence = async (opponentName?: string, forceRefresh: boolean = false) => {
+    const intel = profile.metadata.dna?.opposition_intelligence;
+    
+    if (!forceRefresh && intel?.last_comprehensive_scan &&
+        isIntelligenceFresh(intel.last_comprehensive_scan, 14)) {
+      return {
+        source: 'dna_vault',
+        data: intel,
+        opponents: intel.known_opponents,
+        note: `From campaign intelligence (scanned ${new Date(intel.last_comprehensive_scan).toLocaleDateString()})`
+      };
+    }
+    
+    return {
+      source: 'needs_refresh',
+      data: intel,
+      note: 'Opposition intelligence outdated - run opponent scan to update'
+    };
+  };
+  
+  /**
+   * Update district intelligence in DNA
+   */
+  const updateDistrictIntelligence = (updates: any) => {
+    setProfile(prev => ({
+      ...prev,
+      metadata: {
+        ...prev.metadata,
+        dna: {
+          ...prev.metadata.dna,
+          district_intelligence: {
+            ...prev.metadata.dna?.district_intelligence,
+            ...updates
+          }
+        }
+      }
+    }));
+  };
+  
+  /**
+   * Update opposition intelligence in DNA
+   */
+  const updateOppositionIntelligence = (updates: any) => {
+    setProfile(prev => ({
+      ...prev,
+      metadata: {
+        ...prev.metadata,
+        dna: {
+          ...prev.metadata.dna,
+          opposition_intelligence: {
+            ...prev.metadata.dna?.opposition_intelligence,
+            ...updates,
+            last_comprehensive_scan: new Date().toISOString()
+          }
+        }
+      }
+    }));
+  };
+  
+  /**
+   * Update compliance intelligence in DNA
+   */
+  const updateComplianceIntelligence = (updates: any) => {
+    setProfile(prev => ({
+      ...prev,
+      metadata: {
+        ...prev.metadata,
+        dna: {
+          ...prev.metadata.dna,
+          compliance_intelligence: {
+            ...prev.metadata.dna?.compliance_intelligence,
+            ...updates
+          }
+        }
+      }
+    }));
+  };
+  
+  /**
+   * Update fundraising intelligence in DNA
+   */
+  const updateFundraisingIntelligence = (updates: any) => {
+    setProfile(prev => ({
+      ...prev,
+      metadata: {
+        ...prev.metadata,
+        dna: {
+          ...prev.metadata.dna,
+          fundraising_intelligence: {
+            ...prev.metadata.dna?.fundraising_intelligence,
+            ...updates
+          }
+        }
+      }
+    }));
+  };
+  
+  /**
+   * Calculate intelligence completeness score
+   */
+  const calculateIntelligenceCompleteness = () => {
+    const dna = profile.metadata.dna;
+    if (!dna) return 0;
+    
+    // Check each intelligence area
+    const candidateScore = (
+      (dna.reason_for_running ? 25 : 0) +
+      (dna.core_values?.length > 0 ? 25 : 0) +
+      (dna.personal_story ? 25 : 0) +
+      (dna.policy_priorities?.length > 0 ? 25 : 0)
+    );
+    
+    const districtScore = (
+      (dna.district_intelligence?.demographics?.population ? 25 : 0) +
+      (dna.district_intelligence?.political_landscape?.partisan_lean ? 25 : 0) +
+      (dna.district_intelligence?.key_issues?.top_priorities?.length > 0 ? 25 : 0) +
+      (dna.district_intelligence?.media_landscape?.local_news_outlets?.length > 0 ? 25 : 0)
+    );
+    
+    const oppositionScore = (
+      (dna.opposition_intelligence?.known_opponents?.length > 0 ? 50 : 0) +
+      (dna.opposition_intelligence?.competitive_positioning?.our_advantages?.length > 0 ? 50 : 0)
+    );
+    
+    const complianceScore = (
+      (dna.compliance_intelligence?.filing_requirements?.forms_needed?.length > 0 ? 50 : 0) +
+      (dna.compliance_intelligence?.contribution_rules?.individual_limit ? 50 : 0)
+    );
+    
+    const fundraisingScore = (
+      (dna.fundraising_intelligence?.typical_race_costs?.recommended_budget ? 50 : 0) +
+      (dna.fundraising_intelligence?.district_wealth?.median_household_income ? 50 : 0)
+    );
+    
+    return {
+      candidate_dna: candidateScore,
+      district_intel: districtScore,
+      opposition_intel: oppositionScore,
+      compliance_intel: complianceScore,
+      fundraising_intel: fundraisingScore,
+      overall_score: Math.round((candidateScore + districtScore + oppositionScore + complianceScore + fundraisingScore) / 5)
+    };
   };
 
   // ============================================================================
@@ -2062,7 +2409,9 @@ Your goal is to gather essential information through a conversational interview:
 8. Campaign budget estimate
 9. Main opponents (if known)
 
-Ask ONE question at a time. Be warm, encouraging, and professional. After gathering all info, summarize and offer to begin campaign setup.
+Ask ONE question at a time. Be warm, encouraging, and professional.
+
+After gathering at least the first 6 items, let the candidate know they have enough information to proceed and can click "Complete Setup" when ready, or continue adding more details.
 
 Keep responses under 100 words.`
       });
@@ -2094,6 +2443,397 @@ Keep responses under 100 words.`
       }]);
     } finally { 
       setLoading('onboarding', false); 
+    }
+  };
+
+  /**
+   * Complete Onboarding - Extract data and populate profile with grounded verification
+   */
+  const completeOnboarding = async () => {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      alert('API key not configured');
+      return;
+    }
+
+    setLoading('onboarding', true);
+
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      
+      // STEP 1: Extract raw data from conversation
+      const extractionModel = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 2048,
+        },
+      });
+
+      const transcript = onboardingMessages
+        .map(m => `${m.role === 'user' ? 'CANDIDATE' : 'AI'}: ${m.text}`)
+        .join('\n\n');
+
+      const extractionPrompt = `Extract campaign information from this onboarding interview transcript and return ONLY valid JSON (no markdown, no explanation):
+
+${transcript}
+
+Return a JSON object with this EXACT structure:
+{
+  "candidate_name": "Full name",
+  "office_sought": "Office title",
+  "district": "District/jurisdiction",
+  "party": "Republican|Democratic|Independent|Other",
+  "election_date": "YYYY-MM-DD or null",
+  "reason_for_running": "Why they're running",
+  "policy_priorities": ["priority 1", "priority 2", "priority 3"],
+  "personal_story": "Background/personal story",
+  "budget_estimate": 50000,
+  "core_values": ["value 1", "value 2", "value 3"],
+  "opponents": []
+}
+
+Use actual data from transcript. If information is missing, use null.`;
+
+      const extractionResult = await extractionModel.generateContent(extractionPrompt);
+      const extractionText = extractionResult.response.text();
+      
+      const jsonMatch = extractionText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('Failed to extract JSON from response');
+      }
+
+      const extractedData = JSON.parse(jsonMatch[0]);
+
+      // STEP 2: Ground and validate the data using Google Search
+      const groundingModel = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 3000,
+        },
+        tools: [{
+          googleSearch: {}
+        }],
+      });
+
+      const groundingPrompt = `Verify and enhance this political campaign information using current web data:
+
+EXTRACTED DATA:
+- Candidate: ${extractedData.candidate_name}
+- Office: ${extractedData.office_sought}
+- District: ${extractedData.district}
+- Party: ${extractedData.party}
+- Election Date: ${extractedData.election_date || 'Unknown'}
+
+VERIFICATION TASKS:
+1. Confirm this office exists in this district/jurisdiction
+2. Find the correct election date if not provided
+3. Identify known opponents in this race
+4. Verify the district boundaries and key demographics
+5. List major issues/priorities for this district
+6. Confirm typical budget ranges for this type of race
+
+Return ONLY valid JSON with verified/enhanced data:
+{
+  "verified": {
+    "office_sought": "Corrected office name if needed",
+    "district": "Corrected district identifier",
+    "election_date": "YYYY-MM-DD",
+    "office_exists": true/false,
+    "district_valid": true/false
+  },
+  "opponents": [
+    {
+      "name": "Opponent name",
+      "party": "R/D/I",
+      "incumbent": true/false,
+      "strengths": ["strength1"],
+      "weaknesses": ["weakness1"]
+    }
+  ],
+  "district_info": {
+    "population": 0,
+    "key_demographics": "brief description",
+    "major_issues": ["issue1", "issue2", "issue3"]
+  },
+  "budget_guidance": {
+    "typical_low": 0,
+    "typical_high": 0,
+    "recommended": 0
+  },
+  "validation_notes": "Any corrections or important findings"
+}`;
+
+      const groundingResult = await groundingModel.generateContent(groundingPrompt);
+      const groundingText = groundingResult.response.text();
+      
+      // Extract grounded data
+      const groundedMatch = groundingText.match(/\{[\s\S]*\}/);
+      let groundedData: any = null;
+      
+      if (groundedMatch) {
+        try {
+          groundedData = JSON.parse(groundedMatch[0]);
+        } catch (e) {
+          console.warn('Failed to parse grounded data, using extracted data only');
+        }
+      }
+
+      // STEP 3: Merge extracted and grounded data
+      const finalData = {
+        ...extractedData,
+        // Use grounded data if validation succeeded
+        office_sought: groundedData?.verified?.office_exists !== false 
+          ? (groundedData?.verified?.office_sought || extractedData.office_sought)
+          : extractedData.office_sought,
+        district: groundedData?.verified?.district_valid !== false
+          ? (groundedData?.verified?.district || extractedData.district)
+          : extractedData.district,
+        election_date: groundedData?.verified?.election_date || extractedData.election_date,
+        // Add grounded opponents if found
+        opponents: groundedData?.opponents && groundedData.opponents.length > 0
+          ? groundedData.opponents
+          : extractedData.opponents,
+      };
+
+      // STEP 4: Calculate budget if not provided or adjust based on guidance
+      let finalBudget = extractedData.budget_estimate || 0;
+      if (groundedData?.budget_guidance) {
+        if (!finalBudget) {
+          // Use recommended budget if none provided
+          finalBudget = groundedData.budget_guidance.recommended || 50000;
+        } else if (finalBudget < groundedData.budget_guidance.typical_low) {
+          // Warn if budget seems low
+          console.warn(`Budget ${finalBudget} is below typical range ${groundedData.budget_guidance.typical_low}-${groundedData.budget_guidance.typical_high}`);
+        }
+      }
+
+      // STEP 5: Update profile with verified data and populate DNA intelligence
+      const now = new Date().toISOString();
+      
+      setProfile(prev => ({
+        ...prev,
+        candidate_name: finalData.candidate_name || prev.candidate_name,
+        office_sought: finalData.office_sought || prev.office_sought,
+        district: finalData.district || prev.district,
+        party: finalData.party || prev.party,
+        election_date: finalData.election_date || prev.election_date,
+        metadata: {
+          ...prev.metadata,
+          dna: {
+            // ============================================
+            // CANDIDATE DNA
+            // ============================================
+            reason_for_running: finalData.reason_for_running || '',
+            core_values: finalData.core_values || [],
+            policy_priorities: groundedData?.district_info?.major_issues || finalData.policy_priorities || [],
+            personal_story: finalData.personal_story || '',
+            master_narrative: '',
+            source_materials: [],
+            
+            // ============================================
+            // DISTRICT INTELLIGENCE (from grounding)
+            // ============================================
+            district_intelligence: {
+              demographics: {
+                population: groundedData?.district_info?.population || null,
+                median_age: null,
+                median_income: null,
+                education_level: groundedData?.district_info?.key_demographics || null,
+                racial_composition: null,
+                urban_rural_mix: null,
+                last_updated: now
+              },
+              political_landscape: {
+                registration_breakdown: null,
+                recent_election_results: null,
+                swing_district: null,
+                partisan_lean: null,
+                voter_turnout_history: null,
+                last_updated: now
+              },
+              key_issues: {
+                top_priorities: groundedData?.district_info?.major_issues || [],
+                economic_concerns: [],
+                social_issues: [],
+                local_hot_topics: [],
+                last_updated: now
+              },
+              media_landscape: {
+                local_news_outlets: [],
+                influential_voices: [],
+                social_media_reach: null,
+                coverage_history: null,
+                last_updated: null
+              },
+              geographic_intel: {
+                key_neighborhoods: [],
+                priority_precincts: [],
+                strong_areas: [],
+                weak_areas: [],
+                last_updated: null
+              }
+            },
+            
+            // ============================================
+            // OPPOSITION INTELLIGENCE (from grounding)
+            // ============================================
+            opposition_intelligence: {
+              known_opponents: finalData.opponents || [],
+              incumbent_analysis: {
+                name: finalData.opponents?.find((o: any) => o.incumbent)?.name || null,
+                tenure: null,
+                voting_record_summary: null,
+                major_accomplishments: [],
+                vulnerabilities: finalData.opponents?.find((o: any) => o.incumbent)?.weaknesses || [],
+                approval_rating: null,
+                last_updated: now
+              },
+              competitive_positioning: {
+                our_advantages: [],
+                our_challenges: [],
+                contrast_points: [],
+                attack_vulnerabilities: [],
+                last_updated: now
+              },
+              opposition_research_snapshots: [],
+              last_comprehensive_scan: now
+            },
+            
+            // ============================================
+            // COMPLIANCE INTELLIGENCE (placeholder)
+            // ============================================
+            compliance_intelligence: {
+              filing_requirements: {
+                forms_needed: [],
+                deadlines: [],
+                fees: null,
+                signature_requirements: null,
+                last_updated: null
+              },
+              contribution_rules: {
+                individual_limit: null,
+                pac_limit: null,
+                corporate_restrictions: null,
+                prohibited_sources: [],
+                last_updated: null
+              },
+              reporting_requirements: {
+                frequency: null,
+                platforms: [],
+                next_deadline: null,
+                last_updated: null
+              },
+              ballot_access: {
+                method: null,
+                status: null,
+                progress: null,
+                last_updated: null
+              }
+            },
+            
+            // ============================================
+            // FUNDRAISING INTELLIGENCE (from grounding)
+            // ============================================
+            fundraising_intelligence: {
+              district_wealth: {
+                median_household_income: null,
+                high_net_worth_concentration: null,
+                major_employers: [],
+                donor_potential_score: null,
+                last_updated: now
+              },
+              typical_race_costs: {
+                low_range: groundedData?.budget_guidance?.typical_low || null,
+                high_range: groundedData?.budget_guidance?.typical_high || null,
+                average: null,
+                recommended_budget: groundedData?.budget_guidance?.recommended || finalBudget,
+                last_updated: now
+              },
+              donor_landscape: {
+                known_major_donors: [],
+                pac_presence: [],
+                bundler_networks: [],
+                fundraising_events_history: [],
+                last_updated: null
+              },
+              competitive_fundraising: {
+                opponent_warchest_estimates: [],
+                spending_patterns: null,
+                last_updated: null
+              }
+            },
+            
+            // ============================================
+            // STRATEGIC SYNTHESIS (to be generated)
+            // ============================================
+            strategic_synthesis: {
+              campaign_thesis: null,
+              winning_coalition: null,
+              theory_of_victory: null,
+              key_messages: [],
+              contrast_strategy: null,
+              resource_allocation_strategy: null,
+              last_synthesized: null
+            },
+            
+            // ============================================
+            // METADATA
+            // ============================================
+            intelligence_completeness: calculateIntelligenceCompleteness(),
+            last_full_refresh: now,
+            intelligence_version: '1.0'
+          },
+          budget_estimate: {
+            total_projected_needed: finalBudget,
+            categories: {
+              staff: Math.round(finalBudget * 0.3),
+              advertising: Math.round(finalBudget * 0.4),
+              events: Math.round(finalBudget * 0.15),
+              technology: Math.round(finalBudget * 0.1),
+              compliance: Math.round(finalBudget * 0.05),
+            }
+          },
+          opposition: {
+            opponents: finalData.opponents || [],
+            research_snapshots: []
+          }
+        }
+      }));
+
+      // Set initialized and close onboarding
+      setIsInitialized(true);
+      setShowOnboarding(false);
+      
+      // Create success message with validation info
+      let successMsg = `✅ Campaign profile created for ${finalData.candidate_name}!`;
+      
+      if (groundedData?.verified) {
+        if (groundedData.verified.office_exists && groundedData.verified.district_valid) {
+          successMsg += ` ✓ Verified: ${finalData.office_sought} in ${finalData.district}`;
+        }
+        if (groundedData.verified.election_date) {
+          successMsg += ` • Election: ${groundedData.verified.election_date}`;
+        }
+      }
+      
+      if (groundedData?.opponents && groundedData.opponents.length > 0) {
+        successMsg += ` • Found ${groundedData.opponents.length} opponent(s) in this race`;
+      }
+      
+      successMsg += '\n\nYour VictoryOps command center is now operational. How can I help you today?';
+      
+      setChatMessages([{
+        role: 'ai',
+        text: successMsg
+      }]);
+
+    } catch (error) {
+      console.error('Onboarding completion error:', error);
+      alert('Failed to complete onboarding. Please try again or skip to manual setup.');
+    } finally {
+      setLoading('onboarding', false);
     }
   };
 
@@ -3940,6 +4680,17 @@ Keep responses under 100 words.`
                 {loadingStates.onboarding ? <i className="fas fa-circle-notch fa-spin"></i> : 'Send'}
               </button>
             </div>
+
+            {/* Complete Setup Button - Show after sufficient conversation */}
+            {onboardingMessages.filter(m => m.role === 'user').length >= 3 && (
+              <button
+                onClick={completeOnboarding}
+                disabled={loadingStates.onboarding}
+                className="mt-6 w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-700 transition-all disabled:opacity-50 shadow-xl shadow-emerald-500/30"
+              >
+                {loadingStates.onboarding ? <i className="fas fa-circle-notch fa-spin"></i> : '✅ Complete Setup & Launch Campaign'}
+              </button>
+            )}
 
             <button
               onClick={() => setShowOnboarding(false)}
