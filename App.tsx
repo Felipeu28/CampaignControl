@@ -2063,9 +2063,7 @@ Ask ONE question at a time. Be warm, encouraging, and professional. After gather
 Keep responses under 100 words.`
       });
       
-      const history = onboardingMessages
-        skipHistoryconst history = onboardingMessages
-        .map(m => ({
+      const history = onboardingMessages.map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.text }]
       }));
@@ -2088,7 +2086,6 @@ Keep responses under 100 words.`
     } finally { 
       setLoading('onboarding', false); 
     }
-  };
 
   // ============================================================================
   // UI COMPONENT HELPERS
