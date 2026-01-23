@@ -41,7 +41,7 @@ const STORAGE_KEY = 'victory_ops_v2_state';
 const getApiKey = () => {
   const key = import.meta.env.VITE_GOOGLE_AI_API_KEY;
   if (!key || key === 'your_google_ai_key_here') {
-    console.error('âš ï¸ VITE_GOOGLE_AI_API_KEY not configured in .env.local');
+    console.error('Ã¢Å¡Â Ã¯Â¸Â VITE_GOOGLE_AI_API_KEY not configured in .env.local');
     return null;
   }
   return key;
@@ -129,18 +129,18 @@ const handleAPIError = (error: unknown, context: string): string => {
   if (error instanceof Error) {
     // Handle specific Google AI errors
     if (error.message.includes('API_KEY')) {
-      return 'ðŸ”‘ API key not configured. Please add your key to .env.local';
+      return 'Ã°Å¸â€â€˜ API key not configured. Please add your key to .env.local';
     }
     if (error.message.includes('quota')) {
-      return 'âš ï¸ API quota exceeded. Please check your usage limits.';
+      return 'Ã¢Å¡Â Ã¯Â¸Â API quota exceeded. Please check your usage limits.';
     }
     if (error.message.includes('SAFETY')) {
-      return 'ðŸ›¡ï¸ Content filtered by safety systems. Try rephrasing your request.';
+      return 'Ã°Å¸â€ºÂ¡Ã¯Â¸Â Content filtered by safety systems. Try rephrasing your request.';
     }
-    return `âŒ ${error.message}`;
+    return `Ã¢ÂÅ’ ${error.message}`;
   }
   
-  return `âŒ ${context} failed. Please try again.`;
+  return `Ã¢ÂÅ’ ${context} failed. Please try again.`;
 };
 
 /**
@@ -659,7 +659,7 @@ function App() {
     setIsCompetitorModalOpen(false);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `âœ… Opponent "${opponent.name}" registered in Threat Matrix. Intelligence profile active.`
+      text: `Ã¢Å“â€¦ Opponent "${opponent.name}" registered in Threat Matrix. Intelligence profile active.`
     }]);
   };
   
@@ -686,7 +686,7 @@ function App() {
     
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `âœ… Uploaded ${files.length} document(s) to DNA Vault. Source materials indexed.`
+      text: `Ã¢Å“â€¦ Uploaded ${files.length} document(s) to DNA Vault. Source materials indexed.`
     }]);
   };
 
@@ -702,7 +702,7 @@ function App() {
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ Please configure your VITE_GOOGLE_AI_API_KEY in .env.local to use Intelligence features.'
+        text: 'Ã°Å¸â€â€˜ Please configure your VITE_GOOGLE_AI_API_KEY in .env.local to use Intelligence features.'
       }]);
       return;
     }
@@ -725,7 +725,7 @@ function App() {
     
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸ” Initiating ${mode} probe for ${profile.district_id}... Scanning intelligence sources...`
+      text: `Ã°Å¸â€Â Initiating ${mode} probe for ${profile.district_id}... Scanning intelligence sources...`
     }]);
     
     try {
@@ -757,7 +757,7 @@ function App() {
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… ${mode} probe complete. Intelligence snapshot saved to vault. Signal strength: ${snapshot.signalStrength}%`
+        text: `Ã¢Å“â€¦ ${mode} probe complete. Intelligence snapshot saved to vault. Signal strength: ${snapshot.signalStrength}%`
       }]);
       
     } catch (error) {
@@ -790,7 +790,7 @@ function App() {
     if (!activeResearch) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ No active research selected. Please run a probe first.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â No active research selected. Please run a probe first.'
       }]);
       return;
     }
@@ -799,7 +799,7 @@ function App() {
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for rival extraction.'
+        text: 'Ã°Å¸â€â€˜ API key required for rival extraction.'
       }]);
       return;
     }
@@ -807,7 +807,7 @@ function App() {
     setLoading('extractRivals', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'ðŸ¤– AI analyzing research for opponent intelligence... Extracting threat profiles...'
+      text: 'Ã°Å¸Â¤â€“ AI analyzing research for opponent intelligence... Extracting threat profiles...'
     }]);
     
     try {
@@ -861,18 +861,18 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
               
               setChatMessages(prev => [...prev, {
                 role: 'ai',
-                text: `âœ… Extracted ${newOpponents.length} new opponent(s) from research. Threat Matrix updated.`
+                text: `Ã¢Å“â€¦ Extracted ${newOpponents.length} new opponent(s) from research. Threat Matrix updated.`
               }]);
             } else {
               setChatMessages(prev => [...prev, {
                 role: 'ai',
-                text: 'âœ… Analysis complete. No new opponents found (all already registered).'
+                text: 'Ã¢Å“â€¦ Analysis complete. No new opponents found (all already registered).'
               }]);
             }
           } else {
             setChatMessages(prev => [...prev, {
               role: 'ai',
-              text: 'âœ… Analysis complete. No opponent intelligence found in this research.'
+              text: 'Ã¢Å“â€¦ Analysis complete. No opponent intelligence found in this research.'
             }]);
           }
         } else {
@@ -882,7 +882,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
         console.error('Failed to parse opponent data:', parseError);
         setChatMessages(prev => [...prev, {
           role: 'ai',
-          text: 'âš ï¸ Extracted intelligence but failed to parse. Try manual entry instead.'
+          text: 'Ã¢Å¡Â Ã¯Â¸Â Extracted intelligence but failed to parse. Try manual entry instead.'
         }]);
       }
       
@@ -905,7 +905,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for opponent scanning.'
+        text: 'Ã°Å¸â€â€˜ API key required for opponent scanning.'
       }]);
       return;
     }
@@ -913,7 +913,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
     setLoading('probe', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸŽ¯ Initiating deep scan on ${opponent.name}... Analyzing vulnerabilities...`
+      text: `Ã°Å¸Å½Â¯ Initiating deep scan on ${opponent.name}... Analyzing vulnerabilities...`
     }]);
     
     try {
@@ -962,7 +962,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Deep scan complete on ${opponent.name}. Dossier saved to Intelligence Vault.`
+        text: `Ã¢Å“â€¦ Deep scan complete on ${opponent.name}. Dossier saved to Intelligence Vault.`
       }]);
       
     } catch (error) {
@@ -987,7 +987,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     if (!imagePrompt.subject) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ Please enter a subject description for image generation.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â Please enter a subject description for image generation.'
       }]);
       return;
     }
@@ -996,7 +996,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for image generation.'
+        text: 'Ã°Å¸â€â€˜ API key required for image generation.'
       }]);
       return;
     }
@@ -1004,7 +1004,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     setLoading('generateImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸŽ¨ Darkroom active. Generating visual for: "${imagePrompt.subject}"...`
+      text: `Ã°Å¸Å½Â¨ Darkroom active. Generating visual for: "${imagePrompt.subject}"...`
     }]);
     
     try {
@@ -1074,7 +1074,7 @@ Output only the enhanced prompt, no explanations.`
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Visual concept generated! Enhanced prompt created for ${highQualityMode ? 'HD' : 'standard'} quality ${aspectRatio} image.\n\nðŸ“ Note: To generate actual images, integrate with Imagen 3 API or DALL-E 3. The enhanced prompt is ready for use.`
+        text: `Ã¢Å“â€¦ Visual concept generated! Enhanced prompt created for ${highQualityMode ? 'HD' : 'standard'} quality ${aspectRatio} image.\n\nÃ°Å¸â€œÂ Note: To generate actual images, integrate with Imagen 3 API or DALL-E 3. The enhanced prompt is ready for use.`
       }]);
       
     } catch (error) {
@@ -1094,7 +1094,7 @@ Output only the enhanced prompt, no explanations.`
     if (!feedback.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ Please provide refinement instructions.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide refinement instructions.'
       }]);
       return;
     }
@@ -1103,7 +1103,7 @@ Output only the enhanced prompt, no explanations.`
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for image refinement.'
+        text: 'Ã°Å¸â€â€˜ API key required for image refinement.'
       }]);
       return;
     }
@@ -1111,7 +1111,7 @@ Output only the enhanced prompt, no explanations.`
     setLoading('editImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸ”„ Refining asset "${asset.title}" with instruction: "${feedback}"...`
+      text: `Ã°Å¸â€â€ž Refining asset "${asset.title}" with instruction: "${feedback}"...`
     }]);
     
     try {
@@ -1161,7 +1161,7 @@ Output only the new enhanced prompt, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Refinement complete! New version created based on: "${feedback}"`
+        text: `Ã¢Å“â€¦ Refinement complete! New version created based on: "${feedback}"`
       }]);
       
     } catch (error) {
@@ -1186,7 +1186,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!file.type.startsWith('image/')) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ Please upload an image file (JPG, PNG, WEBP).'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â Please upload an image file (JPG, PNG, WEBP).'
       }]);
       return;
     }
@@ -1195,7 +1195,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (file.size > 10 * 1024 * 1024) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ File too large. Maximum size is 10MB.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â File too large. Maximum size is 10MB.'
       }]);
       return;
     }
@@ -1203,7 +1203,7 @@ Output only the new enhanced prompt, no explanations.`;
     setLoading('uploadImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸ“¤ Uploading "${file.name}"...`
+      text: `Ã°Å¸â€œÂ¤ Uploading "${file.name}"...`
     }]);
     
     try {
@@ -1233,7 +1233,7 @@ Output only the new enhanced prompt, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Image uploaded successfully! "${file.name}" added to Lightbox Gallery. Click to edit with AI.`
+        text: `Ã¢Å“â€¦ Image uploaded successfully! "${file.name}" added to Lightbox Gallery. Click to edit with AI.`
       }]);
       
       // Reset file input
@@ -1243,7 +1243,7 @@ Output only the new enhanced prompt, no explanations.`;
       console.error('Upload error:', error);
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âŒ Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        text: `Ã¢ÂÅ’ Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       }]);
     } finally {
       setLoading('uploadImage', false);
@@ -1257,7 +1257,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ Please provide editing instructions.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide editing instructions.'
       }]);
       return;
     }
@@ -1265,7 +1265,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!asset.mediaUrl) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ No image data available for editing.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â No image data available for editing.'
       }]);
       return;
     }
@@ -1274,7 +1274,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for AI image editing.'
+        text: 'Ã°Å¸â€â€˜ API key required for AI image editing.'
       }]);
       return;
     }
@@ -1282,7 +1282,7 @@ Output only the new enhanced prompt, no explanations.`;
     setLoading('editImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸŽ¨ AI analyzing image and applying edit: "${instruction}"...`
+      text: `Ã°Å¸Å½Â¨ AI analyzing image and applying edit: "${instruction}"...`
     }]);
     
     try {
@@ -1347,7 +1347,7 @@ NEW PROMPT: [detailed generation prompt]`
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Image analyzed and edit plan created! To see the actual edited image, integrate with an image generation API (Imagen 3, DALL-E 3, or Stable Diffusion).`
+        text: `Ã¢Å“â€¦ Image analyzed and edit plan created! To see the actual edited image, integrate with an image generation API (Imagen 3, DALL-E 3, or Stable Diffusion).`
       }]);
       
     } catch (error) {
@@ -1371,7 +1371,7 @@ NEW PROMPT: [detailed generation prompt]`
     }
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'ðŸ—‘ï¸ Asset removed from Lightbox Gallery.'
+      text: 'Ã°Å¸â€”â€˜Ã¯Â¸Â Asset removed from Lightbox Gallery.'
     }]);
   };
 
@@ -1387,7 +1387,7 @@ NEW PROMPT: [detailed generation prompt]`
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for content generation.'
+        text: 'Ã°Å¸â€â€˜ API key required for content generation.'
       }]);
       return;
     }
@@ -1395,7 +1395,7 @@ NEW PROMPT: [detailed generation prompt]`
     setLoading('generateCreative', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸ“ Megaphone active. Generating ${type}...`
+      text: `Ã°Å¸â€œÂ Megaphone active. Generating ${type}...`
     }]);
     
     try {
@@ -1479,7 +1479,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… ${type} generated successfully! Review in the Megaphone editor.`
+        text: `Ã¢Å“â€¦ ${type} generated successfully! Review in the Megaphone editor.`
       }]);
       
     } catch (error) {
@@ -1499,7 +1499,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!activeCreativeAsset) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ No active asset selected. Please select content to refine.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â No active asset selected. Please select content to refine.'
       }]);
       return;
     }
@@ -1507,7 +1507,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ Please provide refinement instructions.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide refinement instructions.'
       }]);
       return;
     }
@@ -1516,7 +1516,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for content refinement.'
+        text: 'Ã°Å¸â€â€˜ API key required for content refinement.'
       }]);
       return;
     }
@@ -1524,7 +1524,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     setLoading('generateCreative', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸ”„ Refining "${activeCreativeAsset.title}" with instruction: "${instruction}"...`
+      text: `Ã°Å¸â€â€ž Refining "${activeCreativeAsset.title}" with instruction: "${instruction}"...`
     }]);
     
     try {
@@ -1573,7 +1573,7 @@ Output only the refined content, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Refinement applied successfully! Content updated based on: "${instruction}"`
+        text: `Ã¢Å“â€¦ Refinement applied successfully! Content updated based on: "${instruction}"`
       }]);
       
     } catch (error) {
@@ -1599,7 +1599,7 @@ Output only the refined content, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for budget audit.'
+        text: 'Ã°Å¸â€â€˜ API key required for budget audit.'
       }]);
       return;
     }
@@ -1607,7 +1607,7 @@ Output only the refined content, no explanations.`;
     setLoading('budgetAudit', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'ðŸ’° Analyzing campaign budget allocation...'
+      text: 'Ã°Å¸â€™Â° Analyzing campaign budget allocation...'
     }]);
     
     try {
@@ -1653,7 +1653,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Budget audit complete. Review recommendations in War Chest module.`
+        text: `Ã¢Å“â€¦ Budget audit complete. Review recommendations in War Chest module.`
       }]);
       
     } catch (error) {
@@ -1679,7 +1679,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     if (!activeCreativeAsset) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ No content selected for compliance check. Please select an asset from Megaphone first.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â No content selected for compliance check. Please select an asset from Megaphone first.'
       }]);
       return;
     }
@@ -1688,7 +1688,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for compliance audit.'
+        text: 'Ã°Å¸â€â€˜ API key required for compliance audit.'
       }]);
       return;
     }
@@ -1696,7 +1696,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     setLoading('legalAudit', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'âš–ï¸ Scanning content for Texas Election Code compliance...'
+      text: 'Ã¢Å¡â€“Ã¯Â¸Â Scanning content for Texas Election Code compliance...'
     }]);
     
     try {
@@ -1721,7 +1721,7 @@ CAMPAIGN INFO:
 - Media Type: ${activeCreativeAsset.mediaType}
 
 CHECK FOR:
-1. Required disclaimers (Texas Election Code Â§255.001)
+1. Required disclaimers (Texas Election Code Ã‚Â§255.001)
 2. Prohibited content (false statements, impersonation)
 3. Proper attribution
 4. Disclaimer placement requirements
@@ -1744,7 +1744,7 @@ Be thorough but concise.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `${isPassing ? 'âœ…' : 'âš ï¸'} Compliance scan complete:\n\n${auditResult}`
+        text: `${isPassing ? 'Ã¢Å“â€¦' : 'Ã¢Å¡Â Ã¯Â¸Â'} Compliance scan complete:\n\n${auditResult}`
       }]);
       
       // Switch to Legal Shield tab if issues found
@@ -1776,7 +1776,7 @@ Be thorough but concise.`;
     if (!dna?.reason_for_running || dna.core_values.length === 0) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ Please complete Core Mapping fields (reason for running and core values) before synthesizing narrative.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â Please complete Core Mapping fields (reason for running and core values) before synthesizing narrative.'
       }]);
       return;
     }
@@ -1785,7 +1785,7 @@ Be thorough but concise.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for narrative synthesis.'
+        text: 'Ã°Å¸â€â€˜ API key required for narrative synthesis.'
       }]);
       return;
     }
@@ -1793,7 +1793,7 @@ Be thorough but concise.`;
     setLoading('narrativeSynth', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'ðŸ§¬ Synthesizing master campaign narrative from DNA profile...'
+      text: 'Ã°Å¸Â§Â¬ Synthesizing master campaign narrative from DNA profile...'
     }]);
     
     try {
@@ -1834,7 +1834,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Master narrative synthesized! This is the foundation of your campaign message. Review and refine in DNA Vault.`
+        text: `Ã¢Å“â€¦ Master narrative synthesized! This is the foundation of your campaign message. Review and refine in DNA Vault.`
       }]);
       
     } catch (error) {
@@ -1857,7 +1857,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!currentNarrative) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ No narrative to refine. Please synthesize a narrative first.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â No narrative to refine. Please synthesize a narrative first.'
       }]);
       return;
     }
@@ -1865,7 +1865,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'âš ï¸ Please provide refinement instructions.'
+        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide refinement instructions.'
       }]);
       return;
     }
@@ -1874,7 +1874,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key required for narrative refinement.'
+        text: 'Ã°Å¸â€â€˜ API key required for narrative refinement.'
       }]);
       return;
     }
@@ -1882,7 +1882,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     setLoading('narrativeSynth', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `ðŸ”„ Refining master narrative: "${instruction}"...`
+      text: `Ã°Å¸â€â€ž Refining master narrative: "${instruction}"...`
     }]);
     
     try {
@@ -1919,7 +1919,7 @@ Output only the refined narrative, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `âœ… Narrative refined successfully!`
+        text: `Ã¢Å“â€¦ Narrative refined successfully!`
       }]);
       
     } catch (error) {
@@ -1947,7 +1947,7 @@ Output only the refined narrative, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
+        text: 'Ã°Å¸â€â€˜ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
       }]);
       return;
     }
@@ -2027,7 +2027,7 @@ Provide tactical, actionable advice. Be direct and specific. Reference the campa
     if (!apiKey) {
       setOnboardingMessages(prev => [...prev, {
         role: 'ai',
-        text: 'ðŸ”‘ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
+        text: 'Ã°Å¸â€â€˜ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
       }]);
       return;
     }
@@ -2086,6 +2086,7 @@ Keep responses under 100 words.`
     } finally { 
       setLoading('onboarding', false); 
     }
+  };
 
   // ============================================================================
   // UI COMPONENT HELPERS
@@ -2335,7 +2336,7 @@ Keep responses under 100 words.`
                         {o.name}
                       </h4>
                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                        {o.party} â€¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}
+                        {o.party} Ã¢â‚¬Â¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}
                       </p>
                     </div>
                     <div className="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all">
@@ -2443,7 +2444,7 @@ Keep responses under 100 words.`
                   {activeResearch.error && (
                     <div className="mt-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
                       <p className="text-xs font-bold text-red-700">
-                        âš ï¸ {activeResearch.error}
+                        Ã¢Å¡Â Ã¯Â¸Â {activeResearch.error}
                       </p>
                     </div>
                   )}
@@ -2607,7 +2608,7 @@ Keep responses under 100 words.`
                       </button>
                     </div>
                     <p className="text-[9px] text-amber-700 font-bold mt-3 italic">
-                      ðŸ’¡ Example: "Make this more conversational" or "Add a stronger call-to-action"
+                      Ã°Å¸â€™Â¡ Example: "Make this more conversational" or "Add a stronger call-to-action"
                     </p>
                   </div>
 
@@ -3056,7 +3057,7 @@ Keep responses under 100 words.`
                           </h4>
                           <div className="flex items-center justify-between">
                             <span className="text-[8px] font-black uppercase tracking-widest text-indigo-300">
-                              {asset.metadata?.aspectRatio || '1:1'} â€¢ {asset.metadata?.quality || 'Standard'}
+                              {asset.metadata?.aspectRatio || '1:1'} Ã¢â‚¬Â¢ {asset.metadata?.quality || 'Standard'}
                             </span>
                             <i className="fas fa-expand text-white text-sm"></i>
                           </div>
@@ -3359,7 +3360,7 @@ Keep responses under 100 words.`
                   navigator.clipboard.writeText(generateTexasDisclaimer(activeDisclaimerType, profile));
                   setChatMessages(prev => [...prev, {
                     role: 'ai',
-                    text: 'âœ… Disclaimer copied to clipboard!'
+                    text: 'Ã¢Å“â€¦ Disclaimer copied to clipboard!'
                   }]);
                 }}
                 className="w-full py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all"
@@ -3583,7 +3584,7 @@ Keep responses under 100 words.`
               setIsInitialized(true);
               setChatMessages([{ 
                 role: 'ai', 
-                text: `âœ… Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.` 
+                text: `Ã¢Å“â€¦ Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.` 
               }]);
             }}
             className="group p-8 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-3xl hover:bg-white/20 hover:border-indigo-400 transition-all hover:scale-[1.02] shadow-2xl"
@@ -3627,7 +3628,7 @@ Keep responses under 100 words.`
         {/* Footer Info */}
         <div className="mt-16 text-center animate-in fade-in duration-1000 delay-500">
           <p className="text-slate-500 text-xs uppercase tracking-widest font-bold">
-            Powered by Google Gemini AI â€¢ Secured by Supabase
+            Powered by Google Gemini AI Ã¢â‚¬Â¢ Secured by Supabase
           </p>
         </div>
       </div>
@@ -3842,7 +3843,7 @@ Keep responses under 100 words.`
               <div>
                 <h3 className="text-4xl font-black italic uppercase tracking-tighter">{dossierTarget.name}</h3>
                 <p className="text-sm font-black uppercase tracking-widest text-slate-400 mt-2">
-                  {dossierTarget.party} â€¢ {dossierTarget.incumbent ? 'Incumbent' : 'Challenger'}
+                  {dossierTarget.party} Ã¢â‚¬Â¢ {dossierTarget.incumbent ? 'Incumbent' : 'Challenger'}
                 </p>
               </div>
               <button
