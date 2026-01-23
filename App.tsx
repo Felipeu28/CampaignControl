@@ -3633,7 +3633,7 @@ Keep responses under 100 words.`
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
       {/* Gatekeeper Overlay */}
-      {!isInitialized && renderGatekeeper()}
+      {!isInitialized && !showOnboarding && renderGatekeeper()}
 
       {/* Sidebar Navigation */}
       <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 shadow-xl z-40 p-8 flex flex-col">
@@ -3882,7 +3882,7 @@ Keep responses under 100 words.`
 
       {/* Onboarding Wizard */}
       {showOnboarding && (
-        <div className="fixed inset-0 bg-slate-900/98 backdrop-blur-xl z-[200] flex items-center justify-center p-8">
+        <div className="fixed inset-0 bg-slate-900/98 backdrop-blur-xl z-[2100] flex items-center justify-center p-8">
           <div className="bg-white rounded-[4rem] p-16 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="text-center mb-12">
               <h2 className="text-5xl font-black italic uppercase tracking-tighter mb-4">Welcome to VictoryOps</h2>
