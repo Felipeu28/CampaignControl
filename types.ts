@@ -4,8 +4,12 @@
 
 /**
  * Interface representing the detailed candidate background and identity
+ * NOW: Central Intelligence Brain with 5 domains
  */
 export interface CampaignDNA {
+  // ============================================
+  // CANDIDATE DNA - Who We Are
+  // ============================================
   residency_duration?: string;
   marital_status?: string;
   family_status?: string;
@@ -17,15 +21,15 @@ export interface CampaignDNA {
   constituencies?: string;
   unique_qualifications?: string;
   staffing_plans?: string;
-  master_narrative?: string; // AI-generated political profile
-  source_text?: string; // Raw input material (resumes, bios, papers)
+  master_narrative?: string;
+  source_text?: string;
   source_materials?: { 
     name: string; 
-    timestamp?: string;      // Made optional
-    type?: string;           // For file type
-    size?: number;           // For file size
-    uploadedAt?: string;     // For upload timestamp
-  }[]; // Metadata for ingested docs
+    timestamp?: string;
+    type?: string;
+    size?: number;
+    uploadedAt?: string;
+  }[];
   qualifications_check?: {
     age: boolean;
     location: boolean;
@@ -34,11 +38,175 @@ export interface CampaignDNA {
   };
   willing_to_do?: string[];
   unwilling_to_do?: string[];
-  
-  // Added for App.tsx compatibility:
   core_values?: string[];
   personal_story?: string;
   policy_priorities?: string[];
+  
+  // ============================================
+  // DISTRICT INTELLIGENCE - Our Battlefield
+  // ============================================
+  district_intelligence?: {
+    demographics: {
+      population: number | null;
+      median_age: number | null;
+      median_income: number | null;
+      education_level: string | null;
+      racial_composition: string | null;
+      urban_rural_mix: string | null;
+      last_updated: string | null;
+    };
+    political_landscape: {
+      registration_breakdown: Record<string, number> | null;
+      recent_election_results: any | null;
+      swing_district: boolean | null;
+      partisan_lean: string | null;
+      voter_turnout_history: any | null;
+      last_updated: string | null;
+    };
+    key_issues: {
+      top_priorities: string[];
+      economic_concerns: string[];
+      social_issues: string[];
+      local_hot_topics: string[];
+      last_updated: string | null;
+    };
+    media_landscape: {
+      local_news_outlets: string[];
+      influential_voices: string[];
+      social_media_reach: any | null;
+      coverage_history: any | null;
+      last_updated: string | null;
+    };
+    geographic_intel: {
+      key_neighborhoods: string[];
+      priority_precincts: string[];
+      strong_areas: string[];
+      weak_areas: string[];
+      last_updated: string | null;
+    };
+  };
+  
+  // ============================================
+  // OPPOSITION INTELLIGENCE - Who We're Fighting
+  // ============================================
+  opposition_intelligence?: {
+    known_opponents: Array<{
+      name: string;
+      party: string;
+      incumbent: boolean;
+      strengths: string[];
+      weaknesses: string[];
+    }>;
+    incumbent_analysis: {
+      name: string | null;
+      tenure: number | null;
+      voting_record_summary: string | null;
+      major_accomplishments: string[];
+      vulnerabilities: string[];
+      approval_rating: number | null;
+      last_updated: string | null;
+    };
+    competitive_positioning: {
+      our_advantages: string[];
+      our_challenges: string[];
+      contrast_points: string[];
+      attack_vulnerabilities: string[];
+      last_updated: string | null;
+    };
+    opposition_research_snapshots: any[];
+    last_comprehensive_scan: string | null;
+  };
+  
+  // ============================================
+  // COMPLIANCE INTELLIGENCE - Rules of Engagement
+  // ============================================
+  compliance_intelligence?: {
+    filing_requirements: {
+      forms_needed: string[];
+      deadlines: string[];
+      fees: number | null;
+      signature_requirements: number | null;
+      last_updated: string | null;
+    };
+    contribution_rules: {
+      individual_limit: number | null;
+      pac_limit: number | null;
+      corporate_restrictions: string | null;
+      prohibited_sources: string[];
+      last_updated: string | null;
+    };
+    reporting_requirements: {
+      frequency: string | null;
+      platforms: string[];
+      next_deadline: string | null;
+      last_updated: string | null;
+    };
+    ballot_access: {
+      method: string | null;
+      status: string | null;
+      progress: number | null;
+      last_updated: string | null;
+    };
+  };
+  
+  // ============================================
+  // FUNDRAISING INTELLIGENCE - Money Landscape
+  // ============================================
+  fundraising_intelligence?: {
+    district_wealth: {
+      median_household_income: number | null;
+      high_net_worth_concentration: number | null;
+      major_employers: string[];
+      donor_potential_score: number | null;
+      last_updated: string | null;
+    };
+    typical_race_costs: {
+      low_range: number | null;
+      high_range: number | null;
+      average: number | null;
+      recommended_budget: number | null;
+      last_updated: string | null;
+    };
+    donor_landscape: {
+      known_major_donors: any[];
+      pac_presence: any[];
+      bundler_networks: any[];
+      fundraising_events_history: any[];
+      last_updated: string | null;
+    };
+    competitive_fundraising: {
+      opponent_warchest_estimates: any[];
+      spending_patterns: any | null;
+      last_updated: string | null;
+    };
+  };
+  
+  // ============================================
+  // STRATEGIC SYNTHESIS - Master Battle Plan
+  // ============================================
+  strategic_synthesis?: {
+    campaign_thesis: string | null;
+    winning_coalition: string | null;
+    theory_of_victory: string | null;
+    key_messages: string[];
+    contrast_strategy: string | null;
+    resource_allocation_strategy: string | null;
+    last_synthesized: string | null;
+  };
+  
+  // ============================================
+  // INTELLIGENCE METADATA
+  // ============================================
+  intelligence_completeness?: {
+    candidate_dna: number;
+    district_intel: number;
+    opposition_intel: number;
+    compliance_intel: number;
+    fundraising_intel: number;
+    overall_score: number;
+  };
+  last_full_refresh?: string | null;
+  intelligence_version?: string;
 }
 
 export interface DonorLead {
@@ -101,7 +269,7 @@ export interface LegalShieldData {
     deadline?: string;
     status?: 'not_started' | 'in_progress' | 'complete';
   };
-  disclaimers: Record<string, string>;  // ✅ THIS LINE IS KEY
+  disclaimers: Record<string, string>;  // âœ… THIS LINE IS KEY
   required_forms: {
     name: string;
     description: string;
