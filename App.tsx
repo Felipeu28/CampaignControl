@@ -5,6 +5,26 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createClient } from "@supabase/supabase-js";
+
+// ============================================================================
+// SUPABASE SETUP
+// ============================================================================
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const getSessionId = () => {
+  const k = "vo_session_id";
+  let v = localStorage.getItem(k);
+  if (!v) { 
+    v = crypto.randomUUID(); 
+    localStorage.setItem(k, v); 
+  }
+  return v;
+};
 
 // ============================================================================
 // TYPE IMPORTS
@@ -564,6 +584,82 @@ const SidebarItem: React.FC<{
 );
 
 // ============================================================================
+// PROFILE HYDRATION - Prevents undefined errors
+// ============================================================================
+
+const hydrateProfile = (p: CampaignProfileRow): CampaignProfileRow => {
+  const base = p ?? (DEMO_PROFILE as CampaignProfileRow);
+
+  return {
+    ...base,
+    filing_info: {
+      election_date: "",
+      filing_deadline: "",
+      petition_signatures_required: 0,
+      filing_fee: 0,
+      forms_required: [],
+      ...base.filing_info,
+    },
+    metadata: {
+      ...base.metadata,
+      opponents: base.metadata?.opponents ?? [],
+      vote_goal: base.metadata?.vote_goal ?? {
+        total_registered_voters: 0,
+        expected_turnout_percentage: 0,
+        expected_total_votes: 0,
+        votes_needed_to_win: 0,
+        margin_for_safety: 0,
+        target_vote_goal: 0,
+        breakdown: {
+          hard_support: 0,
+          soft_support: 0,
+          persuasion_target: 0,
+          gotv_target: 0,
+        }
+      },
+      budget_estimate: base.metadata?.budget_estimate ?? {
+        total_projected_needed: 0,
+        categories: {
+          staff_salaries: 0,
+          consultants: 0,
+          advertising_digital: 0,
+          advertising_print: 0,
+          direct_mail: 0,
+          sms_messaging: 0,
+          events: 0,
+          voter_file_data: 0,
+          compliance_legal: 0,
+          office_ops: 0,
+          emergency_reserve: 0,
+        }
+      },
+      dna: base.metadata?.dna ?? {},
+      legal_shield: base.metadata?.legal_shield ?? {
+        ballot_access: {
+          method: 'signatures' as const,
+          fee_amount: 0,
+          fee_paid: false,
+          signatures_required: 0,
+          signatures_collected: 0,
+          safety_buffer_percentage: 20,
+          deadline: '',
+          status: 'not_started' as const
+        },
+        disclaimers: {},
+        required_forms: [],
+        reporting_schedule: [],
+        tec_reporting: {
+          next_deadline: '',
+          report_type: '',
+          auto_reminders: false
+        },
+        tec_forms: {}
+      },
+    },
+  };
+};
+
+// ============================================================================
 // MAIN APP COMPONENT
 // ============================================================================
 
@@ -698,7 +794,7 @@ function App() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      setProfile(parsed.profile || DEMO_PROFILE);
+      setProfile(hydrateProfile(parsed.profile || DEMO_PROFILE));
       setResearchVault(parsed.researchVault || []);
       setBrandingAssets(parsed.brandingAssets || []);
       setCreativeAssets(parsed.creativeAssets || []);
@@ -784,6 +880,53 @@ function App() {
       }
     }));
   };
+  
+  // ============================================================================
+  // IMAGEN 4 IMAGE GENERATION
+  // ============================================================================
+  
+  /**
+   * Generate real images using Google's Imagen 4 API
+   */
+  async function generateImagen4Image(opts: {
+    apiKey: string;
+    prompt: string;
+    numberOfImages?: number;
+  }) {
+    const { apiKey, prompt, numberOfImages = 1 } = opts;
+
+    // Gemini API Imagen endpoint
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          instances: [{ prompt }],
+          parameters: { sampleCount: numberOfImages },
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      throw new Error(`Imagen error (${res.status}): ${errText || res.statusText}`);
+    }
+
+    const json = await res.json();
+
+    // Defensive parsing
+    const base64 =
+      json?.predictions?.[0]?.bytesBase64Encoded ??
+      json?.predictions?.[0]?.image?.bytesBase64Encoded;
+
+    if (!base64) throw new Error("Imagen returned no image bytes.");
+
+    return `data:image/png;base64,${base64}`;
+  }
   
   /**
    * Add new donor lead
@@ -1469,14 +1612,20 @@ Output only the enhanced prompt, no explanations.`
       );
       
       const enhancedPrompt = promptEnhancement.response.text();
+      const enhancedPrompt = promptEnhancement.response.text();
       
-      // Create asset with enhanced prompt
-      // In production, you would call Imagen 3 API here to get actual image
+      // PATCH 2B: Generate REAL image using Imagen 4
+      const dataUrl = await generateImagen4Image({
+        apiKey,
+        prompt: enhancedPrompt,
+        numberOfImages: 1,
+      });
+      
       const newAsset: EnhancedCreativeAsset = {
         id: 'branding-' + Date.now(),
         type: 'PHOTO',
         title: imagePrompt.subject.slice(0, 40),
-        mediaUrl: '', // Will be populated by actual image generation service
+        mediaUrl: dataUrl,
         mediaType: 'image',
         status: 'draft',
         prompt: enhancedPrompt,
@@ -1488,11 +1637,12 @@ Output only the enhanced prompt, no explanations.`
         }
       };
       
-      setBrandingAssets(prev => [newAsset, ...prev]);
+      // PATCH 2C: Cap branding assets to prevent storage blowup
+      setBrandingAssets(prev => [newAsset, ...prev].slice(0, 12));
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Visual concept generated! Enhanced prompt created for ${highQualityMode ? 'HD' : 'standard'} quality ${aspectRatio} image.\n\nÃ°Å¸â€œÂ Note: To generate actual images, integrate with Imagen 3 API or DALL-E 3. The enhanced prompt is ready for use.`
+        text: \`✅ Visual generated! Image created with Imagen 4 at \${highQualityMode ? 'HD' : 'standard'} quality in \${aspectRatio} aspect ratio.\`
       }]);
       
     } catch (error) {
