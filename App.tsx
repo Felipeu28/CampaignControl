@@ -41,7 +41,7 @@ const STORAGE_KEY = 'victory_ops_v2_state';
 const getApiKey = () => {
   const key = import.meta.env.VITE_GOOGLE_AI_API_KEY;
   if (!key || key === 'your_google_ai_key_here') {
-    console.error('⚠️ VITE_GOOGLE_AI_API_KEY not configured in .env.local');
+    console.error('âš ï¸ VITE_GOOGLE_AI_API_KEY not configured in .env.local');
     return null;
   }
   return key;
@@ -129,18 +129,18 @@ const handleAPIError = (error: unknown, context: string): string => {
   if (error instanceof Error) {
     // Handle specific Google AI errors
     if (error.message.includes('API_KEY')) {
-      return '🔑 API key not configured. Please add your key to .env.local';
+      return 'ðŸ”‘ API key not configured. Please add your key to .env.local';
     }
     if (error.message.includes('quota')) {
-      return '⚠️ API quota exceeded. Please check your usage limits.';
+      return 'âš ï¸ API quota exceeded. Please check your usage limits.';
     }
     if (error.message.includes('SAFETY')) {
-      return '🛡️ Content filtered by safety systems. Try rephrasing your request.';
+      return 'ðŸ›¡ï¸ Content filtered by safety systems. Try rephrasing your request.';
     }
-    return `❌ ${error.message}`;
+    return `âŒ ${error.message}`;
   }
   
-  return `❌ ${context} failed. Please try again.`;
+  return `âŒ ${context} failed. Please try again.`;
 };
 
 /**
@@ -639,7 +639,7 @@ function App() {
     setIsCompetitorModalOpen(false);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `✅ Opponent "${opponent.name}" registered in Threat Matrix. Intelligence profile active.`
+      text: `âœ… Opponent "${opponent.name}" registered in Threat Matrix. Intelligence profile active.`
     }]);
   };
   
@@ -666,7 +666,7 @@ function App() {
     
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `✅ Uploaded ${files.length} document(s) to DNA Vault. Source materials indexed.`
+      text: `âœ… Uploaded ${files.length} document(s) to DNA Vault. Source materials indexed.`
     }]);
   };
 
@@ -682,7 +682,7 @@ function App() {
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 Please configure your VITE_GOOGLE_AI_API_KEY in .env.local to use Intelligence features.'
+        text: 'ðŸ”‘ Please configure your VITE_GOOGLE_AI_API_KEY in .env.local to use Intelligence features.'
       }]);
       return;
     }
@@ -705,7 +705,7 @@ function App() {
     
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `🔍 Initiating ${mode} probe for ${profile.district_id}... Scanning intelligence sources...`
+      text: `ðŸ” Initiating ${mode} probe for ${profile.district_id}... Scanning intelligence sources...`
     }]);
     
     try {
@@ -737,7 +737,7 @@ function App() {
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ ${mode} probe complete. Intelligence snapshot saved to vault. Signal strength: ${snapshot.signalStrength}%`
+        text: `âœ… ${mode} probe complete. Intelligence snapshot saved to vault. Signal strength: ${snapshot.signalStrength}%`
       }]);
       
     } catch (error) {
@@ -770,7 +770,7 @@ function App() {
     if (!activeResearch) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ No active research selected. Please run a probe first.'
+        text: 'âš ï¸ No active research selected. Please run a probe first.'
       }]);
       return;
     }
@@ -779,7 +779,7 @@ function App() {
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for rival extraction.'
+        text: 'ðŸ”‘ API key required for rival extraction.'
       }]);
       return;
     }
@@ -787,7 +787,7 @@ function App() {
     setLoading('extractRivals', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: '🤖 AI analyzing research for opponent intelligence... Extracting threat profiles...'
+      text: 'ðŸ¤– AI analyzing research for opponent intelligence... Extracting threat profiles...'
     }]);
     
     try {
@@ -841,18 +841,18 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
               
               setChatMessages(prev => [...prev, {
                 role: 'ai',
-                text: `✅ Extracted ${newOpponents.length} new opponent(s) from research. Threat Matrix updated.`
+                text: `âœ… Extracted ${newOpponents.length} new opponent(s) from research. Threat Matrix updated.`
               }]);
             } else {
               setChatMessages(prev => [...prev, {
                 role: 'ai',
-                text: '✅ Analysis complete. No new opponents found (all already registered).'
+                text: 'âœ… Analysis complete. No new opponents found (all already registered).'
               }]);
             }
           } else {
             setChatMessages(prev => [...prev, {
               role: 'ai',
-              text: '✅ Analysis complete. No opponent intelligence found in this research.'
+              text: 'âœ… Analysis complete. No opponent intelligence found in this research.'
             }]);
           }
         } else {
@@ -862,7 +862,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
         console.error('Failed to parse opponent data:', parseError);
         setChatMessages(prev => [...prev, {
           role: 'ai',
-          text: '⚠️ Extracted intelligence but failed to parse. Try manual entry instead.'
+          text: 'âš ï¸ Extracted intelligence but failed to parse. Try manual entry instead.'
         }]);
       }
       
@@ -885,7 +885,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for opponent scanning.'
+        text: 'ðŸ”‘ API key required for opponent scanning.'
       }]);
       return;
     }
@@ -893,7 +893,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
     setLoading('probe', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `🎯 Initiating deep scan on ${opponent.name}... Analyzing vulnerabilities...`
+      text: `ðŸŽ¯ Initiating deep scan on ${opponent.name}... Analyzing vulnerabilities...`
     }]);
     
     try {
@@ -942,7 +942,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Deep scan complete on ${opponent.name}. Dossier saved to Intelligence Vault.`
+        text: `âœ… Deep scan complete on ${opponent.name}. Dossier saved to Intelligence Vault.`
       }]);
       
     } catch (error) {
@@ -967,7 +967,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     if (!imagePrompt.subject) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ Please enter a subject description for image generation.'
+        text: 'âš ï¸ Please enter a subject description for image generation.'
       }]);
       return;
     }
@@ -976,7 +976,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for image generation.'
+        text: 'ðŸ”‘ API key required for image generation.'
       }]);
       return;
     }
@@ -984,7 +984,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     setLoading('generateImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `🎨 Darkroom active. Generating visual for: "${imagePrompt.subject}"...`
+      text: `ðŸŽ¨ Darkroom active. Generating visual for: "${imagePrompt.subject}"...`
     }]);
     
     try {
@@ -1054,7 +1054,7 @@ Output only the enhanced prompt, no explanations.`
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Visual concept generated! Enhanced prompt created for ${highQualityMode ? 'HD' : 'standard'} quality ${aspectRatio} image.\n\n📝 Note: To generate actual images, integrate with Imagen 3 API or DALL-E 3. The enhanced prompt is ready for use.`
+        text: `âœ… Visual concept generated! Enhanced prompt created for ${highQualityMode ? 'HD' : 'standard'} quality ${aspectRatio} image.\n\nðŸ“ Note: To generate actual images, integrate with Imagen 3 API or DALL-E 3. The enhanced prompt is ready for use.`
       }]);
       
     } catch (error) {
@@ -1074,7 +1074,7 @@ Output only the enhanced prompt, no explanations.`
     if (!feedback.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ Please provide refinement instructions.'
+        text: 'âš ï¸ Please provide refinement instructions.'
       }]);
       return;
     }
@@ -1083,7 +1083,7 @@ Output only the enhanced prompt, no explanations.`
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for image refinement.'
+        text: 'ðŸ”‘ API key required for image refinement.'
       }]);
       return;
     }
@@ -1091,7 +1091,7 @@ Output only the enhanced prompt, no explanations.`
     setLoading('editImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `🔄 Refining asset "${asset.title}" with instruction: "${feedback}"...`
+      text: `ðŸ”„ Refining asset "${asset.title}" with instruction: "${feedback}"...`
     }]);
     
     try {
@@ -1141,7 +1141,7 @@ Output only the new enhanced prompt, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Refinement complete! New version created based on: "${feedback}"`
+        text: `âœ… Refinement complete! New version created based on: "${feedback}"`
       }]);
       
     } catch (error) {
@@ -1166,7 +1166,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!file.type.startsWith('image/')) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ Please upload an image file (JPG, PNG, WEBP).'
+        text: 'âš ï¸ Please upload an image file (JPG, PNG, WEBP).'
       }]);
       return;
     }
@@ -1175,7 +1175,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (file.size > 10 * 1024 * 1024) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ File too large. Maximum size is 10MB.'
+        text: 'âš ï¸ File too large. Maximum size is 10MB.'
       }]);
       return;
     }
@@ -1183,7 +1183,7 @@ Output only the new enhanced prompt, no explanations.`;
     setLoading('uploadImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `📤 Uploading "${file.name}"...`
+      text: `ðŸ“¤ Uploading "${file.name}"...`
     }]);
     
     try {
@@ -1213,7 +1213,7 @@ Output only the new enhanced prompt, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Image uploaded successfully! "${file.name}" added to Lightbox Gallery. Click to edit with AI.`
+        text: `âœ… Image uploaded successfully! "${file.name}" added to Lightbox Gallery. Click to edit with AI.`
       }]);
       
       // Reset file input
@@ -1223,7 +1223,7 @@ Output only the new enhanced prompt, no explanations.`;
       console.error('Upload error:', error);
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `❌ Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        text: `âŒ Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       }]);
     } finally {
       setLoading('uploadImage', false);
@@ -1237,7 +1237,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ Please provide editing instructions.'
+        text: 'âš ï¸ Please provide editing instructions.'
       }]);
       return;
     }
@@ -1245,7 +1245,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!asset.mediaUrl) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ No image data available for editing.'
+        text: 'âš ï¸ No image data available for editing.'
       }]);
       return;
     }
@@ -1254,7 +1254,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for AI image editing.'
+        text: 'ðŸ”‘ API key required for AI image editing.'
       }]);
       return;
     }
@@ -1262,7 +1262,7 @@ Output only the new enhanced prompt, no explanations.`;
     setLoading('editImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `🎨 AI analyzing image and applying edit: "${instruction}"...`
+      text: `ðŸŽ¨ AI analyzing image and applying edit: "${instruction}"...`
     }]);
     
     try {
@@ -1327,7 +1327,7 @@ NEW PROMPT: [detailed generation prompt]`
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Image analyzed and edit plan created! To see the actual edited image, integrate with an image generation API (Imagen 3, DALL-E 3, or Stable Diffusion).`
+        text: `âœ… Image analyzed and edit plan created! To see the actual edited image, integrate with an image generation API (Imagen 3, DALL-E 3, or Stable Diffusion).`
       }]);
       
     } catch (error) {
@@ -1351,7 +1351,7 @@ NEW PROMPT: [detailed generation prompt]`
     }
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: '🗑️ Asset removed from Lightbox Gallery.'
+      text: 'ðŸ—‘ï¸ Asset removed from Lightbox Gallery.'
     }]);
   };
 
@@ -1367,7 +1367,7 @@ NEW PROMPT: [detailed generation prompt]`
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for content generation.'
+        text: 'ðŸ”‘ API key required for content generation.'
       }]);
       return;
     }
@@ -1375,7 +1375,7 @@ NEW PROMPT: [detailed generation prompt]`
     setLoading('generateCreative', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `📝 Megaphone active. Generating ${type}...`
+      text: `ðŸ“ Megaphone active. Generating ${type}...`
     }]);
     
     try {
@@ -1459,7 +1459,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ ${type} generated successfully! Review in the Megaphone editor.`
+        text: `âœ… ${type} generated successfully! Review in the Megaphone editor.`
       }]);
       
     } catch (error) {
@@ -1479,7 +1479,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!activeCreativeAsset) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ No active asset selected. Please select content to refine.'
+        text: 'âš ï¸ No active asset selected. Please select content to refine.'
       }]);
       return;
     }
@@ -1487,7 +1487,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ Please provide refinement instructions.'
+        text: 'âš ï¸ Please provide refinement instructions.'
       }]);
       return;
     }
@@ -1496,7 +1496,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for content refinement.'
+        text: 'ðŸ”‘ API key required for content refinement.'
       }]);
       return;
     }
@@ -1504,7 +1504,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     setLoading('generateCreative', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `🔄 Refining "${activeCreativeAsset.title}" with instruction: "${instruction}"...`
+      text: `ðŸ”„ Refining "${activeCreativeAsset.title}" with instruction: "${instruction}"...`
     }]);
     
     try {
@@ -1553,7 +1553,7 @@ Output only the refined content, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Refinement applied successfully! Content updated based on: "${instruction}"`
+        text: `âœ… Refinement applied successfully! Content updated based on: "${instruction}"`
       }]);
       
     } catch (error) {
@@ -1579,7 +1579,7 @@ Output only the refined content, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for budget audit.'
+        text: 'ðŸ”‘ API key required for budget audit.'
       }]);
       return;
     }
@@ -1587,7 +1587,7 @@ Output only the refined content, no explanations.`;
     setLoading('budgetAudit', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: '💰 Analyzing campaign budget allocation...'
+      text: 'ðŸ’° Analyzing campaign budget allocation...'
     }]);
     
     try {
@@ -1633,7 +1633,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Budget audit complete. Review recommendations in War Chest module.`
+        text: `âœ… Budget audit complete. Review recommendations in War Chest module.`
       }]);
       
     } catch (error) {
@@ -1659,7 +1659,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     if (!activeCreativeAsset) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ No content selected for compliance check. Please select an asset from Megaphone first.'
+        text: 'âš ï¸ No content selected for compliance check. Please select an asset from Megaphone first.'
       }]);
       return;
     }
@@ -1668,7 +1668,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for compliance audit.'
+        text: 'ðŸ”‘ API key required for compliance audit.'
       }]);
       return;
     }
@@ -1676,7 +1676,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     setLoading('legalAudit', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: '⚖️ Scanning content for Texas Election Code compliance...'
+      text: 'âš–ï¸ Scanning content for Texas Election Code compliance...'
     }]);
     
     try {
@@ -1701,7 +1701,7 @@ CAMPAIGN INFO:
 - Media Type: ${activeCreativeAsset.mediaType}
 
 CHECK FOR:
-1. Required disclaimers (Texas Election Code §255.001)
+1. Required disclaimers (Texas Election Code Â§255.001)
 2. Prohibited content (false statements, impersonation)
 3. Proper attribution
 4. Disclaimer placement requirements
@@ -1724,7 +1724,7 @@ Be thorough but concise.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `${isPassing ? '✅' : '⚠️'} Compliance scan complete:\n\n${auditResult}`
+        text: `${isPassing ? 'âœ…' : 'âš ï¸'} Compliance scan complete:\n\n${auditResult}`
       }]);
       
       // Switch to Legal Shield tab if issues found
@@ -1756,7 +1756,7 @@ Be thorough but concise.`;
     if (!dna?.reason_for_running || dna.core_values.length === 0) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ Please complete Core Mapping fields (reason for running and core values) before synthesizing narrative.'
+        text: 'âš ï¸ Please complete Core Mapping fields (reason for running and core values) before synthesizing narrative.'
       }]);
       return;
     }
@@ -1765,7 +1765,7 @@ Be thorough but concise.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for narrative synthesis.'
+        text: 'ðŸ”‘ API key required for narrative synthesis.'
       }]);
       return;
     }
@@ -1773,7 +1773,7 @@ Be thorough but concise.`;
     setLoading('narrativeSynth', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: '🧬 Synthesizing master campaign narrative from DNA profile...'
+      text: 'ðŸ§¬ Synthesizing master campaign narrative from DNA profile...'
     }]);
     
     try {
@@ -1814,7 +1814,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Master narrative synthesized! This is the foundation of your campaign message. Review and refine in DNA Vault.`
+        text: `âœ… Master narrative synthesized! This is the foundation of your campaign message. Review and refine in DNA Vault.`
       }]);
       
     } catch (error) {
@@ -1837,7 +1837,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!currentNarrative) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ No narrative to refine. Please synthesize a narrative first.'
+        text: 'âš ï¸ No narrative to refine. Please synthesize a narrative first.'
       }]);
       return;
     }
@@ -1845,7 +1845,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '⚠️ Please provide refinement instructions.'
+        text: 'âš ï¸ Please provide refinement instructions.'
       }]);
       return;
     }
@@ -1854,7 +1854,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key required for narrative refinement.'
+        text: 'ðŸ”‘ API key required for narrative refinement.'
       }]);
       return;
     }
@@ -1862,7 +1862,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     setLoading('narrativeSynth', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `🔄 Refining master narrative: "${instruction}"...`
+      text: `ðŸ”„ Refining master narrative: "${instruction}"...`
     }]);
     
     try {
@@ -1899,7 +1899,7 @@ Output only the refined narrative, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `✅ Narrative refined successfully!`
+        text: `âœ… Narrative refined successfully!`
       }]);
       
     } catch (error) {
@@ -1927,7 +1927,7 @@ Output only the refined narrative, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
+        text: 'ðŸ”‘ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
       }]);
       return;
     }
@@ -2007,7 +2007,7 @@ Provide tactical, actionable advice. Be direct and specific. Reference the campa
     if (!apiKey) {
       setOnboardingMessages(prev => [...prev, {
         role: 'ai',
-        text: '🔑 API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
+        text: 'ðŸ”‘ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
       }]);
       return;
     }
@@ -2316,7 +2316,7 @@ Keep responses under 100 words.`
                         {o.name}
                       </h4>
                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                        {o.party} • {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}
+                        {o.party} â€¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}
                       </p>
                     </div>
                     <div className="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all">
@@ -2424,7 +2424,7 @@ Keep responses under 100 words.`
                   {activeResearch.error && (
                     <div className="mt-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
                       <p className="text-xs font-bold text-red-700">
-                        ⚠️ {activeResearch.error}
+                        âš ï¸ {activeResearch.error}
                       </p>
                     </div>
                   )}
@@ -2588,7 +2588,7 @@ Keep responses under 100 words.`
                       </button>
                     </div>
                     <p className="text-[9px] text-amber-700 font-bold mt-3 italic">
-                      💡 Example: "Make this more conversational" or "Add a stronger call-to-action"
+                      ðŸ’¡ Example: "Make this more conversational" or "Add a stronger call-to-action"
                     </p>
                   </div>
 
@@ -3037,7 +3037,7 @@ Keep responses under 100 words.`
                           </h4>
                           <div className="flex items-center justify-between">
                             <span className="text-[8px] font-black uppercase tracking-widest text-indigo-300">
-                              {asset.metadata?.aspectRatio || '1:1'} • {asset.metadata?.quality || 'Standard'}
+                              {asset.metadata?.aspectRatio || '1:1'} â€¢ {asset.metadata?.quality || 'Standard'}
                             </span>
                             <i className="fas fa-expand text-white text-sm"></i>
                           </div>
@@ -3340,7 +3340,7 @@ Keep responses under 100 words.`
                   navigator.clipboard.writeText(generateTexasDisclaimer(activeDisclaimerType, profile));
                   setChatMessages(prev => [...prev, {
                     role: 'ai',
-                    text: '✅ Disclaimer copied to clipboard!'
+                    text: 'âœ… Disclaimer copied to clipboard!'
                   }]);
                 }}
                 className="w-full py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all"
@@ -3564,7 +3564,7 @@ Keep responses under 100 words.`
               setIsInitialized(true);
               setChatMessages([{ 
                 role: 'ai', 
-                text: `✅ Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.` 
+                text: `âœ… Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.` 
               }]);
             }}
             className="group p-8 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-3xl hover:bg-white/20 hover:border-indigo-400 transition-all hover:scale-[1.02] shadow-2xl"
@@ -3608,167 +3608,15 @@ Keep responses under 100 words.`
         {/* Footer Info */}
         <div className="mt-16 text-center animate-in fade-in duration-1000 delay-500">
           <p className="text-slate-500 text-xs uppercase tracking-widest font-bold">
-            Powered by Google Gemini AI • Secured by Supabase
+            Powered by Google Gemini AI â€¢ Secured by Supabase
           </p>
         </div>
       </div>
     </div>
   );
-  /**
 
-* Gatekeeper - Initial Login/Setup Screen
-  */
-  const renderGatekeeper = () => ( <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8">
 
-   <div className="max-w-2xl w-full">
-     {/* Logo & Title */}
-     <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-       <div className="w-24 h-24 bg-indigo-600 rounded-3xl flex items-center justify-center text-white mx-auto mb-8 shadow-2xl shadow-indigo-500/50">
-         <i className="fas fa-shield-halved text-5xl"></i>
-       </div>
-       <h1 className="text-7xl font-black uppercase italic tracking-tighter text-white leading-none mb-4">
-         Victory<span className="text-indigo-400">Ops</span>
-       </h1>
-       <p className="text-indigo-300 text-xl font-bold tracking-wider">
-         Political Campaign Command Center
-       </p>
-       <p className="text-slate-400 text-sm mt-4 max-w-md mx-auto leading-relaxed">
-         Enterprise-grade AI-powered campaign management for candidates who demand excellence
-       </p>
-     </div>
-
-  {/* Action Cards */}
-
-     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-       {/* Demo Campaign */}
-       <button
-         onClick={() => {
-           setProfile(DEMO_PROFILE);
-           setIsInitialized(true);
-           setChatMessages([
-             {
-               role: 'ai',
-               text: `✅ Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.`
-             }
-           ]);
-         }}
-         className="group p-8 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-3xl hover:bg-white/20 hover:border-indigo-400 transition-all hover:scale-[1.02] shadow-2xl"
-       >
-         <div className="flex items-start gap-6">
-           <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all text-2xl">
-             <i className="fas fa-rocket"></i>
-           </div>
-           <div className="text-left flex-1">
-             <h3 className="text-white font-black text-xl mb-2 uppercase tracking-tight">
-               Demo Campaign
-             </h3>
-             <p className="text-slate-300 text-sm leading-relaxed">
-               Explore VictoryOps with a pre-configured Texas House race
-             </p>
-           </div>
-         </div>
-       </button>
-
-  ```
-   {/* New Campaign */}
-   <button
-     onClick={() => setShowOnboarding(true)}
-     className="group p-8 bg-indigo-600/90 backdrop-blur-xl border-2 border-indigo-400 rounded-3xl hover:bg-indigo-500 transition-all hover:scale-[1.02] shadow-2xl shadow-indigo-500/50"
-   >
-     <div className="flex items-start gap-6">
-       <div className="w-16 h-16 bg-white/20 text-white rounded-2xl flex items-center justify-center group-hover:bg-white group-hover:text-indigo-600 transition-all text-2xl">
-         <i className="fas fa-plus"></i>
-       </div>
-       <div className="text-left flex-1">
-         <h3 className="text-white font-black text-xl mb-2 uppercase tracking-tight">
-           New Campaign
-         </h3>
-         <p className="text-indigo-100 text-sm leading-relaxed">
-           Start from scratch with AI-guided campaign setup
-         </p>
-       </div>
-     </div>
-   </button>
-  ```
-
-     </div>
-
-  {/* Footer Info */}
-
-     <div className="mt-16 text-center animate-in fade-in duration-1000 delay-500">
-       <p className="text-slate-500 text-xs uppercase tracking-widest font-bold">
-         Powered by Google Gemini AI • Secured by Supabase
-       </p>
-     </div>
-   </div>
-
-```
-</div>
-```
-
-);
-return (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
-
-    {/* Gatekeeper Screen */}
-    {!isInitialized && renderGatekeeper()}
-
-    {/* Onboarding Wizard (your existing block stays here) */}
-    {showOnboarding && (
-      <div className="fixed inset-0 bg-slate-900/98 backdrop-blur-xl z-[2001] flex items-center justify-center p-8">
-        {/* your existing onboarding content */}
-      </div>
-    )}
-
-    {/* Main App UI only after initialization */}
-    {isInitialized && (
-      <>
-        {/* Sidebar Navigation */}
-        <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 shadow-xl z-40 p-8 flex flex-col">
-          {/* your existing sidebar content */}
-        </div>
-
-        {/* Main Content Area */}
-        <div className="ml-64 p-12">
-          {/* your existing tab renders */}
-        </div>
-
-        {/* Floating Chat / Modals / etc (keep your existing blocks) */}
-      </>
-    )}
-  </div>
-);return (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
-
-    {/* Gatekeeper Screen */}
-    {!isInitialized && renderGatekeeper()}
-
-    {/* Onboarding Wizard (your existing block stays here) */}
-    {showOnboarding && (
-      <div className="fixed inset-0 bg-slate-900/98 backdrop-blur-xl z-[2001] flex items-center justify-center p-8">
-        {/* your existing onboarding content */}
-      </div>
-    )}
-
-    {/* Main App UI only after initialization */}
-    {isInitialized && (
-      <>
-        {/* Sidebar Navigation */}
-        <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 shadow-xl z-40 p-8 flex flex-col">
-          {/* your existing sidebar content */}
-        </div>
-
-        {/* Main Content Area */}
-        <div className="ml-64 p-12">
-          {/* your existing tab renders */}
-        </div>
-
-        {/* Floating Chat / Modals / etc (keep your existing blocks) */}
-      </>
-    )}
-  </div>
-);
-    // ============================================================================
+  // ============================================================================
   // MAIN APP RENDER
   // ============================================================================
 
@@ -3834,7 +3682,7 @@ return (
                   Command Assistant
                 </p>
               </div>
-              <button 
+              <button
                 onClick={() => setIsChatOpen(false)}
                 className="text-white/70 hover:text-white transition-colors"
               >
@@ -3846,11 +3694,13 @@ return (
             <div className="h-96 overflow-y-auto p-6 space-y-4 bg-slate-50">
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl ${
-                    msg.role === 'user' 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-white text-slate-700 border border-slate-200'
-                  }`}>
+                  <div
+                    className={`max-w-[80%] p-4 rounded-2xl ${
+                      msg.role === 'user'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-white text-slate-700 border border-slate-200'
+                    }`}
+                  >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   </div>
                 </div>
@@ -3875,7 +3725,11 @@ return (
                   disabled={loadingStates.chat || !chatInput.trim()}
                   className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all disabled:opacity-50"
                 >
-                  {loadingStates.chat ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
+                  {loadingStates.chat ? (
+                    <i className="fas fa-circle-notch fa-spin"></i>
+                  ) : (
+                    <i className="fas fa-paper-plane"></i>
+                  )}
                 </button>
               </div>
             </div>
@@ -3890,7 +3744,7 @@ return (
         )}
       </div>
 
-      {/* MODAL: Competitor Registration */}
+      {/* MISSING MODAL 1: Competitor Registration */}
       {isCompetitorModalOpen && (
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] flex items-center justify-center p-8 animate-in fade-in">
           <div className="bg-white rounded-[3rem] p-12 max-w-2xl w-full shadow-2xl animate-in zoom-in-95">
@@ -3961,7 +3815,7 @@ return (
         </div>
       )}
 
-      {/* MODAL: Opposition Dossier */}
+      {/* MISSING MODAL 2: Opposition Dossier */}
       {dossierTarget && (
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] flex items-center justify-center p-8 animate-in fade-in">
           <div className="bg-white rounded-[3rem] p-12 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95">
@@ -3969,7 +3823,7 @@ return (
               <div>
                 <h3 className="text-4xl font-black italic uppercase tracking-tighter">{dossierTarget.name}</h3>
                 <p className="text-sm font-black uppercase tracking-widest text-slate-400 mt-2">
-                  {dossierTarget.party} • {dossierTarget.incumbent ? 'Incumbent' : 'Challenger'}
+                  {dossierTarget.party} â€¢ {dossierTarget.incumbent ? 'Incumbent' : 'Challenger'}
                 </p>
               </div>
               <button
@@ -4029,8 +3883,8 @@ return (
               {onboardingMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] p-6 rounded-3xl ${
-                    msg.role === 'user' 
-                      ? 'bg-indigo-600 text-white' 
+                    msg.role === 'user'
+                      ? 'bg-indigo-600 text-white'
                       : 'bg-slate-50 text-slate-700'
                   }`}>
                     <p className="leading-relaxed">{msg.text}</p>
