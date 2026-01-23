@@ -454,7 +454,17 @@ function App() {
   // ============================================================================
   
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingMessages, setOnboardingMessages] = useState<Array<{ role: 'user' | 'ai'; text: string }>>([]);
+  const [onboardingMessages, setOnboardingMessages] = useState<Array<{ 
+    role: 'user' | 'ai'; 
+    text: string; 
+    skipHistory?: boolean 
+  }>>([
+    { 
+      role: 'ai', 
+      text: "Welcome to VictoryOps! I'm your AI Campaign Strategist, and I'll help you set up your campaign command center. Let's start with the basics - what's your name?",
+      skipHistory: true // Don't send this to API history
+    }
+  ]);
   const [onboardingInput, setOnboardingInput] = useState('');
   // ============================================================================
   // USEEFFECT: LOCAL STORAGE PERSISTENCE
@@ -2053,7 +2063,9 @@ Ask ONE question at a time. Be warm, encouraging, and professional. After gather
 Keep responses under 100 words.`
       });
       
-      const history = onboardingMessages.map(m => ({
+      const history = onboardingMessages
+        skipHistoryconst history = onboardingMessages
+        .map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.text }]
       }));
