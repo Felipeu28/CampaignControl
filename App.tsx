@@ -2506,15 +2506,16 @@ Use actual data from transcript. If information is missing, use null.`;
       const extractedData = JSON.parse(jsonMatch[0]);
 
       // STEP 2: Ground and validate the data using Google Search
+      // Note: Google Search grounding temporarily disabled pending SDK support
       const groundingModel = genAI.getGenerativeModel({
         model: "gemini-2.0-flash-exp",
         generationConfig: {
           temperature: 0.2,
           maxOutputTokens: 3000,
         },
-        tools: [{
-          googleSearch: {}
-        }],
+        // tools: [{
+        //   googleSearch: {}
+        // }],
       });
 
       const groundingPrompt = `Verify and enhance this political campaign information using current web data:
@@ -2788,11 +2789,17 @@ Return ONLY valid JSON with verified/enhanced data:
           budget_estimate: {
             total_projected_needed: finalBudget,
             categories: {
-              staff: Math.round(finalBudget * 0.3),
-              advertising: Math.round(finalBudget * 0.4),
+              staff_salaries: Math.round(finalBudget * 0.25),
+              consultants: Math.round(finalBudget * 0.05),
+              advertising_digital: Math.round(finalBudget * 0.25),
+              advertising_print: Math.round(finalBudget * 0.10),
+              direct_mail: Math.round(finalBudget * 0.05),
+              sms_messaging: 0,
               events: Math.round(finalBudget * 0.15),
-              technology: Math.round(finalBudget * 0.1),
-              compliance: Math.round(finalBudget * 0.05),
+              voter_file_data: Math.round(finalBudget * 0.02),
+              compliance_legal: Math.round(finalBudget * 0.05),
+              office_ops: Math.round(finalBudget * 0.05),
+              emergency_reserve: Math.round(finalBudget * 0.03),
             }
           },
           opposition: {
