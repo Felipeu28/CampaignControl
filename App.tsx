@@ -3834,7 +3834,7 @@ return (
                   Command Assistant
                 </p>
               </div>
-              <button
+              <button 
                 onClick={() => setIsChatOpen(false)}
                 className="text-white/70 hover:text-white transition-colors"
               >
@@ -3846,13 +3846,11 @@ return (
             <div className="h-96 overflow-y-auto p-6 space-y-4 bg-slate-50">
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className={`max-w-[80%] p-4 rounded-2xl ${
-                      msg.role === 'user'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-white text-slate-700 border border-slate-200'
-                    }`}
-                  >
+                  <div className={`max-w-[80%] p-4 rounded-2xl ${
+                    msg.role === 'user' 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'bg-white text-slate-700 border border-slate-200'
+                  }`}>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   </div>
                 </div>
@@ -3877,11 +3875,7 @@ return (
                   disabled={loadingStates.chat || !chatInput.trim()}
                   className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all disabled:opacity-50"
                 >
-                  {loadingStates.chat ? (
-                    <i className="fas fa-circle-notch fa-spin"></i>
-                  ) : (
-                    <i className="fas fa-paper-plane"></i>
-                  )}
+                  {loadingStates.chat ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
                 </button>
               </div>
             </div>
@@ -3896,7 +3890,7 @@ return (
         )}
       </div>
 
-      {/* MISSING MODAL 1: Competitor Registration */}
+      {/* MODAL: Competitor Registration */}
       {isCompetitorModalOpen && (
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] flex items-center justify-center p-8 animate-in fade-in">
           <div className="bg-white rounded-[3rem] p-12 max-w-2xl w-full shadow-2xl animate-in zoom-in-95">
@@ -3967,7 +3961,7 @@ return (
         </div>
       )}
 
-      {/* MISSING MODAL 2: Opposition Dossier */}
+      {/* MODAL: Opposition Dossier */}
       {dossierTarget && (
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] flex items-center justify-center p-8 animate-in fade-in">
           <div className="bg-white rounded-[3rem] p-12 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95">
@@ -4035,8 +4029,8 @@ return (
               {onboardingMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] p-6 rounded-3xl ${
-                    msg.role === 'user'
-                      ? 'bg-indigo-600 text-white'
+                    msg.role === 'user' 
+                      ? 'bg-indigo-600 text-white' 
                       : 'bg-slate-50 text-slate-700'
                   }`}>
                     <p className="leading-relaxed">{msg.text}</p>
