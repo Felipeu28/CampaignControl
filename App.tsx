@@ -3914,8 +3914,8 @@ Keep responses under 100 words.`
           </div>
         </div>
       )}
-    </div>
-  );
-}
+    </div>  {/* ← CRITICAL: This closes the main app div */}
+  );  {/* ← CRITICAL: This closes the return statement */}
+}  {/* ← CRITICAL: This closes the App function */}
 
-export default App;
+export default App;  {/* ← CRITICAL: This must be the last line */}
