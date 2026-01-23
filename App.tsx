@@ -504,6 +504,66 @@ legal_shield: {
 };
 
 // ============================================================================
+// UI COMPONENT HELPERS - Defined outside App to prevent recreation
+// ============================================================================
+
+/**
+ * Reusable Card Component
+ */
+const Card: React.FC<{
+  title?: string;
+  subtitle?: string;
+  icon?: string;
+  children: React.ReactNode;
+  className?: string;
+  action?: React.ReactNode;
+  compact?: boolean;
+}> = ({ title, subtitle, icon, children, className = '', action, compact = false }) => (
+  <div className={`bg-white rounded-[3rem] ${compact ? 'p-8' : 'p-12'} border border-slate-100 shadow-lg ${className}`}>
+    {(title || subtitle || icon || action) && (
+      <div className="flex justify-between items-start mb-8">
+        <div className="flex items-center gap-6">
+          {icon && (
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl shadow-indigo-200">
+              <i className={`fas ${icon}`}></i>
+            </div>
+          )}
+          <div>
+            {title && <h3 className="text-2xl font-black italic uppercase tracking-tighter text-slate-800 leading-none">{title}</h3>}
+            {subtitle && <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mt-2">{subtitle}</p>}
+          </div>
+        </div>
+        {action && <div>{action}</div>}
+      </div>
+    )}
+    {children}
+  </div>
+);
+
+/**
+ * Sidebar Navigation Item
+ */
+const SidebarItem: React.FC<{
+  icon: string;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  color?: string;
+}> = ({ icon, label, active, onClick, color = 'bg-indigo-600' }) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${
+      active 
+        ? `${color} text-white shadow-xl scale-105` 
+        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+    }`}
+  >
+    <i className={`fas ${icon} text-lg`}></i>
+    <span className="text-[11px]">{label}</span>
+  </button>
+);
+
+// ============================================================================
 // MAIN APP COMPONENT
 // ============================================================================
 
@@ -2873,66 +2933,6 @@ Return ONLY valid JSON with verified/enhanced data:
       setLoading('onboarding', false);
     }
   };
-
-  // ============================================================================
-  // UI COMPONENT HELPERS
-  // ============================================================================
-  
-  /**
-   * Reusable Card Component
-   */
-  const Card: React.FC<{
-    title?: string;
-    subtitle?: string;
-    icon?: string;
-    children: React.ReactNode;
-    className?: string;
-    action?: React.ReactNode;
-    compact?: boolean;
-  }> = ({ title, subtitle, icon, children, className = '', action, compact = false }) => (
-    <div className={`bg-white rounded-[3rem] ${compact ? 'p-8' : 'p-12'} border border-slate-100 shadow-lg ${className}`}>
-      {(title || subtitle || icon || action) && (
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex items-center gap-6">
-            {icon && (
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl shadow-indigo-200">
-                <i className={`fas ${icon}`}></i>
-              </div>
-            )}
-            <div>
-              {title && <h3 className="text-2xl font-black italic uppercase tracking-tighter text-slate-800 leading-none">{title}</h3>}
-              {subtitle && <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mt-2">{subtitle}</p>}
-            </div>
-          </div>
-          {action && <div>{action}</div>}
-        </div>
-      )}
-      {children}
-    </div>
-  );
-  
-  /**
-   * Sidebar Navigation Item
-   */
-  const SidebarItem: React.FC<{
-    icon: string;
-    label: string;
-    active: boolean;
-    onClick: () => void;
-    color?: string;
-  }> = ({ icon, label, active, onClick, color = 'bg-indigo-600' }) => (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${
-        active 
-          ? `${color} text-white shadow-xl scale-105` 
-          : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
-      }`}
-    >
-      <i className={`fas ${icon} text-lg`}></i>
-      <span className="text-[11px]">{label}</span>
-    </button>
-  );
 
   // ============================================================================
   // RENDER FUNCTIONS - PART 1: DASHBOARD
