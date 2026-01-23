@@ -511,6 +511,16 @@ function App() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
   
+  // Initialize onboarding conversation when modal opens
+  useEffect(() => {
+    if (showOnboarding && onboardingMessages.length === 0) {
+      setOnboardingMessages([{
+        role: 'ai',
+        text: "Welcome to VictoryOps! I'm your AI Campaign Strategist, and I'll help you set up your campaign command center. Let's start with the basics - what's your name?"
+      }]);
+    }
+  }, [showOnboarding]);
+  
   // ============================================================================
   // HELPER FUNCTIONS: PROFILE UPDATES
   // ============================================================================
