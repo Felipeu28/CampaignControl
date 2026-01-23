@@ -2617,9 +2617,17 @@ Return ONLY valid JSON with verified/enhanced data:
         ...prev,
         candidate_name: finalData.candidate_name || prev.candidate_name,
         office_sought: finalData.office_sought || prev.office_sought,
-        district: finalData.district || prev.district,
+        district_id: finalData.district || prev.district_id,
         party: finalData.party || prev.party,
-        election_date: finalData.election_date || prev.election_date,
+        filing_info: {
+          ...prev.filing_info,
+          election_date: finalData.election_date || prev.filing_info?.election_date || '',
+          filing_deadline: prev.filing_info?.filing_deadline || '',
+          petition_signatures_required: prev.filing_info?.petition_signatures_required || 0,
+          filing_fee: prev.filing_info?.filing_fee || 0,
+          forms_required: prev.filing_info?.forms_required || [],
+          primary_date: prev.filing_info?.primary_date
+        },
         metadata: {
           ...prev.metadata,
           dna: {
@@ -2782,7 +2790,14 @@ Return ONLY valid JSON with verified/enhanced data:
             // ============================================
             // METADATA
             // ============================================
-            intelligence_completeness: calculateIntelligenceCompleteness(),
+            intelligence_completeness: {
+              candidate_dna: 0,
+              district_intel: 0,
+              opposition_intel: 0,
+              compliance_intel: 0,
+              fundraising_intel: 0,
+              overall_score: 0
+            },
             last_full_refresh: now,
             intelligence_version: '1.0'
           },
@@ -2808,6 +2823,21 @@ Return ONLY valid JSON with verified/enhanced data:
           }
         }
       }));
+
+      // Calculate and update intelligence completeness after profile is set
+      setTimeout(() => {
+        const completeness = calculateIntelligenceCompleteness();
+        setProfile(prev => ({
+          ...prev,
+          metadata: {
+            ...prev.metadata,
+            dna: {
+              ...prev.metadata.dna,
+              intelligence_completeness: completeness
+            }
+          }
+        }));
+      }, 100);
 
       // Set initialized and close onboarding
       setIsInitialized(true);
