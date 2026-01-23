@@ -1,4 +1,3 @@
-
 // ============================================================================
 // SECTION 1: POLITICAL CAMPAIGN SCHEMA - DATA TRANSFORMATION FUNCTIONS
 // ============================================================================
@@ -41,34 +40,39 @@ export function calculateVoteGoal(
       soft_support: 0,
       persuasion_target: 0,
       gotv_target: 0,
-    }
+    },
+    
+    // Added for backwards compatibility:
+    total_registered: totalRegistered,
+    expected_turnout_rate: historicalTurnout,
+    target_vote_share: baseVotesNeeded / expectedTotalVotes,
+    opponent_count: opponentCount
   };
 }
 
 /**
- * Texas Election Code Disclaimer Generator
- * Generates specific "Paid for by..." text based on media type.
+ * Texas Election Code Disclaimer Generator - UPDATED SIGNATURE
+ * Now accepts 2 parameters: type and profile object
  */
 export function generateTexasDisclaimer(
-  type: 'digital' | 'print' | 'sms' | 'radio',
-  candidate: string,
-  treasurer: string,
-  address: string
+  type: 'digital' | 'print' | 'sms' | 'radio' | 'tv',
+  profile: CampaignProfileRow
 ): string {
-  const cleanCandidate = candidate || "[CANDIDATE NAME]";
-  const cleanTreasurer = treasurer || "[TREASURER NAME]";
-  const cleanAddress = address || "[CAMPAIGN ADDRESS]";
+  const candidate = profile.candidate_name || "[CANDIDATE NAME]";
+  const treasurer = profile.metadata?.treasurer || "[TREASURER NAME]";
+  const address = profile.metadata?.campaign_address || "[CAMPAIGN ADDRESS]";
 
-  const base = `Pol. Ad. paid for by the ${cleanCandidate} Campaign, ${cleanTreasurer}, Treasurer.`;
+  const base = `Pol. Ad. paid for by the ${candidate} Campaign, ${treasurer}, Treasurer.`;
 
   switch (type) {
     case 'print':
       // Requires the specific "Political Advertising" label often
-      return `${base} | ${cleanAddress} | NOTICE: IT IS A VIOLATION OF STATE LAW (CHAPTERS 392 AND 393, TRANSPORTATION CODE), TO PLACE THIS SIGN IN THE RIGHT-OF-WAY OF A HIGHWAY.`;
+      return `${base} | ${address} | NOTICE: IT IS A VIOLATION OF STATE LAW (CHAPTERS 392 AND 393, TRANSPORTATION CODE), TO PLACE THIS SIGN IN THE RIGHT-OF-WAY OF A HIGHWAY.`;
     case 'sms':
-      return `Paid for by ${cleanCandidate}. ${cleanTreasurer}, Treas. ${cleanAddress}. Reply STOP to opt-out.`;
+      return `Paid for by ${candidate}. ${treasurer}, Treas. ${address}. Reply STOP to opt-out.`;
     case 'radio':
-      return `Paid for by the ${cleanCandidate} campaign, ${cleanTreasurer}, Treasurer.`;
+    case 'tv':
+      return `Paid for by the ${candidate} campaign, ${treasurer}, Treasurer.`;
     case 'digital':
     default:
       return base;
@@ -151,4 +155,3 @@ export function detectCampaignNeed(message: string): CampaignNeedType {
   if (/happen|news|trending|issue|opponent|landscape/i.test(m)) return 'message_positioning';
   return 'general_campaign';
 }
-
