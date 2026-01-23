@@ -2889,7 +2889,7 @@ Keep responses under 100 words.`
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm font-bold outline-none h-24 focus:ring-8 focus:ring-indigo-500/5" 
                     placeholder="e.g. Marcus Thorne standing in front of a modern city hall, confident and approachable..." 
                     value={imagePrompt.subject} 
-                    onChange={e => setImagePrompt({...imagePrompt, subject: e.target.value})} 
+                    onChange={e => setImagePrompt(prev => ({...prev, subject: e.target.value}))}
                   />
                 </div>
                 <div className="space-y-3">
@@ -2900,7 +2900,7 @@ Keep responses under 100 words.`
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-sm font-bold outline-none" 
                     placeholder="e.g. Modern Urban Center, Silver Creek" 
                     value={imagePrompt.env} 
-                    onChange={e => setImagePrompt({...imagePrompt, env: e.target.value})} 
+                    onChange={e => setImagePrompt(prev => ({...prev, env: e.target.value}))} 
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -2910,8 +2910,8 @@ Keep responses under 100 words.`
                     </label>
                     <select 
                       className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[10px] font-black uppercase outline-none" 
-                      value={imagePrompt.style} 
-                      onChange={e => setImagePrompt({...imagePrompt, style: e.target.value})}
+                     value={imagePrompt.style} 
+                    onChange={e => setImagePrompt(prev => ({...prev, style: e.target.value}))}
                     >
                       <option>Cinematic Portrait</option>
                       <option>Candid Action</option>
@@ -3405,7 +3405,7 @@ Keep responses under 100 words.`
                     Why Are You Running?
                   </label>
                   <textarea
-                    value={dna.reason_for_running}
+                    value={dna?.reason_for_running || ''}
                     onChange={e => updateDNA({ reason_for_running: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-medium outline-none h-32 focus:ring-4 focus:ring-indigo-500/10"
                     placeholder="What drives you to seek this office? What change do you want to create?"
@@ -3417,7 +3417,7 @@ Keep responses under 100 words.`
                     Core Values (comma separated)
                   </label>
                   <input
-                    value={dna.core_values.join(', ')}
+                    value={dna?.core_values?.join(', ') || ''}
                     onChange={e => updateDNA({ 
                       core_values: e.target.value.split(',').map(v => v.trim()).filter(Boolean) 
                     })}
@@ -3431,7 +3431,7 @@ Keep responses under 100 words.`
                     Personal Story
                   </label>
                   <textarea
-                    value={dna.personal_story}
+                    value={dna?.personal_story || ''}
                     onChange={e => updateDNA({ personal_story: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-medium outline-none h-48 focus:ring-4 focus:ring-indigo-500/10"
                     placeholder="Share your background, experiences, and what shaped your perspective..."
@@ -3443,7 +3443,7 @@ Keep responses under 100 words.`
                     Policy Priorities (comma separated)
                   </label>
                   <input
-                    value={dna.policy_priorities.join(', ')}
+                   value={dna?.policy_priorities?.join(', ') || ''}
                     onChange={e => updateDNA({ 
                       policy_priorities: e.target.value.split(',').map(v => v.trim()).filter(Boolean) 
                     })}
@@ -3471,7 +3471,7 @@ Keep responses under 100 words.`
             >
               <div className="space-y-6 pt-6">
                 <textarea
-                  value={dna.master_narrative}
+                  value={dna?.master_narrative || ''}
                   onChange={e => updateDNA({ master_narrative: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-medium italic outline-none h-64 focus:ring-4 focus:ring-indigo-500/10 leading-relaxed"
                   placeholder="Your master campaign narrative will appear here... Use AI Synthesize to generate from your DNA profile."
