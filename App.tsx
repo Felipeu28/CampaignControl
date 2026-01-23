@@ -1988,8 +1988,12 @@ CURRENT CAMPAIGN CONTEXT:
 Provide tactical, actionable advice. Be direct and specific. Reference the campaign data when relevant.`
       });
       
-      // Build conversation history
-      const history = chatMessages.slice(-6).map(m => ({
+      // Build conversation history - ensure first message is from user
+      const allMessages = chatMessages.slice(-6);
+      const firstUserIndex = allMessages.findIndex(m => m.role === 'user');
+      const relevantMessages = firstUserIndex >= 0 ? allMessages.slice(firstUserIndex) : [];
+      
+      const history = relevantMessages.map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.text }]
       }));
@@ -2063,7 +2067,12 @@ Ask ONE question at a time. Be warm, encouraging, and professional. After gather
 Keep responses under 100 words.`
       });
       
-      const history = onboardingMessages.map(m => ({
+      // Filter history to ensure first message is from user (Gemini requirement)
+      // Skip any AI messages that come before the first user message
+      const firstUserIndex = onboardingMessages.findIndex(m => m.role === 'user');
+      const relevantMessages = firstUserIndex >= 0 ? onboardingMessages.slice(firstUserIndex) : [];
+      
+      const history = relevantMessages.map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.text }]
       }));
