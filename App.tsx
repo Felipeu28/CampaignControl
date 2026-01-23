@@ -285,17 +285,38 @@ const DEMO_PROFILE: CampaignProfileRow = {
   }
 ],
 legal_shield: {
-  ballot_access: {
-    method: 'signatures' as const,
-    fee_amount: 750,
-    fee_paid: false,
-    signatures_required: 500,
-    signatures_collected: 342,
-    safety_buffer_percentage: 20,
-    deadline: '2025-03-01',
-    status: 'in_progress' as const
-  },
+      ballot_access: {
+        method: 'signatures' as const,
+        fee_amount: 750,
+        fee_paid: false,
+        signatures_required: 500,
+        signatures_collected: 342,
+        safety_buffer_percentage: 20,
+        deadline: '2025-03-01',
+        status: 'in_progress' as const
+      },
       disclaimers: {},
+      required_forms: [
+        { name: 'Form CTA', description: 'Campaign Treasurer Appointment', filed: true, link: undefined },
+        { name: 'Form CFCP', description: 'Campaign Finance Report', filed: true, link: undefined },
+        { name: 'Form CFCR', description: 'Campaign Finance Corrected Report', filed: false, link: undefined }
+      ],
+      reporting_schedule: [
+        { 
+          id: 'deadline-1', 
+          title: '8-day Pre-General Report', 
+          date: '2025-07-15', 
+          description: 'Campaign finance report due 8 days before general election',
+          status: 'pending' as const
+        },
+        { 
+          id: 'deadline-2', 
+          title: 'Final Report', 
+          date: '2026-01-15', 
+          description: 'Post-election final campaign finance report',
+          status: 'pending' as const
+        }
+      ],
       tec_reporting: {
         next_deadline: '2025-07-15',
         report_type: '8-day pre-general',
