@@ -3619,8 +3619,8 @@ Keep responses under 100 words.`
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
-       {!isInitialized && renderGatekeeper()}
+  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
+    {!isInitialized && renderGatekeeper()}
       {/* Sidebar Navigation */}
       <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 shadow-xl z-40 p-8 flex flex-col">
         {!isInitialized && (
