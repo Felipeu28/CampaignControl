@@ -1055,7 +1055,18 @@ function App() {
    */
   const calculateIntelligenceCompleteness = () => {
     const dna = profile.metadata.dna;
-    if (!dna) return 0;
+    
+    // Always return the object structure, with zeros if no DNA
+    if (!dna) {
+      return {
+        candidate_dna: 0,
+        district_intel: 0,
+        opposition_intel: 0,
+        compliance_intel: 0,
+        fundraising_intel: 0,
+        overall_score: 0
+      };
+    }
     
     // Check each intelligence area
     const candidateScore = (
