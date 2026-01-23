@@ -461,25 +461,25 @@ function App() {
   // ============================================================================
   
   useEffect(() => {
-    // Load saved state on mount
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setProfile(parsed.profile || DEMO_PROFILE);
-        setResearchVault(parsed.researchVault || []);
-        setBrandingAssets(parsed.brandingAssets || []);
-        setCreativeAssets(parsed.creativeAssets || []);
-        setChatMessages(parsed.chatMessages || chatMessages);
-        setIsInitialized(true);
-      } catch (error) {
-        console.error('Failed to load saved state:', error);
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      setProfile(parsed.profile || DEMO_PROFILE);
+      setResearchVault(parsed.researchVault || []);
+      setBrandingAssets(parsed.brandingAssets || []);
+      setCreativeAssets(parsed.creativeAssets || []);
+      setChatMessages(parsed.chatMessages || chatMessages);
+      
+      // If we have a saved profile, skip gatekeeper
+      if (parsed.profile?.candidate_name) {
         setIsInitialized(true);
       }
-    } else {
-      setIsInitialized(true);
+    } catch (error) {
+      console.error('Failed to load saved state:', error);
     }
-  }, []);
+  }
+}, []);
   
   // Save state whenever it changes
   useEffect(() => {
@@ -3533,14 +3533,94 @@ Keep responses under 100 words.`
       </div>
     );
   };
+/**
+   * Gatekeeper - Initial Login/Setup Screen
+   */
+  const renderGatekeeper = () => (
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-[2000] flex items-center justify-center p-8">
+      <div className="max-w-2xl w-full">
+        {/* Logo & Title */}
+        <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <div className="w-24 h-24 bg-indigo-600 rounded-3xl flex items-center justify-center text-white mx-auto mb-8 shadow-2xl shadow-indigo-500/50">
+            <i className="fas fa-shield-halved text-5xl"></i>
+          </div>
+          <h1 className="text-7xl font-black uppercase italic tracking-tighter text-white leading-none mb-4">
+            Victory<span className="text-indigo-400">Ops</span>
+          </h1>
+          <p className="text-indigo-300 text-xl font-bold tracking-wider">
+            Political Campaign Command Center
+          </p>
+          <p className="text-slate-400 text-sm mt-4 max-w-md mx-auto leading-relaxed">
+            Enterprise-grade AI-powered campaign management for candidates who demand excellence
+          </p>
+        </div>
 
+        {/* Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+          {/* Demo Campaign */}
+          <button
+            onClick={() => {
+              setProfile(DEMO_PROFILE);
+              setIsInitialized(true);
+              setChatMessages([{ 
+                role: 'ai', 
+                text: `✅ Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.` 
+              }]);
+            }}
+            className="group p-8 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-3xl hover:bg-white/20 hover:border-indigo-400 transition-all hover:scale-[1.02] shadow-2xl"
+          >
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all text-2xl">
+                <i className="fas fa-rocket"></i>
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-white font-black text-xl mb-2 uppercase tracking-tight">
+                  Demo Campaign
+                </h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Explore VictoryOps with a pre-configured Texas House race
+                </p>
+              </div>
+            </div>
+          </button>
+
+          {/* New Campaign */}
+          <button
+            onClick={() => setShowOnboarding(true)}
+            className="group p-8 bg-indigo-600/90 backdrop-blur-xl border-2 border-indigo-400 rounded-3xl hover:bg-indigo-500 transition-all hover:scale-[1.02] shadow-2xl shadow-indigo-500/50"
+          >
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 bg-white/20 text-white rounded-2xl flex items-center justify-center group-hover:bg-white group-hover:text-indigo-600 transition-all text-2xl">
+                <i className="fas fa-plus"></i>
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-white font-black text-xl mb-2 uppercase tracking-tight">
+                  New Campaign
+                </h3>
+                <p className="text-indigo-100 text-sm leading-relaxed">
+                  Start from scratch with AI-guided campaign setup
+                </p>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-16 text-center animate-in fade-in duration-1000 delay-500">
+          <p className="text-slate-500 text-xs uppercase tracking-widest font-bold">
+            Powered by Google Gemini AI • Secured by Supabase
+          </p>
+        </div>
+      </div>
+    </div>
+  );
   // ============================================================================
   // MAIN APP RENDER
   // ============================================================================
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-slate-100 font-sans">
-      
+       {!isInitialized && renderGatekeeper()}
       {/* Sidebar Navigation */}
       <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 shadow-xl z-40 p-8 flex flex-col">
         {/* Logo */}
