@@ -61,7 +61,7 @@ const STORAGE_KEY = 'victory_ops_v2_state';
 const getApiKey = () => {
   const key = import.meta.env.VITE_GOOGLE_AI_API_KEY;
   if (!key || key === 'your_google_ai_key_here') {
-    console.error('Ã¢Å¡Â Ã¯Â¸Â VITE_GOOGLE_AI_API_KEY not configured in .env.local');
+    console.error('ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â VITE_GOOGLE_AI_API_KEY not configured in .env.local');
     return null;
   }
   return key;
@@ -149,18 +149,18 @@ const handleAPIError = (error: unknown, context: string): string => {
   if (error instanceof Error) {
     // Handle specific Google AI errors
     if (error.message.includes('API_KEY')) {
-      return 'Ã°Å¸â€â€˜ API key not configured. Please add your key to .env.local';
+      return 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key not configured. Please add your key to .env.local';
     }
     if (error.message.includes('quota')) {
-      return 'Ã¢Å¡Â Ã¯Â¸Â API quota exceeded. Please check your usage limits.';
+      return 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â API quota exceeded. Please check your usage limits.';
     }
     if (error.message.includes('SAFETY')) {
-      return 'Ã°Å¸â€ºÂ¡Ã¯Â¸Â Content filtered by safety systems. Try rephrasing your request.';
+      return 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂºÃ‚Â¡ÃƒÂ¯Ã‚Â¸Ã‚Â Content filtered by safety systems. Try rephrasing your request.';
     }
-    return `Ã¢ÂÅ’ ${error.message}`;
+    return `ÃƒÂ¢Ã‚ÂÃ…â€™ ${error.message}`;
   }
   
-  return `Ã¢ÂÅ’ ${context} failed. Please try again.`;
+  return `ÃƒÂ¢Ã‚ÂÃ…â€™ ${context} failed. Please try again.`;
 };
 
 /**
@@ -886,46 +886,64 @@ function App() {
   // ============================================================================
   
   /**
-   * Generate real images using Google's Imagen 4 API
+   * Generate images using Imagen 3 Fast via Google AI API
+   * Fixed to use correct endpoint and parameters
    */
-  async function generateImagen4Image(opts: {
+  async function generateCampaignImage(opts: {
     apiKey: string;
     prompt: string;
-    numberOfImages?: number;
-  }) {
-    const { apiKey, prompt, numberOfImages = 1 } = opts;
+    aspectRatio?: '1:1' | '16:9' | '9:16';
+  }): Promise<string> {
+    const { apiKey, prompt, aspectRatio = '1:1' } = opts;
 
-    // Gemini API Imagen endpoint
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          instances: [{ prompt }],
-          parameters: { sampleCount: numberOfImages },
-        }),
+    try {
+      // Correct Imagen 3 Fast endpoint
+      const response = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
+          body: JSON.stringify({
+            instances: [
+              {
+                prompt: prompt,
+              }
+            ],
+            parameters: {
+              sampleCount: 1,
+              aspectRatio: aspectRatio,
+              safetyFilterLevel: 'block_some',
+              personGeneration: 'allow_adult',
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Imagen API Error:', errorText);
+        throw new Error(`Image generation failed: ${response.status} ${response.statusText}`);
       }
-    );
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      throw new Error(`Imagen error (${res.status}): ${errText || res.statusText}`);
+      const data = await response.json();
+      
+      // Extract base64 image from response
+      const imageBase64 = data.predictions?.[0]?.bytesBase64Encoded;
+      
+      if (!imageBase64) {
+        console.error('No image in response:', data);
+        throw new Error('No image data returned from API');
+      }
+
+      return `data:image/png;base64,${imageBase64}`;
+
+    } catch (error) {
+      console.error('Image generation error:', error);
+      throw error;
     }
-
-    const json = await res.json();
-
-    // Defensive parsing
-    const base64 =
-      json?.predictions?.[0]?.bytesBase64Encoded ??
-      json?.predictions?.[0]?.image?.bytesBase64Encoded;
-
-    if (!base64) throw new Error("Imagen returned no image bytes.");
-
-    return `data:image/png;base64,${base64}`;
   }
   
   /**
@@ -1025,7 +1043,7 @@ function App() {
     setIsCompetitorModalOpen(false);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã¢Å“â€¦ Opponent "${opponent.name}" registered in Threat Matrix. Intelligence profile active.`
+      text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Opponent "${opponent.name}" registered in Threat Matrix. Intelligence profile active.`
     }]);
   };
   
@@ -1052,7 +1070,7 @@ function App() {
     
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã¢Å“â€¦ Uploaded ${files.length} document(s) to DNA Vault. Source materials indexed.`
+      text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Uploaded ${files.length} document(s) to DNA Vault. Source materials indexed.`
     }]);
   };
 
@@ -1263,7 +1281,7 @@ function App() {
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ Please configure your VITE_GOOGLE_AI_API_KEY in .env.local to use Intelligence features.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ Please configure your VITE_GOOGLE_AI_API_KEY in .env.local to use Intelligence features.'
       }]);
       return;
     }
@@ -1286,7 +1304,7 @@ function App() {
     
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸â€Â Initiating ${mode} probe for ${profile.district_id}... Scanning intelligence sources...`
+      text: `ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â Initiating ${mode} probe for ${profile.district_id}... Scanning intelligence sources...`
     }]);
     
     try {
@@ -1318,7 +1336,7 @@ function App() {
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ ${mode} probe complete. Intelligence snapshot saved to vault. Signal strength: ${snapshot.signalStrength}%`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ ${mode} probe complete. Intelligence snapshot saved to vault. Signal strength: ${snapshot.signalStrength}%`
       }]);
       
     } catch (error) {
@@ -1351,7 +1369,7 @@ function App() {
     if (!activeResearch) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â No active research selected. Please run a probe first.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â No active research selected. Please run a probe first.'
       }]);
       return;
     }
@@ -1360,7 +1378,7 @@ function App() {
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for rival extraction.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for rival extraction.'
       }]);
       return;
     }
@@ -1368,7 +1386,7 @@ function App() {
     setLoading('extractRivals', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'Ã°Å¸Â¤â€“ AI analyzing research for opponent intelligence... Extracting threat profiles...'
+      text: 'ÃƒÂ°Ã…Â¸Ã‚Â¤Ã¢â‚¬â€œ AI analyzing research for opponent intelligence... Extracting threat profiles...'
     }]);
     
     try {
@@ -1422,18 +1440,18 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
               
               setChatMessages(prev => [...prev, {
                 role: 'ai',
-                text: `Ã¢Å“â€¦ Extracted ${newOpponents.length} new opponent(s) from research. Threat Matrix updated.`
+                text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Extracted ${newOpponents.length} new opponent(s) from research. Threat Matrix updated.`
               }]);
             } else {
               setChatMessages(prev => [...prev, {
                 role: 'ai',
-                text: 'Ã¢Å“â€¦ Analysis complete. No new opponents found (all already registered).'
+                text: 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Analysis complete. No new opponents found (all already registered).'
               }]);
             }
           } else {
             setChatMessages(prev => [...prev, {
               role: 'ai',
-              text: 'Ã¢Å“â€¦ Analysis complete. No opponent intelligence found in this research.'
+              text: 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Analysis complete. No opponent intelligence found in this research.'
             }]);
           }
         } else {
@@ -1443,7 +1461,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
         console.error('Failed to parse opponent data:', parseError);
         setChatMessages(prev => [...prev, {
           role: 'ai',
-          text: 'Ã¢Å¡Â Ã¯Â¸Â Extracted intelligence but failed to parse. Try manual entry instead.'
+          text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Extracted intelligence but failed to parse. Try manual entry instead.'
         }]);
       }
       
@@ -1466,7 +1484,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for opponent scanning.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for opponent scanning.'
       }]);
       return;
     }
@@ -1474,7 +1492,7 @@ Format as JSON array of opponents. If no opponents found, return empty array.`;
     setLoading('probe', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸Å½Â¯ Initiating deep scan on ${opponent.name}... Analyzing vulnerabilities...`
+      text: `ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Initiating deep scan on ${opponent.name}... Analyzing vulnerabilities...`
     }]);
     
     try {
@@ -1523,7 +1541,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Deep scan complete on ${opponent.name}. Dossier saved to Intelligence Vault.`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Deep scan complete on ${opponent.name}. Dossier saved to Intelligence Vault.`
       }]);
       
     } catch (error) {
@@ -1548,7 +1566,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     if (!imagePrompt.subject) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â Please enter a subject description for image generation.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Please enter a subject description for image generation.'
       }]);
       return;
     }
@@ -1557,7 +1575,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for image generation.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for image generation.'
       }]);
       return;
     }
@@ -1565,7 +1583,7 @@ Be specific and tactical. Focus on legitimate political critique, not personal a
     setLoading('generateImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸Å½Â¨ Darkroom active. Generating visual for: "${imagePrompt.subject}"...`
+      text: `ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ Darkroom active. Generating visual for: "${imagePrompt.subject}"...`
     }]);
     
     try {
@@ -1612,13 +1630,12 @@ Output only the enhanced prompt, no explanations.`
       );
       
       const enhancedPrompt = promptEnhancement.response.text();
-      const enhancedPrompt = promptEnhancement.response.text();
       
-      // PATCH 2B: Generate REAL image using Imagen 4
-      const dataUrl = await generateImagen4Image({
+      // Generate REAL image using fixed Imagen 3 API
+      const dataUrl = await generateCampaignImage({
         apiKey,
         prompt: enhancedPrompt,
-        numberOfImages: 1,
+        aspectRatio: aspectRatio,
       });
       
       const newAsset: EnhancedCreativeAsset = {
@@ -1646,7 +1663,7 @@ try {
     {
       role: 'ai',
       text:
-        "✅ Visual generated! Image created with Imagen 4 at " +
+        "âœ… Visual generated! Image created with Imagen 4 at " +
         (highQualityMode ? "HD" : "standard") +
         " quality in " +
         aspectRatio +
@@ -1673,7 +1690,7 @@ try {
     if (!feedback.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide refinement instructions.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Please provide refinement instructions.'
       }]);
       return;
     }
@@ -1682,7 +1699,7 @@ try {
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for image refinement.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for image refinement.'
       }]);
       return;
     }
@@ -1690,7 +1707,7 @@ try {
     setLoading('editImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸â€â€ž Refining asset "${asset.title}" with instruction: "${feedback}"...`
+      text: `ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Å¾ Refining asset "${asset.title}" with instruction: "${feedback}"...`
     }]);
     
     try {
@@ -1740,7 +1757,7 @@ Output only the new enhanced prompt, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Refinement complete! New version created based on: "${feedback}"`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Refinement complete! New version created based on: "${feedback}"`
       }]);
       
     } catch (error) {
@@ -1765,7 +1782,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!file.type.startsWith('image/')) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â Please upload an image file (JPG, PNG, WEBP).'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Please upload an image file (JPG, PNG, WEBP).'
       }]);
       return;
     }
@@ -1774,7 +1791,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (file.size > 10 * 1024 * 1024) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â File too large. Maximum size is 10MB.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â File too large. Maximum size is 10MB.'
       }]);
       return;
     }
@@ -1782,7 +1799,7 @@ Output only the new enhanced prompt, no explanations.`;
     setLoading('uploadImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸â€œÂ¤ Uploading "${file.name}"...`
+      text: `ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â¤ Uploading "${file.name}"...`
     }]);
     
     try {
@@ -1812,7 +1829,7 @@ Output only the new enhanced prompt, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Image uploaded successfully! "${file.name}" added to Lightbox Gallery. Click to edit with AI.`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Image uploaded successfully! "${file.name}" added to Lightbox Gallery. Click to edit with AI.`
       }]);
       
       // Reset file input
@@ -1822,7 +1839,7 @@ Output only the new enhanced prompt, no explanations.`;
       console.error('Upload error:', error);
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢ÂÅ’ Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        text: `ÃƒÂ¢Ã‚ÂÃ…â€™ Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       }]);
     } finally {
       setLoading('uploadImage', false);
@@ -1836,7 +1853,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide editing instructions.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Please provide editing instructions.'
       }]);
       return;
     }
@@ -1844,7 +1861,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!asset.mediaUrl) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â No image data available for editing.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â No image data available for editing.'
       }]);
       return;
     }
@@ -1853,7 +1870,7 @@ Output only the new enhanced prompt, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for AI image editing.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for AI image editing.'
       }]);
       return;
     }
@@ -1861,7 +1878,7 @@ Output only the new enhanced prompt, no explanations.`;
     setLoading('editImage', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸Å½Â¨ AI analyzing image and applying edit: "${instruction}"...`
+      text: `ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¨ AI analyzing image and applying edit: "${instruction}"...`
     }]);
     
     try {
@@ -1926,7 +1943,7 @@ NEW PROMPT: [detailed generation prompt]`
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Image analyzed and edit plan created! To see the actual edited image, integrate with an image generation API (Imagen 3, DALL-E 3, or Stable Diffusion).`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Image analyzed and edit plan created! To see the actual edited image, integrate with an image generation API (Imagen 3, DALL-E 3, or Stable Diffusion).`
       }]);
       
     } catch (error) {
@@ -1950,7 +1967,7 @@ NEW PROMPT: [detailed generation prompt]`
     }
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'Ã°Å¸â€”â€˜Ã¯Â¸Â Asset removed from Lightbox Gallery.'
+      text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬â€Ã¢â‚¬ËœÃƒÂ¯Ã‚Â¸Ã‚Â Asset removed from Lightbox Gallery.'
     }]);
   };
 
@@ -1966,7 +1983,7 @@ NEW PROMPT: [detailed generation prompt]`
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for content generation.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for content generation.'
       }]);
       return;
     }
@@ -1974,7 +1991,7 @@ NEW PROMPT: [detailed generation prompt]`
     setLoading('generateCreative', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸â€œÂ Megaphone active. Generating ${type}...`
+      text: `ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â Megaphone active. Generating ${type}...`
     }]);
     
     try {
@@ -2058,7 +2075,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ ${type} generated successfully! Review in the Megaphone editor.`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ ${type} generated successfully! Review in the Megaphone editor.`
       }]);
       
     } catch (error) {
@@ -2078,7 +2095,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!activeCreativeAsset) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â No active asset selected. Please select content to refine.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â No active asset selected. Please select content to refine.'
       }]);
       return;
     }
@@ -2086,7 +2103,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide refinement instructions.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Please provide refinement instructions.'
       }]);
       return;
     }
@@ -2095,7 +2112,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for content refinement.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for content refinement.'
       }]);
       return;
     }
@@ -2103,7 +2120,7 @@ Write for a 6x9 inch mailer. Be persuasive but honest. Include contrast with opp
     setLoading('generateCreative', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸â€â€ž Refining "${activeCreativeAsset.title}" with instruction: "${instruction}"...`
+      text: `ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Å¾ Refining "${activeCreativeAsset.title}" with instruction: "${instruction}"...`
     }]);
     
     try {
@@ -2152,7 +2169,7 @@ Output only the refined content, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Refinement applied successfully! Content updated based on: "${instruction}"`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Refinement applied successfully! Content updated based on: "${instruction}"`
       }]);
       
     } catch (error) {
@@ -2178,7 +2195,7 @@ Output only the refined content, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for budget audit.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for budget audit.'
       }]);
       return;
     }
@@ -2186,7 +2203,7 @@ Output only the refined content, no explanations.`;
     setLoading('budgetAudit', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'Ã°Å¸â€™Â° Analyzing campaign budget allocation...'
+      text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â° Analyzing campaign budget allocation...'
     }]);
     
     try {
@@ -2232,7 +2249,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Budget audit complete. Review recommendations in War Chest module.`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Budget audit complete. Review recommendations in War Chest module.`
       }]);
       
     } catch (error) {
@@ -2258,7 +2275,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     if (!activeCreativeAsset) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â No content selected for compliance check. Please select an asset from Megaphone first.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â No content selected for compliance check. Please select an asset from Megaphone first.'
       }]);
       return;
     }
@@ -2267,7 +2284,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for compliance audit.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for compliance audit.'
       }]);
       return;
     }
@@ -2275,7 +2292,7 @@ Provide tactical recommendations in 200 words or less. Be specific and actionabl
     setLoading('legalAudit', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'Ã¢Å¡â€“Ã¯Â¸Â Scanning content for Texas Election Code compliance...'
+      text: 'ÃƒÂ¢Ã…Â¡Ã¢â‚¬â€œÃƒÂ¯Ã‚Â¸Ã‚Â Scanning content for Texas Election Code compliance...'
     }]);
     
     try {
@@ -2300,7 +2317,7 @@ CAMPAIGN INFO:
 - Media Type: ${activeCreativeAsset.mediaType}
 
 CHECK FOR:
-1. Required disclaimers (Texas Election Code Ã‚Â§255.001)
+1. Required disclaimers (Texas Election Code Ãƒâ€šÃ‚Â§255.001)
 2. Prohibited content (false statements, impersonation)
 3. Proper attribution
 4. Disclaimer placement requirements
@@ -2323,7 +2340,7 @@ Be thorough but concise.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `${isPassing ? 'Ã¢Å“â€¦' : 'Ã¢Å¡Â Ã¯Â¸Â'} Compliance scan complete:\n\n${auditResult}`
+        text: `${isPassing ? 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦' : 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â'} Compliance scan complete:\n\n${auditResult}`
       }]);
       
       // Switch to Legal Shield tab if issues found
@@ -2355,7 +2372,7 @@ Be thorough but concise.`;
     if (!dna?.reason_for_running || dna.core_values.length === 0) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â Please complete Core Mapping fields (reason for running and core values) before synthesizing narrative.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Please complete Core Mapping fields (reason for running and core values) before synthesizing narrative.'
       }]);
       return;
     }
@@ -2364,7 +2381,7 @@ Be thorough but concise.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for narrative synthesis.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for narrative synthesis.'
       }]);
       return;
     }
@@ -2372,7 +2389,7 @@ Be thorough but concise.`;
     setLoading('narrativeSynth', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: 'Ã°Å¸Â§Â¬ Synthesizing master campaign narrative from DNA profile...'
+      text: 'ÃƒÂ°Ã…Â¸Ã‚Â§Ã‚Â¬ Synthesizing master campaign narrative from DNA profile...'
     }]);
     
     try {
@@ -2413,7 +2430,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Master narrative synthesized! This is the foundation of your campaign message. Review and refine in DNA Vault.`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Master narrative synthesized! This is the foundation of your campaign message. Review and refine in DNA Vault.`
       }]);
       
     } catch (error) {
@@ -2436,7 +2453,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!currentNarrative) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â No narrative to refine. Please synthesize a narrative first.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â No narrative to refine. Please synthesize a narrative first.'
       }]);
       return;
     }
@@ -2444,7 +2461,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!instruction.trim()) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã¢Å¡Â Ã¯Â¸Â Please provide refinement instructions.'
+        text: 'ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Please provide refinement instructions.'
       }]);
       return;
     }
@@ -2453,7 +2470,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key required for narrative refinement.'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key required for narrative refinement.'
       }]);
       return;
     }
@@ -2461,7 +2478,7 @@ Write in first person as if ${profile.candidate_name} is speaking directly to vo
     setLoading('narrativeSynth', true);
     setChatMessages(prev => [...prev, {
       role: 'ai',
-      text: `Ã°Å¸â€â€ž Refining master narrative: "${instruction}"...`
+      text: `ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Å¾ Refining master narrative: "${instruction}"...`
     }]);
     
     try {
@@ -2498,7 +2515,7 @@ Output only the refined narrative, no explanations.`;
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: `Ã¢Å“â€¦ Narrative refined successfully!`
+        text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Narrative refined successfully!`
       }]);
       
     } catch (error) {
@@ -2526,7 +2543,7 @@ Output only the refined narrative, no explanations.`;
     if (!apiKey) {
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
       }]);
       return;
     }
@@ -2610,7 +2627,7 @@ Provide tactical, actionable advice. Be direct and specific. Reference the campa
     if (!apiKey) {
       setOnboardingMessages(prev => [...prev, {
         role: 'ai',
-        text: 'Ã°Å¸â€â€˜ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
+        text: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ API key not configured. Please add VITE_GOOGLE_AI_API_KEY to .env.local'
       }]);
       return;
     }
@@ -3076,19 +3093,19 @@ Return ONLY valid JSON with verified/enhanced data:
       setShowOnboarding(false);
       
       // Create success message with validation info
-      let successMsg = `✅ Campaign profile created for ${finalData.candidate_name}!`;
+      let successMsg = `âœ… Campaign profile created for ${finalData.candidate_name}!`;
       
       if (groundedData?.verified) {
         if (groundedData.verified.office_exists && groundedData.verified.district_valid) {
-          successMsg += ` ✓ Verified: ${finalData.office_sought} in ${finalData.district}`;
+          successMsg += ` âœ“ Verified: ${finalData.office_sought} in ${finalData.district}`;
         }
         if (groundedData.verified.election_date) {
-          successMsg += ` • Election: ${groundedData.verified.election_date}`;
+          successMsg += ` â€¢ Election: ${groundedData.verified.election_date}`;
         }
       }
       
       if (groundedData?.opponents && groundedData.opponents.length > 0) {
-        successMsg += ` • Found ${groundedData.opponents.length} opponent(s) in this race`;
+        successMsg += ` â€¢ Found ${groundedData.opponents.length} opponent(s) in this race`;
       }
       
       successMsg += '\n\nYour VictoryOps command center is now operational. How can I help you today?';
@@ -3294,7 +3311,7 @@ Return ONLY valid JSON with verified/enhanced data:
                         {o.name}
                       </h4>
                       <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                        {o.party} Ã¢â‚¬Â¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}
+                        {o.party} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}
                       </p>
                     </div>
                     <div className="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all">
@@ -3402,7 +3419,7 @@ Return ONLY valid JSON with verified/enhanced data:
                   {activeResearch.error && (
                     <div className="mt-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
                       <p className="text-xs font-bold text-red-700">
-                        Ã¢Å¡Â Ã¯Â¸Â {activeResearch.error}
+                        ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â {activeResearch.error}
                       </p>
                     </div>
                   )}
@@ -3566,7 +3583,7 @@ Return ONLY valid JSON with verified/enhanced data:
                       </button>
                     </div>
                     <p className="text-[9px] text-amber-700 font-bold mt-3 italic">
-                      Ã°Å¸â€™Â¡ Example: "Make this more conversational" or "Add a stronger call-to-action"
+                      ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¡ Example: "Make this more conversational" or "Add a stronger call-to-action"
                     </p>
                   </div>
 
@@ -4015,7 +4032,7 @@ Return ONLY valid JSON with verified/enhanced data:
                           </h4>
                           <div className="flex items-center justify-between">
                             <span className="text-[8px] font-black uppercase tracking-widest text-indigo-300">
-                              {asset.metadata?.aspectRatio || '1:1'} Ã¢â‚¬Â¢ {asset.metadata?.quality || 'Standard'}
+                              {asset.metadata?.aspectRatio || '1:1'} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {asset.metadata?.quality || 'Standard'}
                             </span>
                             <i className="fas fa-expand text-white text-sm"></i>
                           </div>
@@ -4318,7 +4335,7 @@ Return ONLY valid JSON with verified/enhanced data:
                   navigator.clipboard.writeText(generateTexasDisclaimer(activeDisclaimerType, profile));
                   setChatMessages(prev => [...prev, {
                     role: 'ai',
-                    text: 'Ã¢Å“â€¦ Disclaimer copied to clipboard!'
+                    text: 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Disclaimer copied to clipboard!'
                   }]);
                 }}
                 className="w-full py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all"
@@ -4511,6 +4528,461 @@ Return ONLY valid JSON with verified/enhanced data:
       </div>
     );
   };
+
+  /**
+   * MODAL: Register New Competitor
+   */
+  const renderCompetitorModal = () => {
+    const [newOpponent, setNewOpponent] = useState<Partial<Opponent>>({
+      name: '',
+      party: 'R',
+      incumbent: false,
+      strengths: ['', '', ''],
+      weaknesses: ['', '', '']
+    });
+
+    const handleSubmit = () => {
+      if (!newOpponent.name || newOpponent.name.trim() === '') {
+        setChatMessages(prev => [...prev, {
+          role: 'ai',
+          text: '⚠️ Please enter opponent name'
+        }]);
+        return;
+      }
+
+      const opponent: Opponent = {
+        name: newOpponent.name,
+        party: newOpponent.party || 'R',
+        incumbent: newOpponent.incumbent || false,
+        strengths: newOpponent.strengths?.filter(s => s.trim() !== '') || [],
+        weaknesses: newOpponent.weaknesses?.filter(w => w.trim() !== '') || []
+      };
+
+      addOpponent(opponent);
+      
+      setNewOpponent({
+        name: '',
+        party: 'R',
+        incumbent: false,
+        strengths: ['', '', ''],
+        weaknesses: ['', '', '']
+      });
+    };
+
+    if (!isCompetitorModalOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-8">
+        <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-3xl">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-white font-black text-2xl uppercase tracking-tight">
+                  Register Opponent
+                </h2>
+                <p className="text-red-100 text-sm mt-1">
+                  Add competitor to Threat Matrix
+                </p>
+              </div>
+              <button
+                onClick={() => setIsCompetitorModalOpen(false)}
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                <i className="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+          </div>
+
+          <div className="p-8 space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Opponent Name *
+              </label>
+              <input
+                type="text"
+                value={newOpponent.name}
+                onChange={e => setNewOpponent(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., Sarah Jenkins"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  Party Affiliation
+                </label>
+                <select
+                  value={newOpponent.party}
+                  onChange={e => setNewOpponent(prev => ({ ...prev, party: e.target.value }))}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="R">Republican</option>
+                  <option value="D">Democrat</option>
+                  <option value="I">Independent</option>
+                  <option value="L">Libertarian</option>
+                  <option value="G">Green</option>
+                </select>
+              </div>
+
+              <div className="flex items-center">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newOpponent.incumbent}
+                    onChange={e => setNewOpponent(prev => ({ ...prev, incumbent: e.target.checked }))}
+                    className="w-5 h-5 rounded border-slate-300 text-red-600 focus:ring-red-500"
+                  />
+                  <span className="text-sm font-bold text-slate-700">
+                    Incumbent
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Key Strengths (up to 3)
+              </label>
+              {[0, 1, 2].map(i => (
+                <input
+                  key={i}
+                  type="text"
+                  value={newOpponent.strengths?.[i] || ''}
+                  onChange={e => {
+                    const strengths = [...(newOpponent.strengths || ['', '', ''])];
+                    strengths[i] = e.target.value;
+                    setNewOpponent(prev => ({ ...prev, strengths }));
+                  }}
+                  placeholder={`Strength #${i + 1}`}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500 mb-2"
+                />
+              ))}
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Key Weaknesses (up to 3)
+              </label>
+              {[0, 1, 2].map(i => (
+                <input
+                  key={i}
+                  type="text"
+                  value={newOpponent.weaknesses?.[i] || ''}
+                  onChange={e => {
+                    const weaknesses = [...(newOpponent.weaknesses || ['', '', ''])];
+                    weaknesses[i] = e.target.value;
+                    setNewOpponent(prev => ({ ...prev, weaknesses }));
+                  }}
+                  placeholder={`Weakness #${i + 1}`}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500 mb-2"
+                />
+              ))}
+            </div>
+
+            <div className="flex gap-4 pt-4 border-t border-slate-100">
+              <button
+                onClick={() => setIsCompetitorModalOpen(false)}
+                className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors"
+              >
+                <i className="fas fa-crosshairs mr-2"></i>
+                Register Threat
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  /**
+   * MODAL: Opposition Dossier (Deep Dive)
+   */
+  const renderDossierModal = () => {
+    const [activeTab, setActiveTab] = useState<'overview' | 'strengths' | 'weaknesses' | 'research'>('overview');
+
+    if (!dossierTarget) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-8">
+        <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-t-3xl">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-white font-black text-2xl uppercase tracking-tight">
+                  Opposition Dossier
+                </h2>
+                <p className="text-slate-300 text-sm mt-1">
+                  {dossierTarget.name} ({dossierTarget.party}) 
+                  {dossierTarget.incumbent && ' • Incumbent'}
+                </p>
+              </div>
+              <button
+                onClick={() => setDossierTarget(null)}
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                <i className="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              {(['overview', 'strengths', 'weaknesses', 'research'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                    activeTab === tab
+                      ? 'bg-white text-slate-900'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-8">
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-slate-50 p-4 rounded-2xl">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Party</p>
+                    <p className="text-2xl font-black text-slate-900">
+                      {dossierTarget.party === 'R' ? 'Republican' : dossierTarget.party === 'D' ? 'Democrat' : 'Independent'}
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-2xl">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Status</p>
+                    <p className="text-2xl font-black text-slate-900">
+                      {dossierTarget.incumbent ? 'Incumbent' : 'Challenger'}
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-2xl">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Threat Level</p>
+                    <p className="text-2xl font-black text-red-600">
+                      {dossierTarget.incumbent ? 'HIGH' : 'MEDIUM'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'strengths' && (
+              <div className="space-y-3">
+                {dossierTarget.strengths.length > 0 ? (
+                  dossierTarget.strengths.map((strength, i) => (
+                    <div key={i} className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                      <i className="fas fa-shield-alt text-amber-600 mt-1"></i>
+                      <p className="text-slate-700">{strength}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-400 italic">No strengths identified yet</p>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'weaknesses' && (
+              <div className="space-y-3">
+                {dossierTarget.weaknesses.length > 0 ? (
+                  dossierTarget.weaknesses.map((weakness, i) => (
+                    <div key={i} className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                      <i className="fas fa-exclamation-triangle text-red-600 mt-1"></i>
+                      <p className="text-slate-700">{weakness}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-400 italic">No weaknesses identified yet</p>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'research' && (
+              <div className="space-y-4">
+                <button
+                  onClick={() => scanOpponent(dossierTarget)}
+                  disabled={loadingStates.probe}
+                  className="w-full px-6 py-4 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-wait"
+                >
+                  <i className={`fas ${loadingStates.probe ? 'fa-spinner fa-spin' : 'fa-radar'} mr-2`}></i>
+                  {loadingStates.probe ? 'Scanning...' : 'Run Deep Scan'}
+                </button>
+
+                {researchVault
+                  .filter(r => r.text.toLowerCase().includes(dossierTarget.name.toLowerCase()))
+                  .map(research => (
+                    <div key={research.id} className="p-4 bg-slate-50 rounded-xl">
+                      <p className="text-xs text-slate-500 mb-2">
+                        {new Date(research.timestamp).toLocaleDateString()}
+                      </p>
+                      <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                        {research.text.substring(0, 500)}...
+                      </p>
+                    </div>
+                  ))
+                }
+              </div>
+            )}
+
+            <div className="flex gap-4 pt-6 border-t border-slate-100 mt-6">
+              <button
+                onClick={() => setDossierTarget(null)}
+                className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setProfile(prev => ({
+                    ...prev,
+                    metadata: {
+                      ...prev.metadata,
+                      opponents: prev.metadata.opponents.filter(o => o.name !== dossierTarget.name)
+                    }
+                  }));
+                  setDossierTarget(null);
+                  setChatMessages(prev => [...prev, {
+                    role: 'ai',
+                    text: `Removed ${dossierTarget.name} from Threat Matrix`
+                  }]);
+                }}
+                className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors"
+              >
+                <i className="fas fa-trash mr-2"></i>
+                Remove Threat
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  /**
+   * MODAL: Review All Rivals
+   */
+  const renderReviewRivalsModal = () => {
+    if (!isReviewRivalsModalOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-8">
+        <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-3xl">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-white font-black text-2xl uppercase tracking-tight">
+                  Threat Matrix
+                </h2>
+                <p className="text-red-100 text-sm mt-1">
+                  {profile.metadata.opponents.length} registered opponent(s)
+                </p>
+              </div>
+              <button
+                onClick={() => setIsReviewRivalsModalOpen(false)}
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                <i className="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+          </div>
+
+          <div className="p-8 space-y-4">
+            {profile.metadata.opponents.length === 0 ? (
+              <div className="text-center py-12">
+                <i className="fas fa-users-slash text-6xl text-slate-300 mb-4"></i>
+                <p className="text-slate-400 text-lg font-bold">No opponents registered yet</p>
+                <p className="text-slate-400 text-sm mt-2">Use "Register Target" to add competitors</p>
+              </div>
+            ) : (
+              profile.metadata.opponents.map((opponent, index) => (
+                <div
+                  key={index}
+                  className="bg-slate-50 border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900">{opponent.name}</h3>
+                      <p className="text-sm text-slate-500 mt-1">
+                        {opponent.party === 'R' ? 'Republican' : opponent.party === 'D' ? 'Democrat' : 'Independent'}
+                        {opponent.incumbent && ' • Incumbent'}
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      opponent.incumbent ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {opponent.incumbent ? 'HIGH THREAT' : 'MEDIUM'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-white p-3 rounded-xl">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Strengths</p>
+                      <p className="text-lg font-black text-emerald-600">
+                        {opponent.strengths.filter(s => s.trim() !== '').length}
+                      </p>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Weaknesses</p>
+                      <p className="text-lg font-black text-red-600">
+                        {opponent.weaknesses.filter(w => w.trim() !== '').length}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setDossierTarget(opponent);
+                        setIsReviewRivalsModalOpen(false);
+                      }}
+                      className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold hover:bg-purple-700 transition-colors"
+                    >
+                      <i className="fas fa-file-alt mr-2"></i>
+                      View Dossier
+                    </button>
+                    <button
+                      onClick={() => scanOpponent(opponent)}
+                      disabled={loadingStates.probe}
+                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                    >
+                      <i className={`fas ${loadingStates.probe ? 'fa-spinner fa-spin' : 'fa-radar'} mr-2`}></i>
+                      {loadingStates.probe ? 'Scanning...' : 'Deep Scan'}
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+
+            <button
+              onClick={() => {
+                setIsReviewRivalsModalOpen(false);
+                setIsCompetitorModalOpen(true);
+              }}
+              className="w-full px-6 py-4 border-2 border-dashed border-slate-300 rounded-2xl text-slate-400 hover:text-slate-600 hover:border-slate-400 transition-colors font-bold"
+            >
+              <i className="fas fa-plus mr-2"></i>
+              Register New Opponent
+            </button>
+
+            <button
+              onClick={() => setIsReviewRivalsModalOpen(false)}
+              className="w-full px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors mt-6"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
 /**
    * Gatekeeper - Initial Login/Setup Screen
    */
@@ -4542,7 +5014,7 @@ Return ONLY valid JSON with verified/enhanced data:
               setIsInitialized(true);
               setChatMessages([{ 
                 role: 'ai', 
-                text: `Ã¢Å“â€¦ Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.` 
+                text: `ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Demo campaign loaded for ${DEMO_PROFILE.candidate_name}. All systems operational.` 
               }]);
             }}
             className="group p-8 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-3xl hover:bg-white/20 hover:border-indigo-400 transition-all hover:scale-[1.02] shadow-2xl"
@@ -4586,7 +5058,7 @@ Return ONLY valid JSON with verified/enhanced data:
         {/* Footer Info */}
         <div className="mt-16 text-center animate-in fade-in duration-1000 delay-500">
           <p className="text-slate-500 text-xs uppercase tracking-widest font-bold">
-            Powered by Google Gemini AI Ã¢â‚¬Â¢ Secured by Supabase
+            Powered by Google Gemini AI ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Secured by Supabase
           </p>
         </div>
       </div>
@@ -4647,6 +5119,11 @@ Return ONLY valid JSON with verified/enhanced data:
         {activeTab === 'legal' && renderLegalShield()}
         {activeTab === 'settings' && renderSettings()}
       </div>
+
+      {/* MODALS */}
+      {renderCompetitorModal()}
+      {renderDossierModal()}
+      {renderReviewRivalsModal()}
 
       {/* Floating Chat Assistant */}
       <div className={`fixed bottom-8 right-8 z-50 transition-all ${isChatOpen ? 'w-96' : 'w-auto'}`}>
@@ -4801,7 +5278,7 @@ Return ONLY valid JSON with verified/enhanced data:
               <div>
                 <h3 className="text-4xl font-black italic uppercase tracking-tighter">{dossierTarget.name}</h3>
                 <p className="text-sm font-black uppercase tracking-widest text-slate-400 mt-2">
-                  {dossierTarget.party} Ã¢â‚¬Â¢ {dossierTarget.incumbent ? 'Incumbent' : 'Challenger'}
+                  {dossierTarget.party} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {dossierTarget.incumbent ? 'Incumbent' : 'Challenger'}
                 </p>
               </div>
               <button
@@ -4897,7 +5374,7 @@ Return ONLY valid JSON with verified/enhanced data:
                 disabled={loadingStates.onboarding}
                 className="mt-6 w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-700 transition-all disabled:opacity-50 shadow-xl shadow-emerald-500/30"
               >
-                {loadingStates.onboarding ? <i className="fas fa-circle-notch fa-spin"></i> : '✅ Complete Setup & Launch Campaign'}
+                {loadingStates.onboarding ? <i className="fas fa-circle-notch fa-spin"></i> : 'âœ… Complete Setup & Launch Campaign'}
               </button>
             )}
 
