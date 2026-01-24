@@ -3927,7 +3927,7 @@ Return ONLY valid JSON with verified/enhanced data:
                         </p>
                       </div>
                       <div className="mt-6 pt-6 border-t border-slate-100 text-xs text-slate-400 italic">
-                        Paid for by {profile.candidate_name} for {profile.office}
+                        Paid for by {profile.candidate_name} for {profile.office_sought}
                       </div>
                     </div>
                   )}
@@ -3939,7 +3939,7 @@ Return ONLY valid JSON with verified/enhanced data:
                           {profile.candidate_name}
                         </h2>
                         <p className="text-sm font-bold text-slate-600">
-                          for {profile.office}
+                          for {profile.office_sought}
                         </p>
                       </div>
                       <div className="text-lg leading-relaxed text-slate-700 text-justify whitespace-pre-wrap mb-8">
@@ -3947,7 +3947,7 @@ Return ONLY valid JSON with verified/enhanced data:
                       </div>
                       <div className="text-center pt-6 border-t-2 border-slate-200">
                         <p className="text-xs text-slate-500">
-                          Paid for by {profile.candidate_name} for {profile.office}
+                          Paid for by {profile.candidate_name} for {profile.office_sought}
                         </p>
                       </div>
                     </div>
