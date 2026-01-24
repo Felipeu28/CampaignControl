@@ -1642,7 +1642,8 @@ Output only the enhanced prompt, no explanations.`
       
       setChatMessages(prev => [...prev, {
         role: 'ai',
-        text: \`✅ Visual generated! Image created with Imagen 4 at \${highQualityMode ? 'HD' : 'standard'} quality in \${aspectRatio} aspect ratio.\`
+      text: \`✅ Visual generated! Image created with Imagen 4 at \${highQualityMode ? 'HD' : 'standard'} quality in \${aspectRatio} aspect ratio.\`
+      text: `✅ Visual generated! Image created with Imagen 4 at ${highQualityMode ? 'HD' : 'standard'} quality in ${aspectRatio} aspect ratio.`
       }]);
       
     } catch (error) {
