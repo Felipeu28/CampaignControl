@@ -1638,29 +1638,34 @@ Output only the enhanced prompt, no explanations.`
       };
       
       // PATCH 2C: Cap branding assets to prevent storage blowup
-      setBrandingAssets(prev => [newAsset, ...prev].slice(0, 12));
-      
-      setChatMessages(prev => [...prev, {
-        role: 'ai',
-text:
-  "✅ Visual generated! Image created with Imagen 4 at " +
-  (highQualityMode ? "HD" : "standard") +
-  " quality in " +
-  aspectRatio +
-  " aspect ratio.",
+ setBrandingAssets(prev => [newAsset, ...prev].slice(0, 12));
 
-      
-    } catch (error) {
-      const errorMsg = handleAPIError(error, 'Image Generation');
-      setChatMessages(prev => [...prev, {
-        role: 'ai',
-        text: errorMsg
-      }]);
-    } finally {
-      setLoading('generateImage', false);
-    }
-  };
-  /**
+setChatMessages(prev => [
+  ...prev,
+  {
+    role: 'ai',
+    text:
+      "✅ Visual generated! Image created with Imagen 4 at " +
+      (highQualityMode ? "HD" : "standard") +
+      " quality in " +
+      aspectRatio +
+      " aspect ratio.",
+  },
+]);
+
+} catch (error) {
+  const errorMsg = handleAPIError(error, 'Image Generation');
+  setChatMessages(prev => [
+    ...prev,
+    {
+      role: 'ai',
+      text: errorMsg,
+    },
+  ]);
+} finally {
+  setLoading('generateImage', false);
+}
+
    * Refine Visual Asset - Enhanced for Real Image Editing
    */
   const refineVisual = async (asset: EnhancedCreativeAsset, feedback: string) => {
