@@ -3667,9 +3667,7 @@ Return ONLY valid JSON with verified/enhanced data:
             </div>
           )}
         </Card>
-            )}
-          </div>
-        </Card>
+        
         {/* Intelligence Vault Display */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Left: Vault Selector */}
@@ -3721,7 +3719,7 @@ Return ONLY valid JSON with verified/enhanced data:
           <div className="lg:col-span-2">
             {activeResearch ? (
               <Card 
-                title={`${activeResearch.mode} Intelligence`} 
+                title={activeResearch.mode + ' Intelligence Report'} 
                 subtitle={new Date(activeResearch.timestamp).toLocaleString()}
                 icon="fa-brain"
                 action={
