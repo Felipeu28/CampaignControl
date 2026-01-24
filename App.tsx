@@ -908,6 +908,7 @@ function App() {
       // Generate content with image config
       const result = await model.generateContent({
         contents: [{
+          role: 'user',
           parts: [
             { text: prompt }
           ]
@@ -3861,39 +3862,35 @@ Return ONLY valid JSON with verified/enhanced data:
               title="Visual Synthesizer" 
               icon="fa-atom" 
               subtitle="Neural Asset Development" 
-              className="border-indigo-500/20" 
-              action={
-                <button 
-                  onClick={generateVisual} 
-                  disabled={loadingStates.generateImage || !imagePrompt.subject} 
-                  className="bg-slate-900 text-white px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all disabled:opacity-50"
-                >
-                  {loadingStates.generateImage ? 'Generating...' : 'Generate'}
-                </button>
-              }
+              className="border-indigo-500/20"
             >
               <div className="space-y-6 pt-2">
                 <div className="space-y-3">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                    Subject Description
+                    Subject Description *
                   </label>
                   <textarea 
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm font-bold outline-none h-24 focus:ring-8 focus:ring-indigo-500/5" 
-                    placeholder="e.g. Marcus Thorne standing in front of a modern city hall, confident and approachable..." 
+                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-5 py-4 text-sm font-bold outline-none h-28 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" 
+                    placeholder="Describe your image in detail...&#10;&#10;Example: Professional headshot of Marcus Thorne in navy suit, warm smile, standing in modern city hall lobby with natural lighting" 
                     value={imagePrompt.subject} 
                     onChange={e => setImagePrompt(prev => ({...prev, subject: e.target.value}))}
                   />
+                  <p className="text-[8px] text-slate-400 flex items-center gap-2">
+                    <i className="fas fa-lightbulb"></i>
+                    <span>Be specific: lighting, clothing, setting, mood</span>
+                  </p>
                 </div>
                 <div className="space-y-3">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                    Environment Node
+                    Environment / Setting
                   </label>
                   <input 
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-sm font-bold outline-none" 
-                    placeholder="e.g. Modern Urban Center, Silver Creek" 
+                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" 
+                    placeholder="e.g., Modern office, Town square, Community center" 
                     value={imagePrompt.env} 
                     onChange={e => setImagePrompt(prev => ({...prev, env: e.target.value}))} 
                   />
+                </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -3901,7 +3898,7 @@ Return ONLY valid JSON with verified/enhanced data:
                       Visual Style
                     </label>
                     <select 
-                      className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[10px] font-black uppercase outline-none" 
+                      className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-indigo-500" 
                      value={imagePrompt.style} 
                     onChange={e => setImagePrompt(prev => ({...prev, style: e.target.value}))}
                     >
@@ -3909,6 +3906,8 @@ Return ONLY valid JSON with verified/enhanced data:
                       <option>Candid Action</option>
                       <option>High-Key Professional</option>
                       <option>Gritty Realism</option>
+                      <option>Documentary Style</option>
+                      <option>Editorial Magazine</option>
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -3916,16 +3915,131 @@ Return ONLY valid JSON with verified/enhanced data:
                       Aspect Ratio
                     </label>
                     <select 
-                      className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[10px] font-black uppercase outline-none" 
+                      className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-indigo-500" 
                       value={aspectRatio} 
                       onChange={e => setAspectRatio(e.target.value as any)}
                     >
-                      <option value="1:1">1:1 Square</option>
-                      <option value="16:9">16:9 Wide</option>
-                      <option value="9:16">9:16 Story</option>
+                      <option value="1:1">1:1 Square (Instagram)</option>
+                      <option value="16:9">16:9 Landscape (Web)</option>
+                      <option value="9:16">9:16 Portrait (Stories)</option>
+                      <option value="3:4">3:4 Portrait (Print)</option>
+                      <option value="4:3">4:3 Landscape (Classic)</option>
                     </select>
                   </div>
                 </div>
+                
+                {/* Visual Aspect Ratio Preview */}
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-xl border border-indigo-100">
+                  <div className="flex items-center justify-center min-h-[80px]">
+                    <div 
+                      className="bg-white border-2 border-indigo-300 border-dashed rounded-lg shadow-sm"
+                      style={{
+                        width: aspectRatio === '1:1' ? '60px' : aspectRatio === '16:9' ? '80px' : aspectRatio === '9:16' ? '40px' : aspectRatio === '3:4' ? '48px' : '64px',
+                        height: aspectRatio === '1:1' ? '60px' : aspectRatio === '16:9' ? '45px' : aspectRatio === '9:16' ? '71px' : aspectRatio === '3:4' ? '64px' : '48px',
+                      }}
+                    >
+                      <div className="w-full h-full flex items-center justify-center">
+                        <i className="fas fa-image text-indigo-300 text-lg"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-center text-[8px] font-black uppercase tracking-widest text-indigo-600 mt-2">
+                    Preview: {aspectRatio} Format
+                  </p>
+                </div>
+                
+                {/* Quick Examples */}
+                <div className="space-y-2">
+                  <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">
+                    Quick Examples
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setImagePrompt({
+                        subject: 'Professional headshot of candidate in business attire, confident smile',
+                        env: 'Modern office with city skyline',
+                        style: 'High-Key Professional'
+                      })}
+                      className="p-3 text-left bg-white border border-slate-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-all group"
+                    >
+                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-700 group-hover:text-indigo-600">
+                        Headshot
+                      </p>
+                      <p className="text-[8px] text-slate-400 mt-1">Professional portrait</p>
+                    </button>
+                    <button
+                      onClick={() => setImagePrompt({
+                        subject: 'Candidate speaking at podium with American flag, enthusiastic crowd',
+                        env: 'Campaign rally venue',
+                        style: 'Candid Action'
+                      })}
+                      className="p-3 text-left bg-white border border-slate-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-all group"
+                    >
+                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-700 group-hover:text-indigo-600">
+                        Rally
+                      </p>
+                      <p className="text-[8px] text-slate-400 mt-1">Speaking event</p>
+                    </button>
+                    <button
+                      onClick={() => setImagePrompt({
+                        subject: 'Candidate shaking hands with local business owner, genuine interaction',
+                        env: 'Small town main street',
+                        style: 'Documentary Style'
+                      })}
+                      className="p-3 text-left bg-white border border-slate-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-all group"
+                    >
+                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-700 group-hover:text-indigo-600">
+                        Community
+                      </p>
+                      <p className="text-[8px] text-slate-400 mt-1">Local engagement</p>
+                    </button>
+                    <button
+                      onClick={() => setImagePrompt({
+                        subject: 'Candidate with diverse group of supporters, united and hopeful',
+                        env: 'Community center',
+                        style: 'Cinematic Portrait'
+                      })}
+                      className="p-3 text-left bg-white border border-slate-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-all group"
+                    >
+                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-700 group-hover:text-indigo-600">
+                        Team
+                      </p>
+                      <p className="text-[8px] text-slate-400 mt-1">Group photo</p>
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Large Prominent Generate Button */}
+                <button 
+                  onClick={generateVisual} 
+                  disabled={loadingStates.generateImage || !imagePrompt.subject} 
+                  className={`w-full py-5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all transform disabled:opacity-50 disabled:cursor-not-allowed ${
+                    loadingStates.generateImage 
+                      ? 'bg-indigo-500 text-white cursor-wait scale-[0.98]' 
+                      : imagePrompt.subject 
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98]'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  }`}
+                >
+                  {loadingStates.generateImage ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <i className="fas fa-circle-notch fa-spin"></i>
+                      Generating Image...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-3">
+                      <i className="fas fa-wand-magic-sparkles"></i>
+                      {imagePrompt.subject ? 'Generate Campaign Visual' : 'Enter Description First'}
+                    </span>
+                  )}
+                </button>
+                
+                {!imagePrompt.subject && (
+                  <p className="text-center text-[8px] text-slate-400 -mt-2">
+                    <i className="fas fa-arrow-up mr-1"></i>
+                    Fill in the subject description to enable generation
+                  </p>
+                )}
               </div>
             </Card>
 
