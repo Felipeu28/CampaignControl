@@ -5553,26 +5553,9 @@ Return ONLY valid JSON with verified/enhanced data:
                     />
                   </div>
                 </div>
-              ) : (
-                /* Fee Payment Method */
-                <div className="space-y-8">
-                  <div className="p-8 bg-emerald-50 border-2 border-emerald-200 rounded-2xl">
-                    <p className="text-4xl font-black text-emerald-700 mb-2">
-                      ${profile.filing_info?.filing_fee.toLocaleString()}
-                    </p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
-                      Filing Fee Required
-                    </p>
-                  </div>
-                  <button className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl">
-                    <i className="fas fa-credit-card mr-3"></i>
-                    Process Payment
-                  </button>
-                </div>
               )}
             </div>
           </Card>
-
         </div>
 
         {/* TEC Forms Checklist - ENHANCED */}
