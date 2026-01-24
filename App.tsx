@@ -3891,7 +3891,6 @@ Return ONLY valid JSON with verified/enhanced data:
                     onChange={e => setImagePrompt(prev => ({...prev, env: e.target.value}))} 
                   />
                 </div>
-                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">
