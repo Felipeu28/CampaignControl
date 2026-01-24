@@ -752,6 +752,33 @@ function App() {
   // ============================================================================
   
   const [activeDisclaimerType, setActiveDisclaimerType] = useState<'digital' | 'print' | 'tv' | 'radio' | 'sms'>('digital');
+  const [showDisclaimerGuide, setShowDisclaimerGuide] = useState(false);
+  const [complianceScore, setComplianceScore] = useState(82); // 0-100 score
+  const [urgentDeadlines, setUrgentDeadlines] = useState<Array<{
+    id: string;
+    title: string;
+    date: string;
+    daysUntil: number;
+    status: 'urgent' | 'warning' | 'ok';
+    action?: string;
+  }>>([
+    {
+      id: '1',
+      title: 'Q2 Finance Report',
+      date: '2025-07-15',
+      daysUntil: 3,
+      status: 'urgent',
+      action: 'File quarterly report with TEC'
+    },
+    {
+      id: '2',
+      title: 'Ballot Access Petition',
+      date: '2025-07-20',
+      daysUntil: 8,
+      status: 'warning',
+      action: 'Submit petition signatures'
+    }
+  ]);
   
   // ============================================================================
   // DNA VAULT (SETTINGS) STATE
@@ -4924,12 +4951,533 @@ Return ONLY valid JSON with verified/enhanced data:
     const bufferGoal = Math.round(access.signatures_required * (1 + access.safety_buffer_percentage / 100));
     const progressPerc = Math.min(100, (access.signatures_collected / bufferGoal) * 100);
 
+    // Calculate compliance health score based on various factors
+    const calculateComplianceHealth = () => {
+      let score = 100;
+      
+      // Deduct for urgent deadlines
+      urgentDeadlines.forEach(d => {
+        if (d.status === 'urgent') score -= 10;
+        if (d.status === 'warning') score -= 5;
+      });
+      
+      // Deduct if ballot access not complete
+      if (access.method === 'signatures' && progressPerc < 100) {
+        score -= (100 - progressPerc) * 0.2;
+      }
+      
+      // Bonus for completed forms
+      const completedForms = Object.values(shield.tec_forms).filter(f => f.filed).length;
+      const totalForms = Object.keys(shield.tec_forms).length;
+      if (completedForms === totalForms) score += 5;
+      
+      return Math.max(0, Math.min(100, Math.round(score)));
+    };
+
+    const healthScore = calculateComplianceHealth();
+    const healthStatus = healthScore >= 80 ? 'good' : healthScore >= 60 ? 'warning' : 'critical';
+    const healthColor = healthStatus === 'good' ? 'emerald' : healthStatus === 'warning' ? 'amber' : 'red';
+
     return (
-      <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700 pb-20">
+      <div className="space-y-12 animate-in fade-in duration-700 pb-20">
+        
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div>
+            <h2 className="text-4xl font-black text-slate-800 italic uppercase tracking-tighter">
+              Legal Shield
+            </h2>
+            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-2">
+              Compliance Command Center
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className={`px-6 py-3 rounded-xl border-2 ${
+              healthStatus === 'good' ? 'bg-emerald-50 border-emerald-200' :
+              healthStatus === 'warning' ? 'bg-amber-50 border-amber-200' :
+              'bg-red-50 border-red-200'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  healthStatus === 'good' ? 'bg-emerald-500 animate-pulse' :
+                  healthStatus === 'warning' ? 'bg-amber-500 animate-pulse' :
+                  'bg-red-500 animate-pulse'
+                }`}></div>
+                <div>
+                  <p className={`text-2xl font-black ${
+                    healthStatus === 'good' ? 'text-emerald-700' :
+                    healthStatus === 'warning' ? 'text-amber-700' :
+                    'text-red-700'
+                  }`}>
+                    {healthScore}
+                  </p>
+                  <p className={`text-xs font-black uppercase tracking-wider ${
+                    healthStatus === 'good' ? 'text-emerald-600' :
+                    healthStatus === 'warning' ? 'text-amber-600' :
+                    'text-red-600'
+                  }`}>
+                    {healthStatus === 'good' ? 'Good Standing' : healthStatus === 'warning' ? 'Needs Attention' : 'Critical'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Compliance Command Center Dashboard */}
+        <Card 
+          title="Compliance Health Dashboard" 
+          subtitle="Real-time Monitoring & Risk Assessment"
+          icon="fa-shield-halved"
+        >
+          <div className="space-y-8 pt-6">
+            
+            {/* Health Score Progress */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-8 rounded-3xl border-2 border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider text-slate-700">
+                  <i className="fas fa-chart-line mr-2"></i>
+                  Compliance Health Score
+                </h3>
+                <span className={`text-3xl font-black ${
+                  healthStatus === 'good' ? 'text-emerald-600' :
+                  healthStatus === 'warning' ? 'text-amber-600' :
+                  'text-red-600'
+                }`}>
+                  {healthScore}/100
+                </span>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="w-full bg-slate-200 h-6 rounded-full overflow-hidden shadow-inner mb-3">
+                <div 
+                  className={`h-full transition-all rounded-full ${
+                    healthStatus === 'good' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
+                    healthStatus === 'warning' ? 'bg-gradient-to-r from-amber-500 to-amber-600' :
+                    'bg-gradient-to-r from-red-500 to-red-600'
+                  }`}
+                  style={{ width: `${healthScore}%` }}
+                />
+              </div>
+              
+              <p className={`text-xs font-bold ${
+                healthStatus === 'good' ? 'text-emerald-700' :
+                healthStatus === 'warning' ? 'text-amber-700' :
+                'text-red-700'
+              }`}>
+                {healthStatus === 'good' && '✓ Your campaign is in good compliance standing'}
+                {healthStatus === 'warning' && '⚠ Some items need attention to maintain compliance'}
+                {healthStatus === 'critical' && '🚨 Urgent action required to avoid penalties'}
+              </p>
+            </div>
+
+            {/* Urgent Actions */}
+            {urgentDeadlines.some(d => d.status === 'urgent' || d.status === 'warning') && (
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-red-50 rounded-xl border border-red-200">
+                    <i className="fas fa-exclamation-triangle text-red-600"></i>
+                    <span className="text-xs font-black uppercase tracking-wider text-red-700">
+                      Urgent Actions ({urgentDeadlines.filter(d => d.status === 'urgent').length})
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  {urgentDeadlines.filter(d => d.status === 'urgent' || d.status === 'warning').map(deadline => (
+                    <div 
+                      key={deadline.id}
+                      className={`p-6 rounded-2xl border-2 ${
+                        deadline.status === 'urgent' 
+                          ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-300' 
+                          : 'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-300'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                              deadline.status === 'urgent' ? 'bg-red-600' : 'bg-amber-600'
+                            }`}>
+                              <i className={`fas ${
+                                deadline.status === 'urgent' ? 'fa-clock' : 'fa-calendar-exclamation'
+                              } text-white`}></i>
+                            </div>
+                            <div>
+                              <h4 className={`text-lg font-black ${
+                                deadline.status === 'urgent' ? 'text-red-800' : 'text-amber-800'
+                              }`}>
+                                {deadline.title}
+                              </h4>
+                              <p className={`text-xs font-bold ${
+                                deadline.status === 'urgent' ? 'text-red-600' : 'text-amber-600'
+                              }`}>
+                                Due in {deadline.daysUntil} day{deadline.daysUntil !== 1 ? 's' : ''} • {deadline.date}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-sm text-slate-700 ml-13">
+                            {deadline.action}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <button className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-white transition-all shadow-lg hover:shadow-xl ${
+                            deadline.status === 'urgent' ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'
+                          }`}>
+                            Take Action
+                          </button>
+                          <button className="px-6 py-2 bg-white rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all border border-slate-200">
+                            Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Upcoming Deadlines Timeline */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <i className="fas fa-calendar-days text-indigo-600"></i>
+                <h3 className="text-sm font-black uppercase tracking-wider text-slate-700">
+                  Upcoming Deadlines (Next 30 Days)
+                </h3>
+              </div>
+              <div className="bg-white p-6 rounded-2xl border-2 border-slate-200">
+                <div className="space-y-3">
+                  {urgentDeadlines.map((deadline, idx) => (
+                    <div key={deadline.id} className="flex items-center gap-4">
+                      <div className={`w-2 h-2 rounded-full ${
+                        deadline.status === 'urgent' ? 'bg-red-500' :
+                        deadline.status === 'warning' ? 'bg-amber-500' :
+                        'bg-emerald-500'
+                      }`}></div>
+                      <span className="text-sm font-bold text-slate-700 min-w-[100px]">
+                        {deadline.date}
+                      </span>
+                      <span className="text-sm text-slate-600 flex-1">
+                        {deadline.title}
+                      </span>
+                      <span className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-lg ${
+                        deadline.status === 'urgent' ? 'bg-red-100 text-red-700' :
+                        deadline.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+                        'bg-emerald-100 text-emerald-700'
+                      }`}>
+                        {deadline.daysUntil}d
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           
-          {/* Ballot Access Tracker */}
+          {/* Ballot Access Tracker - ENHANCED */}
           <Card title="Ballot Access Gateway" icon="fa-door-open" subtitle="Technical Qualification Status">
+            <div className="mt-6 space-y-10">
+              {/* Method Toggle */}
+              <div className="flex gap-4 p-2 bg-slate-100 rounded-2xl">
+                <button 
+                  onClick={() => updateLegalShield({ ballot_access: { ...access, method: 'signatures' } })}
+                  className={`flex-1 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                    access.method === 'signatures' 
+                      ? 'bg-white text-indigo-600 shadow-md' 
+                      : 'text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  Collect Signatures
+                </button>
+                <button 
+                  onClick={() => updateLegalShield({ ballot_access: { ...access, method: 'fee' } })}
+                  className={`flex-1 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                    access.method === 'fee' 
+                      ? 'bg-white text-indigo-600 shadow-md' 
+                      : 'text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  Pay Filing Fee
+                </button>
+              </div>
+
+              {/* Signatures Method */}
+              {access.method === 'signatures' ? (
+                <div className="space-y-8">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-5xl font-black text-slate-800 leading-none italic">
+                        {access.signatures_collected}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-2">
+                        Validated Signatures
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-indigo-600">{bufferGoal}</p>
+                      <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">
+                        Safety Target
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="w-full bg-slate-100 h-4 rounded-full overflow-hidden shadow-inner">
+                      <div 
+                        className="bg-indigo-600 h-full transition-all rounded-full" 
+                        style={{ width: `${progressPerc}%` }}
+                      />
+                    </div>
+                    <p className="text-center text-xs font-black text-slate-500">
+                      {progressPerc.toFixed(1)}% Complete
+                    </p>
+                  </div>
+                  
+                  {/* Status Alert */}
+                  {progressPerc < 100 && (
+                    <div className={`p-4 rounded-xl border-2 ${
+                      progressPerc < 50 ? 'bg-red-50 border-red-200' :
+                      progressPerc < 80 ? 'bg-amber-50 border-amber-200' :
+                      'bg-blue-50 border-blue-200'
+                    }`}>
+                      <p className={`text-xs font-bold ${
+                        progressPerc < 50 ? 'text-red-700' :
+                        progressPerc < 80 ? 'text-amber-700' :
+                        'text-blue-700'
+                      }`}>
+                        {progressPerc < 50 && '🚨 Critical: You need ' + (bufferGoal - access.signatures_collected) + ' more signatures'}
+                        {progressPerc >= 50 && progressPerc < 80 && '⚠️ On track: ' + (bufferGoal - access.signatures_collected) + ' signatures remaining'}
+                        {progressPerc >= 80 && '✓ Almost there! Just ' + (bufferGoal - access.signatures_collected) + ' more signatures'}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-3">
+                    <input 
+                      type="number" 
+                      placeholder="Add signatures" 
+                      className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const val = parseInt((e.target as HTMLInputElement).value) || 0;
+                          updateLegalShield({ 
+                            ballot_access: { 
+                              ...access, 
+                              signatures_collected: access.signatures_collected + val 
+                            } 
+                          });
+                          (e.target as HTMLInputElement).value = '';
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* Fee Payment Method */
+                <div className="space-y-8">
+                  <div className="p-8 bg-emerald-50 border-2 border-emerald-200 rounded-2xl">
+                    <p className="text-4xl font-black text-emerald-700 mb-2">
+                      ${profile.filing_info?.filing_fee.toLocaleString()}
+                    </p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                      Filing Fee Required
+                    </p>
+                  </div>
+                  
+                  {!access.fee_paid && (
+                    <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
+                      <p className="text-xs font-bold text-amber-700">
+                        ⚠️ Payment deadline: {profile.filing_info?.filing_deadline}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <button 
+                    onClick={() => updateLegalShield({ 
+                      ballot_access: { ...access, fee_paid: true } 
+                    })}
+                    disabled={access.fee_paid}
+                    className={`w-full py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl ${
+                      access.fee_paid 
+                        ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                        : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    }`}
+                  >
+                    <i className={`fas ${access.fee_paid ? 'fa-check-circle' : 'fa-credit-card'} mr-3`}></i>
+                    {access.fee_paid ? 'Payment Confirmed' : 'Process Payment'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Smart Disclaimer Assistant - ENHANCED */}
+          <Card title="Smart Disclaimer Assistant" icon="fa-shield-halved" subtitle="Compliant Political Advertising">
+            <div className="mt-6 space-y-8">
+              
+              {/* Media Type Selector */}
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {(['digital', 'print', 'tv', 'radio', 'sms'] as const).map(type => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setActiveDisclaimerType(type);
+                      setShowDisclaimerGuide(true);
+                    }}
+                    className={`px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest whitespace-nowrap transition-all ${
+                      activeDisclaimerType === type
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Usage Guide */}
+              {showDisclaimerGuide && (
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-2 border-indigo-200">
+                  <div className="flex items-start gap-3 mb-4">
+                    <i className="fas fa-info-circle text-indigo-600 mt-1"></i>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-black uppercase tracking-wider text-indigo-900 mb-2">
+                        {activeDisclaimerType.toUpperCase()} Usage Guide
+                      </h4>
+                      <div className="text-xs text-slate-700 space-y-2">
+                        {activeDisclaimerType === 'digital' && (
+                          <>
+                            <p className="font-bold">✓ Use for:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Social media posts (Facebook, Twitter, Instagram)</li>
+                              <li>Email campaigns</li>
+                              <li>Website content and banners</li>
+                              <li>Digital ads (Google, Meta, YouTube)</li>
+                            </ul>
+                            <p className="font-bold mt-3">⚠️ Requirements:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Minimum 8pt font size</li>
+                              <li>Placed at bottom or end of message</li>
+                              <li>Visible for 4+ seconds (video)</li>
+                            </ul>
+                          </>
+                        )}
+                        {activeDisclaimerType === 'print' && (
+                          <>
+                            <p className="font-bold">✓ Use for:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Direct mail pieces</li>
+                              <li>Newspaper/magazine ads</li>
+                              <li>Campaign literature and flyers</li>
+                              <li>Yard signs and billboards</li>
+                            </ul>
+                            <p className="font-bold mt-3">⚠️ Requirements:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Readable font size (min 6pt)</li>
+                              <li>Contrasting color from background</li>
+                              <li>Clearly separated from other text</li>
+                            </ul>
+                          </>
+                        )}
+                        {activeDisclaimerType === 'tv' && (
+                          <>
+                            <p className="font-bold">✓ Use for:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Television commercials</li>
+                              <li>Broadcast campaign ads</li>
+                              <li>Cable TV spots</li>
+                            </ul>
+                            <p className="font-bold mt-3">⚠️ Requirements:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Both visual and audio disclaimer required</li>
+                              <li>On screen for minimum 4 seconds</li>
+                              <li>Clearly legible text</li>
+                            </ul>
+                          </>
+                        )}
+                        {activeDisclaimerType === 'radio' && (
+                          <>
+                            <p className="font-bold">✓ Use for:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Radio advertisements</li>
+                              <li>Podcast sponsorships</li>
+                              <li>Audio campaign messages</li>
+                            </ul>
+                            <p className="font-bold mt-3">⚠️ Requirements:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Must be spoken clearly by candidate</li>
+                              <li>Full disclaimer required</li>
+                              <li>No background music during disclaimer</li>
+                            </ul>
+                          </>
+                        )}
+                        {activeDisclaimerType === 'sms' && (
+                          <>
+                            <p className="font-bold">✓ Use for:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Text message campaigns</li>
+                              <li>SMS voter outreach</li>
+                              <li>Mobile alerts</li>
+                            </ul>
+                            <p className="font-bold mt-3">⚠️ Requirements:</p>
+                            <ul className="list-disc list-inside space-y-1 ml-2">
+                              <li>Include in every political message</li>
+                              <li>Keep within character limit</li>
+                              <li>Provide opt-out instructions</li>
+                            </ul>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Generated Disclaimer */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
+                    Your Disclaimer
+                  </h4>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <i className="fas fa-check-circle text-emerald-600 text-xs"></i>
+                    <span className="text-xs font-bold text-emerald-700">Compliant</span>
+                  </div>
+                </div>
+                <div className="p-8 bg-slate-50 rounded-2xl border border-slate-100 font-mono text-xs leading-relaxed">
+                  {generateTexasDisclaimer(activeDisclaimerType, profile)}
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(generateTexasDisclaimer(activeDisclaimerType, profile));
+                    setChatMessages(prev => [...prev, {
+                      role: 'ai',
+                      text: '✅ Disclaimer copied to clipboard!'
+                    }]);
+                  }}
+                  className="flex-1 py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all"
+                >
+                  <i className="fas fa-copy mr-2"></i>
+                  Copy to Clipboard
+                </button>
+                <button 
+                  onClick={() => setShowDisclaimerGuide(!showDisclaimerGuide)}
+                  className="px-6 py-4 bg-indigo-50 text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-100 transition-all border border-indigo-200"
+                >
+                  <i className={`fas fa-${showDisclaimerGuide ? 'eye-slash' : 'book'} mr-2`}></i>
+                  {showDisclaimerGuide ? 'Hide' : 'Guide'}
+                </button>
+              </div>
+            </div>
+          </Card>
+        </div>
             <div className="mt-6 space-y-10">
               {/* Method Toggle */}
               <div className="flex gap-4 p-2 bg-slate-100 rounded-2xl">
@@ -5066,32 +5614,157 @@ Return ONLY valid JSON with verified/enhanced data:
         </div>
 
         {/* TEC Forms Checklist */}
-        <Card title="TEC Form Registry" icon="fa-list-check" subtitle="Required Filing Documents">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
-            {Object.entries(shield.tec_forms).map(([form, data]) => (
-              <div 
-                key={form}
-                className={`p-6 rounded-2xl border-2 transition-all ${
-                  data.filed 
-                    ? 'bg-emerald-50 border-emerald-200' 
-                    : 'bg-slate-50 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h5 className="font-black text-sm uppercase tracking-tight">{form}</h5>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    data.filed ? 'bg-emerald-500 text-white' : 'bg-slate-300 text-slate-500'
-                  }`}>
-                    <i className={`fas ${data.filed ? 'fa-check' : 'fa-minus'} text-sm`}></i>
-                  </div>
-                </div>
-                {data.date_filed && (
-                  <p className="text-xs font-bold text-emerald-600">
-                    Filed: {data.date_filed}
-                  </p>
-                )}
+        {/* TEC Forms Checklist - ENHANCED */}
+        <Card 
+          title="TEC Form Registry" 
+          icon="fa-list-check" 
+          subtitle="Required Filing Documents"
+          action={
+            <div className="flex items-center gap-3">
+              <div className="px-4 py-2 bg-indigo-50 rounded-lg border border-indigo-200">
+                <span className="text-xs font-black uppercase tracking-wider text-indigo-700">
+                  {Object.values(shield.tec_forms).filter(f => f.filed).length} / {Object.keys(shield.tec_forms).length} Complete
+                </span>
               </div>
-            ))}
+            </div>
+          }
+        >
+          <div className="pt-6 space-y-6">
+            
+            {/* Completion Progress */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-2xl border-2 border-slate-200">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+                  Filing Progress
+                </span>
+                <span className="text-2xl font-black text-indigo-600">
+                  {Math.round((Object.values(shield.tec_forms).filter(f => f.filed).length / Object.keys(shield.tec_forms).length) * 100)}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                <div 
+                  className="bg-indigo-600 h-full transition-all rounded-full"
+                  style={{ 
+                    width: `${(Object.values(shield.tec_forms).filter(f => f.filed).length / Object.keys(shield.tec_forms).length) * 100}%` 
+                  }}
+                />
+              </div>
+            </div>
+            
+            {/* Forms Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {Object.entries(shield.tec_forms).map(([form, data]) => (
+                <div 
+                  key={form}
+                  className={`p-6 rounded-2xl border-2 transition-all hover:shadow-lg ${
+                    data.filed 
+                      ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-300' 
+                      : 'bg-white border-slate-200 hover:border-indigo-300'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h5 className="font-black text-sm uppercase tracking-tight text-slate-800 mb-1">
+                        {form}
+                      </h5>
+                      {data.filed && data.date_filed && (
+                        <p className="text-xs font-bold text-emerald-600 flex items-center gap-2">
+                          <i className="fas fa-calendar-check"></i>
+                          Filed: {data.date_filed}
+                        </p>
+                      )}
+                      {!data.filed && (
+                        <p className="text-xs text-slate-500">
+                          Not yet filed
+                        </p>
+                      )}
+                    </div>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                      data.filed ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      <i className={`fas ${data.filed ? 'fa-check-circle' : 'fa-file-lines'} text-xl`}></i>
+                    </div>
+                  </div>
+                  
+                  {!data.filed && (
+                    <button 
+                      onClick={() => {
+                        const newForms = { ...shield.tec_forms };
+                        newForms[form] = {
+                          filed: true,
+                          date_filed: new Date().toISOString().split('T')[0]
+                        };
+                        updateLegalShield({ tec_forms: newForms });
+                      }}
+                      className="w-full py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-indigo-700 transition-all"
+                    >
+                      <i className="fas fa-upload mr-2"></i>
+                      Mark as Filed
+                    </button>
+                  )}
+                  
+                  {data.filed && (
+                    <div className="flex gap-2">
+                      <button className="flex-1 py-2 bg-white text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-50 transition-all border border-emerald-200">
+                        <i className="fas fa-download mr-1"></i>
+                        View
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const newForms = { ...shield.tec_forms };
+                          newForms[form] = { filed: false };
+                          updateLegalShield({ tec_forms: newForms });
+                        }}
+                        className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all"
+                      >
+                        <i className="fas fa-undo"></i>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {/* Quick Actions */}
+            {Object.values(shield.tec_forms).some(f => !f.filed) && (
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-2xl border-2 border-amber-200">
+                <div className="flex items-center gap-3 mb-3">
+                  <i className="fas fa-lightbulb text-amber-600"></i>
+                  <h4 className="text-sm font-black uppercase tracking-wider text-amber-900">
+                    Next Steps
+                  </h4>
+                </div>
+                <p className="text-sm text-slate-700 mb-4">
+                  You have {Object.values(shield.tec_forms).filter(f => !f.filed).length} form(s) pending. 
+                  Complete all required filings to maintain compliance.
+                </p>
+                <div className="flex gap-3">
+                  <button className="px-6 py-3 bg-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-amber-700 transition-all">
+                    <i className="fas fa-external-link mr-2"></i>
+                    TEC Filing Portal
+                  </button>
+                  <button className="px-6 py-3 bg-white text-amber-700 rounded-xl text-xs font-bold hover:bg-amber-50 transition-all border border-amber-200">
+                    <i className="fas fa-question-circle mr-2"></i>
+                    Filing Guide
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* All Complete Message */}
+            {Object.values(shield.tec_forms).every(f => f.filed) && (
+              <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-8 rounded-2xl border-2 border-emerald-300 text-center">
+                <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i className="fas fa-trophy text-3xl text-white"></i>
+                </div>
+                <h4 className="text-lg font-black text-emerald-900 mb-2">
+                  All Forms Filed!
+                </h4>
+                <p className="text-sm text-emerald-700">
+                  Excellent work! Your campaign is fully compliant with all TEC filing requirements.
+                </p>
+              </div>
+            )}
           </div>
         </Card>
       </div>
