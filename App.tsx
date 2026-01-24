@@ -738,6 +738,7 @@ function App() {
   const [creativeAssets, setCreativeAssets] = useState<CreativeAsset[]>([]);
   const [activeCreativeAsset, setActiveCreativeAsset] = useState<CreativeAsset | null>(null);
   const [refinementInstruction, setRefinementInstruction] = useState('');
+  const [previewMode, setPreviewMode] = useState<'raw' | 'social' | 'email' | 'print'>('raw');
   
   // ============================================================================
   // WAR CHEST (FUNDRAISING) STATE
@@ -3439,32 +3440,164 @@ Return ONLY valid JSON with verified/enhanced data:
 
   const renderCreative = () => (
     <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700 pb-20">
-      <Card title="The Megaphone Studio" subtitle="Strategic Messaging Pipeline" icon="fa-bullhorn">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-4 pb-4">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <h2 className="text-4xl font-black text-slate-800 italic uppercase tracking-tighter">
+            The Megaphone Studio
+          </h2>
+          <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-2">
+            Professional Campaign Messaging Pipeline
+          </p>
+        </div>
+        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+          <i className="fas fa-sparkles text-amber-500"></i>
+          <span className="text-xs font-bold text-slate-600">
+            {creativeAssets.length} Active Messages
+          </span>
+        </div>
+      </div>
+
+      {/* Content Type Gallery */}
+      <Card title="Content Generator" subtitle="Professional Campaign Materials" icon="fa-wand-magic-sparkles">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
           {[
-            { label: 'Canvassing Script', icon: 'fa-microphone-lines', desc: 'Door-to-door persuasion' },
-            { label: 'Social Content', icon: 'fa-share-nodes', desc: 'Viral digital narrative' },
-            { label: 'Direct Mailer', icon: 'fa-envelope-open-text', desc: 'High-impact physical reach' }
-          ].map((v, i) => (
+            { 
+              label: 'Social Media Post', 
+              icon: 'fa-share-nodes', 
+              desc: 'Viral content for Facebook, Twitter, Instagram',
+              color: 'from-blue-500 to-cyan-500',
+              iconBg: 'bg-blue-500',
+              estimatedReach: '2,500+ voters',
+              charLimit: '280 characters'
+            },
+            { 
+              label: 'Email Campaign', 
+              icon: 'fa-envelope-open-text', 
+              desc: 'Persuasive emails that convert supporters',
+              color: 'from-purple-500 to-pink-500',
+              iconBg: 'bg-purple-500',
+              estimatedReach: '1,200+ subscribers',
+              charLimit: '500-800 words'
+            },
+            { 
+              label: 'Door Knock Script', 
+              icon: 'fa-door-open', 
+              desc: 'Proven face-to-face conversation guide',
+              color: 'from-emerald-500 to-teal-500',
+              iconBg: 'bg-emerald-500',
+              estimatedReach: 'Personal touch',
+              charLimit: '2-3 minutes'
+            },
+            { 
+              label: 'Press Release', 
+              icon: 'fa-newspaper', 
+              desc: 'Media-ready statements for journalists',
+              color: 'from-slate-600 to-slate-800',
+              iconBg: 'bg-slate-700',
+              estimatedReach: 'Media coverage',
+              charLimit: '300-500 words'
+            },
+            { 
+              label: 'SMS Campaign', 
+              icon: 'fa-mobile-screen-button', 
+              desc: 'Mobile-first messages that drive action',
+              color: 'from-orange-500 to-red-500',
+              iconBg: 'bg-orange-500',
+              estimatedReach: '5,000+ contacts',
+              charLimit: '160 characters'
+            },
+            { 
+              label: 'Video Script', 
+              icon: 'fa-video', 
+              desc: 'Broadcast-ready talking points',
+              color: 'from-indigo-500 to-purple-500',
+              iconBg: 'bg-indigo-500',
+              estimatedReach: 'Broadcast reach',
+              charLimit: '30-60 seconds'
+            }
+          ].map((contentType, i) => (
             <button 
               key={i} 
               disabled={loadingStates.generateCreative}
-              onClick={() => generateCreative(v.label)} 
-              className="p-8 bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] hover:border-indigo-400 hover:bg-white transition-all group flex items-center gap-6 shadow-sm hover:shadow-xl disabled:opacity-50"
+              onClick={() => generateCreative(contentType.label)} 
+              className="group relative p-8 bg-white border-2 border-slate-200 rounded-3xl hover:border-transparent hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
             >
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-500 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-lg">
-                <i className={`fas ${v.icon} text-2xl`}></i>
-              </div>
-              <div className="text-left">
-                <p className="font-black text-[11px] uppercase tracking-widest text-slate-800">
-                  {v.label}
+              {/* Gradient Background on Hover */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${contentType.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+              
+              {/* Content */}
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className={`w-16 h-16 ${contentType.iconBg} rounded-2xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 group-hover:bg-white transition-all`}>
+                  <i className={`fas ${contentType.icon} text-2xl text-white group-hover:${contentType.iconBg.replace('bg-', 'text-')}`}></i>
+                </div>
+                
+                {/* Title */}
+                <h3 className="font-black text-sm uppercase tracking-tight text-slate-800 mb-2 group-hover:text-white transition-colors">
+                  {contentType.label}
+                </h3>
+                
+                {/* Description */}
+                <p className="text-xs text-slate-500 leading-relaxed mb-4 group-hover:text-white/90 transition-colors">
+                  {contentType.desc}
                 </p>
-                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-1">
-                  {v.desc}
-                </p>
+                
+                {/* Stats */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 group-hover:border-white/20">
+                  <div className="text-left">
+                    <p className="text-[8px] font-black uppercase tracking-wider text-slate-400 group-hover:text-white/70">
+                      Reach
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-600 group-hover:text-white">
+                      {contentType.estimatedReach}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[8px] font-black uppercase tracking-wider text-slate-400 group-hover:text-white/70">
+                      Format
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-600 group-hover:text-white">
+                      {contentType.charLimit}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Generate Button */}
+                <div className="mt-6 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-600 group-hover:text-white">
+                  <i className="fas fa-wand-magic-sparkles"></i>
+                  <span>Generate</span>
+                </div>
               </div>
             </button>
           ))}
+        </div>
+        
+        {/* Quick Action Bar */}
+        <div className="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <i className="fas fa-lightbulb text-indigo-600 text-xl"></i>
+              <div>
+                <p className="text-sm font-black text-indigo-900">Need inspiration?</p>
+                <p className="text-xs text-indigo-600">Try our proven templates below</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => generateCreative('Social Media Post')}
+                className="px-4 py-2 bg-white text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all border border-indigo-200"
+              >
+                Quick Social Post
+              </button>
+              <button 
+                onClick={() => generateCreative('Email Campaign')}
+                className="px-4 py-2 bg-white text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-600 hover:text-white transition-all border border-purple-200"
+              >
+                Fundraising Email
+              </button>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -3517,68 +3650,208 @@ Return ONLY valid JSON with verified/enhanced data:
                 subtitle={activeCreativeAsset.type} 
                 icon="fa-file-signature" 
                 action={
-                  <div className="flex items-center gap-4">
-                    <button className="text-slate-300 hover:text-indigo-600 transition-colors">
-                      <i className="fas fa-copy"></i>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(activeCreativeAsset.content);
+                        setChatMessages(prev => [...prev, { role: 'ai', text: '✅ Content copied to clipboard!' }]);
+                      }}
+                      className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-white transition-all border border-emerald-200"
+                    >
+                      <i className="fas fa-copy mr-2"></i>
+                      Copy
                     </button>
                     <button 
                       onClick={() => setCreativeAssets(prev => prev.filter(a => a.id !== activeCreativeAsset.id))} 
-                      className="text-slate-300 hover:text-red-600 transition-colors"
+                      className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition-all border border-red-200"
                     >
-                      <i className="fas fa-trash-alt"></i>
+                      <i className="fas fa-trash-alt mr-2"></i>
+                      Delete
                     </button>
                   </div>
                 }
               >
                 <div className="relative group/editor h-full flex flex-col">
-                  {/* Content Display */}
-                  <div className="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100 italic text-xl leading-relaxed text-slate-700 font-medium mb-10 whitespace-pre-wrap shadow-inner border-l-8 border-indigo-600 flex-1">
-                    {activeCreativeAsset.content}
+                  
+                  {/* Preview Mode Selector */}
+                  <div className="mb-6 flex items-center gap-2 pb-4 border-b border-slate-100">
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-500 mr-2">
+                      View As:
+                    </span>
+                    {[
+                      { id: 'raw', label: 'Raw Text', icon: 'fa-file-lines' },
+                      { id: 'social', label: 'Social Post', icon: 'fa-share-nodes' },
+                      { id: 'email', label: 'Email', icon: 'fa-envelope' },
+                      { id: 'print', label: 'Print', icon: 'fa-print' }
+                    ].map(mode => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setPreviewMode(mode.id as any)}
+                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                          previewMode === mode.id
+                            ? 'bg-indigo-600 text-white shadow-lg'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        <i className={`fas ${mode.icon} mr-1.5`}></i>
+                        {mode.label}
+                      </button>
+                    ))}
                   </div>
 
-                  {/* AI Refinement Engine */}
-                  <div className="mt-6 p-6 bg-amber-50 border-2 border-amber-200 rounded-2xl">
-                    <div className="flex items-center gap-3 mb-4">
-                      <i className="fas fa-wand-magic-sparkles text-amber-600 text-lg"></i>
-                      <p className="text-[11px] font-black text-amber-800 uppercase tracking-widest">
-                        AI Refinement Engine
+                  {/* Content Display with Preview Modes */}
+                  {previewMode === 'raw' && (
+                    <div className="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100 italic text-xl leading-relaxed text-slate-700 font-medium mb-10 whitespace-pre-wrap shadow-inner border-l-8 border-indigo-600 flex-1">
+                      {activeCreativeAsset.content}
+                    </div>
+                  )}
+                  
+                  {previewMode === 'social' && (
+                    <div className="bg-white p-8 rounded-3xl border-2 border-slate-200 shadow-xl mb-10">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black">
+                          {profile.candidate_name.charAt(0)}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-black text-sm text-slate-800">@{profile.candidate_name.replace(/\s+/g, '')}</p>
+                          <p className="text-xs text-slate-500">Just now</p>
+                        </div>
+                      </div>
+                      <p className="text-base leading-relaxed text-slate-700 mb-4 whitespace-pre-wrap">
+                        {activeCreativeAsset.content}
                       </p>
+                      <div className="flex items-center gap-6 pt-4 border-t border-slate-100 text-slate-400">
+                        <button className="flex items-center gap-2 text-sm hover:text-indigo-600">
+                          <i className="far fa-heart"></i> Like
+                        </button>
+                        <button className="flex items-center gap-2 text-sm hover:text-indigo-600">
+                          <i className="far fa-comment"></i> Comment
+                        </button>
+                        <button className="flex items-center gap-2 text-sm hover:text-indigo-600">
+                          <i className="fas fa-retweet"></i> Share
+                        </button>
+                      </div>
+                      <div className="mt-4 text-xs text-slate-400">
+                        Character count: {activeCreativeAsset.content.length} / 280
+                      </div>
                     </div>
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        value={refinementInstruction}
-                        onChange={(e) => setRefinementInstruction(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && !loadingStates.generateCreative) {
-                            refineAsset(refinementInstruction);
-                          }
-                        }}
-                        placeholder="e.g., Make it more urgent, Add statistics, Shorten to 100 words..."
-                        disabled={loadingStates.generateCreative}
-                        className="flex-1 px-5 py-3 bg-white border-2 border-amber-200 rounded-xl text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all disabled:opacity-50"
-                      />
-                      <button
-                        onClick={() => refineAsset(refinementInstruction)}
-                        disabled={loadingStates.generateCreative || !refinementInstruction.trim()}
-                        className="px-8 py-3 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
-                      >
-                        {loadingStates.generateCreative ? (
-                          <>
-                            <i className="fas fa-circle-notch fa-spin"></i>
-                            Refining...
-                          </>
-                        ) : (
-                          <>
-                            <i className="fas fa-wand-magic-sparkles"></i>
-                            Refine
-                          </>
-                        )}
-                      </button>
+                  )}
+                  
+                  {previewMode === 'email' && (
+                    <div className="bg-white p-8 rounded-3xl border-2 border-slate-200 shadow-xl mb-10">
+                      <div className="border-b border-slate-100 pb-4 mb-6">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-400">From:</span>
+                          <span className="text-sm font-bold text-slate-700">{profile.candidate_name}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-400">Subject:</span>
+                          <span className="text-sm font-bold text-slate-700">{activeCreativeAsset.title}</span>
+                        </div>
+                      </div>
+                      <div className="prose prose-sm max-w-none">
+                        <p className="text-base leading-relaxed text-slate-700 whitespace-pre-wrap">
+                          {activeCreativeAsset.content}
+                        </p>
+                      </div>
+                      <div className="mt-6 pt-6 border-t border-slate-100 text-xs text-slate-400 italic">
+                        Paid for by {profile.candidate_name} for {profile.office}
+                      </div>
                     </div>
-                    <p className="text-[9px] text-amber-700 font-bold mt-3 italic">
-                      ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¡ Example: "Make this more conversational" or "Add a stronger call-to-action"
-                    </p>
+                  )}
+                  
+                  {previewMode === 'print' && (
+                    <div className="bg-white p-12 rounded-3xl border-4 border-slate-300 shadow-2xl mb-10">
+                      <div className="text-center mb-6 pb-6 border-b-2 border-slate-200">
+                        <h2 className="text-3xl font-black uppercase tracking-tight text-slate-800 mb-2">
+                          {profile.candidate_name}
+                        </h2>
+                        <p className="text-sm font-bold text-slate-600">
+                          for {profile.office}
+                        </p>
+                      </div>
+                      <div className="text-lg leading-relaxed text-slate-700 text-justify whitespace-pre-wrap mb-8">
+                        {activeCreativeAsset.content}
+                      </div>
+                      <div className="text-center pt-6 border-t-2 border-slate-200">
+                        <p className="text-xs text-slate-500">
+                          Paid for by {profile.candidate_name} for {profile.office}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Refinement Engine - UPGRADED */}
+                  <div className="mt-6 space-y-4">
+                    {/* Quick Refinement Buttons */}
+                    <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200">
+                      <p className="text-xs font-black uppercase tracking-wider text-amber-800 mb-3 flex items-center gap-2">
+                        <i className="fas fa-bolt"></i>
+                        Quick Improvements
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: 'Make Shorter', icon: 'fa-compress' },
+                          { label: 'More Urgent', icon: 'fa-clock' },
+                          { label: 'Add Statistics', icon: 'fa-chart-line' },
+                          { label: 'More Friendly', icon: 'fa-smile' },
+                          { label: 'Add Call-to-Action', icon: 'fa-bullhorn' },
+                          { label: 'Remove Jargon', icon: 'fa-broom' }
+                        ].map(quick => (
+                          <button
+                            key={quick.label}
+                            onClick={() => refineAsset(quick.label)}
+                            disabled={loadingStates.generateCreative}
+                            className="px-3 py-2 bg-white text-amber-700 rounded-lg text-xs font-bold hover:bg-amber-600 hover:text-white transition-all border border-amber-300 disabled:opacity-50"
+                          >
+                            <i className={`fas ${quick.icon} mr-1.5`}></i>
+                            {quick.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Custom Refinement */}
+                    <div className="p-6 bg-amber-50 border-2 border-amber-200 rounded-2xl">
+                      <div className="flex items-center gap-3 mb-4">
+                        <i className="fas fa-wand-magic-sparkles text-amber-600 text-lg"></i>
+                        <p className="text-[11px] font-black text-amber-800 uppercase tracking-widest">
+                          Custom Refinement
+                        </p>
+                      </div>
+                      <div className="flex gap-3">
+                        <input
+                          type="text"
+                          value={refinementInstruction}
+                          onChange={(e) => setRefinementInstruction(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !loadingStates.generateCreative) {
+                              refineAsset(refinementInstruction);
+                            }
+                          }}
+                          placeholder="e.g., Focus on local jobs issue, Make it sound like talking to a neighbor..."
+                          disabled={loadingStates.generateCreative}
+                          className="flex-1 px-5 py-3 bg-white border-2 border-amber-200 rounded-xl text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all disabled:opacity-50"
+                        />
+                        <button
+                          onClick={() => refineAsset(refinementInstruction)}
+                          disabled={loadingStates.generateCreative || !refinementInstruction.trim()}
+                          className="px-8 py-3 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                        >
+                          {loadingStates.generateCreative ? (
+                            <>
+                              <i className="fas fa-circle-notch fa-spin"></i>
+                              Refining...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-wand-magic-sparkles"></i>
+                              Refine
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Legal Shield Integration */}
