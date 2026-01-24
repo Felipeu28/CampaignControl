@@ -5573,47 +5573,8 @@ Return ONLY valid JSON with verified/enhanced data:
             </div>
           </Card>
 
-          {/* Shield Generator - Disclaimers */}
-          <Card title="Shield Generator" icon="fa-shield-halved" subtitle="Texas Disclaimer Compliance">
-            <div className="mt-6 space-y-8">
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {(['digital', 'print', 'tv', 'radio', 'sms'] as const).map(type => (
-                  <button
-                    key={type}
-                    onClick={() => setActiveDisclaimerType(type)}
-                    className={`px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest whitespace-nowrap transition-all ${
-                      activeDisclaimerType === type
-                        ? 'bg-indigo-600 text-white shadow-lg'
-                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
-              
-              <div className="p-8 bg-slate-50 rounded-2xl border border-slate-100 font-mono text-xs leading-relaxed">
-                {generateTexasDisclaimer(activeDisclaimerType, profile)}
-              </div>
-              
-              <button 
-                onClick={() => {
-                  navigator.clipboard.writeText(generateTexasDisclaimer(activeDisclaimerType, profile));
-                  setChatMessages(prev => [...prev, {
-                    role: 'ai',
-                    text: 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Disclaimer copied to clipboard!'
-                  }]);
-                }}
-                className="w-full py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all"
-              >
-                <i className="fas fa-copy mr-2"></i>
-                Copy to Clipboard
-              </button>
-            </div>
-          </Card>
         </div>
 
-        {/* TEC Forms Checklist */}
         {/* TEC Forms Checklist - ENHANCED */}
         <Card 
           title="TEC Form Registry" 
