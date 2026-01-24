@@ -1666,7 +1666,9 @@ try {
   setLoading('generateImage', false);
 }
 
-   Refine Visual Asset - Enhanced for Real Image Editing
+   /**
+  * Refine Visual Asset - Enhanced for Real Image Editing
+  */
   const refineVisual = async (asset: EnhancedCreativeAsset, feedback: string) => {
     if (!feedback.trim()) {
       setChatMessages(prev => [...prev, {
