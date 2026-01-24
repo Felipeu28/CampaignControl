@@ -5556,6 +5556,7 @@ Return ONLY valid JSON with verified/enhanced data:
                       onClick={() => {
                         const newForms = { ...shield.tec_forms };
                         newForms[form] = {
+                          required: data.required || true,
                           filed: true,
                           date_filed: new Date().toISOString().split('T')[0]
                         };
@@ -5577,7 +5578,11 @@ Return ONLY valid JSON with verified/enhanced data:
                       <button 
                         onClick={() => {
                           const newForms = { ...shield.tec_forms };
-                          newForms[form] = { filed: false };
+                          newForms[form] = { 
+                            required: data.required || true,
+                            filed: false,
+                            date_filed: ''
+                          };
                           updateLegalShield({ tec_forms: newForms });
                         }}
                         className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all"
