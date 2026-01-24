@@ -716,6 +716,7 @@ function App() {
   const [isCompetitorModalOpen, setIsCompetitorModalOpen] = useState(false);
   const [dossierTarget, setDossierTarget] = useState<Opponent | null>(null);
   const [isReviewRivalsModalOpen, setIsReviewRivalsModalOpen] = useState(false);
+  const [showFullReport, setShowFullReport] = useState(false);
   
   // ============================================================================
   // DARKROOM (BRANDING) STATE
@@ -3224,46 +3225,199 @@ Return ONLY valid JSON with verified/enhanced data:
   const renderIntelligence = () => {
     const activeResearch = researchVault.find(v => v.id === activeResearchId);
 
+    // Categorize research modes by priority
+    const criticalModes = [
+      { id: 'FUNDRAISING', label: 'Fundraising', icon: 'fa-money-bill-wave', color: 'emerald' },
+      { id: 'OPPOSITION', label: 'Opposition', icon: 'fa-user-ninja', color: 'red' },
+      { id: 'ECONOMIC', label: 'Economic', icon: 'fa-money-bill-trend-up', color: 'blue' },
+    ];
+    
+    const tacticalModes = [
+      { id: 'SENTIMENT', label: 'Sentiment', icon: 'fa-face-smile-wink', color: 'purple' },
+      { id: 'MEDIA', label: 'Media', icon: 'fa-newspaper', color: 'slate' },
+      { id: 'SOCIAL', label: 'Social Media', icon: 'fa-hashtag', color: 'cyan' },
+      { id: 'REGISTRATION', label: 'Voter Data', icon: 'fa-users-line', color: 'indigo' },
+    ];
+    
+    const strategicModes = [
+      { id: 'POLICY', label: 'Policy', icon: 'fa-bridge', color: 'teal' },
+      { id: 'GEOGRAPHY', label: 'Geography', icon: 'fa-map-location-dot', color: 'orange' },
+      { id: 'ETHICS', label: 'Compliance', icon: 'fa-shield-halved', color: 'amber' },
+    ];
+
     return (
       <div className="space-y-12 animate-in fade-in duration-700 pb-20">
-        {/* Header with Research Mode Buttons */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
             <h2 className="text-4xl font-black text-slate-800 italic uppercase tracking-tighter">
-              Command Intelligence
+              Intelligence Command Center
             </h2>
             <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-2">
-              Active Multi-Modality District Scan
+              Multi-Modal District Intelligence & Opposition Research
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            {[
-              { id: 'ECONOMIC', label: 'Economic', icon: 'fa-money-bill-trend-up' },
-              { id: 'SENTIMENT', label: 'Sentiment', icon: 'fa-face-smile-wink' },
-              { id: 'POLICY', label: 'Policy', icon: 'fa-bridge' },
-              { id: 'OPPOSITION', label: 'Opposition', icon: 'fa-user-ninja' },
-              { id: 'MEDIA', label: 'Media', icon: 'fa-newspaper' },
-              { id: 'REGISTRATION', label: 'Voters', icon: 'fa-users-line' },
-              { id: 'SOCIAL', label: 'Social', icon: 'fa-hashtag' },
-              { id: 'FUNDRAISING', label: 'Donors', icon: 'fa-money-bill-wave' },
-              { id: 'GEOGRAPHY', label: 'Geography', icon: 'fa-map-location-dot' },
-              { id: 'ETHICS', label: 'Ethics', icon: 'fa-shield-halved' },
-            ].map(probe => (
-              <button 
-                key={probe.id} 
-                disabled={loadingStates.probe} 
-                onClick={() => runNeuralProbe(probe.id as ResearchMode)} 
-                className={`px-6 py-4 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center gap-3 transition-all border disabled:opacity-50 ${
-                  researchMode === probe.id 
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xl' 
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400'
-                }`}
-              >
-                <i className={`fas ${probe.icon}`}></i> {probe.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-bold text-slate-600">
+                {researchVault.length} Intel Reports
+              </span>
+            </div>
+            <div className="w-px h-4 bg-slate-200"></div>
+            <div className="flex items-center gap-2">
+              <i className="fas fa-crosshairs text-red-500"></i>
+              <span className="text-xs font-bold text-slate-600">
+                {profile.metadata.opponents.length} Targets
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Intelligence Command Dashboard */}
+        <Card 
+          title="Intelligence Operations" 
+          subtitle="Prioritized Research Modes" 
+          icon="fa-radar"
+        >
+          <div className="space-y-8 pt-6">
+            
+            {/* CRITICAL Priority */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 rounded-lg border border-red-200">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-black uppercase tracking-wider text-red-700">Critical Priority</span>
+                </div>
+                <p className="text-xs text-slate-500">Run first - highest impact on campaign</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {criticalModes.map(mode => (
+                  <button
+                    key={mode.id}
+                    disabled={loadingStates.probe}
+                    onClick={() => runNeuralProbe(mode.id as ResearchMode)}
+                    className={`group relative p-6 rounded-2xl border-2 transition-all overflow-hidden ${
+                      researchMode === mode.id
+                        ? `bg-${mode.color}-600 border-${mode.color}-600 shadow-xl scale-[1.02]`
+                        : `bg-white border-slate-200 hover:border-${mode.color}-400 hover:shadow-lg`
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {/* Background gradient on hover */}
+                    <div className={`absolute inset-0 bg-gradient-to-br from-${mode.color}-500 to-${mode.color}-700 opacity-0 group-hover:opacity-100 transition-opacity ${researchMode === mode.id ? 'opacity-100' : ''}`}></div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          researchMode === mode.id 
+                            ? 'bg-white/20' 
+                            : `bg-${mode.color}-50 group-hover:bg-white`
+                        } transition-all`}>
+                          <i className={`fas ${mode.icon} text-xl ${
+                            researchMode === mode.id 
+                              ? 'text-white' 
+                              : `text-${mode.color}-600 group-hover:text-${mode.color}-600`
+                          }`}></i>
+                        </div>
+                        {researchVault.some(r => r.mode === mode.id) && (
+                          <span className={`text-xs font-bold ${
+                            researchMode === mode.id ? 'text-white/70' : 'text-emerald-600'
+                          }`}>
+                            ✓ Scanned
+                          </span>
+                        )}
+                      </div>
+                      <h3 className={`font-black text-sm uppercase tracking-tight mb-2 ${
+                        researchMode === mode.id ? 'text-white' : 'text-slate-800 group-hover:text-white'
+                      }`}>
+                        {mode.label}
+                      </h3>
+                      <p className={`text-xs ${
+                        researchMode === mode.id ? 'text-white/80' : 'text-slate-500 group-hover:text-white/90'
+                      }`}>
+                        {loadingStates.probe ? 'Scanning...' : 'Click to scan'}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* TACTICAL Operations */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 rounded-lg border border-amber-200">
+                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                  <span className="text-xs font-black uppercase tracking-wider text-amber-700">Tactical Operations</span>
+                </div>
+                <p className="text-xs text-slate-500">Regular monitoring - run weekly</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {tacticalModes.map(mode => (
+                  <button
+                    key={mode.id}
+                    disabled={loadingStates.probe}
+                    onClick={() => runNeuralProbe(mode.id as ResearchMode)}
+                    className={`group relative p-5 rounded-xl border-2 transition-all ${
+                      researchMode === mode.id
+                        ? `bg-${mode.color}-600 border-${mode.color}-600 shadow-lg`
+                        : 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-md'
+                    } disabled:opacity-50`}
+                  >
+                    <div className="flex flex-col items-center text-center gap-2">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        researchMode === mode.id ? 'bg-white/20' : `bg-${mode.color}-50`
+                      }`}>
+                        <i className={`fas ${mode.icon} ${
+                          researchMode === mode.id ? 'text-white' : `text-${mode.color}-600`
+                        }`}></i>
+                      </div>
+                      <span className={`text-xs font-bold ${
+                        researchMode === mode.id ? 'text-white' : 'text-slate-700'
+                      }`}>
+                        {mode.label}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* STRATEGIC Analysis */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-xs font-black uppercase tracking-wider text-blue-700">Strategic Analysis</span>
+                </div>
+                <p className="text-xs text-slate-500">Deep research - run monthly</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {strategicModes.map(mode => (
+                  <button
+                    key={mode.id}
+                    disabled={loadingStates.probe}
+                    onClick={() => runNeuralProbe(mode.id as ResearchMode)}
+                    className={`group p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                      researchMode === mode.id
+                        ? `bg-${mode.color}-600 border-${mode.color}-600 text-white shadow-lg`
+                        : 'bg-white border-slate-200 hover:border-blue-300 text-slate-700'
+                    } disabled:opacity-50`}
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      researchMode === mode.id ? 'bg-white/20' : `bg-${mode.color}-50`
+                    }`}>
+                      <i className={`fas ${mode.icon} ${
+                        researchMode === mode.id ? 'text-white' : `text-${mode.color}-600`
+                      }`}></i>
+                    </div>
+                    <span className="text-xs font-bold">{mode.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
 
         {/* Threat Matrix - Opponent Cards */}
         <Card 
@@ -3408,7 +3562,25 @@ Return ONLY valid JSON with verified/enhanced data:
                 }
               >
                 <div className="prose prose-sm max-w-none">
-                  <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 leading-relaxed text-slate-700 whitespace-pre-wrap">
+                  {/* Key Findings */}
+                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border-2 border-indigo-200 mb-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+                        <i className="fas fa-lightbulb text-white"></i>
+                      </div>
+                      <h3 className="text-sm font-black uppercase tracking-wider text-indigo-900">
+                        Key Findings
+                      </h3>
+                    </div>
+                    <div className="bg-white p-6 rounded-xl border border-indigo-100 shadow-sm">
+                      <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+                        {activeResearch.text.split('\n\n')[0]}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Full Report */}
+                  <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 leading-relaxed text-slate-700 whitespace-pre-wrap max-h-96 overflow-y-auto">
                     {activeResearch.text}
                   </div>
                   {activeResearch.error && (
