@@ -102,7 +102,7 @@ interface ImagePrompt {
 // Enhanced Creative Asset with Image Metadata
 interface EnhancedCreativeAsset extends CreativeAsset {
   metadata?: {
-    aspectRatio?: '1:1' | '16:9' | '9:16';
+    aspectRatio?: '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
     quality?: 'standard' | 'hd';
     generatedAt?: string;
     editedFrom?: string;
@@ -728,7 +728,7 @@ function App() {
     env: 'Modern Urban Center',
     style: 'Cinematic Portrait'
   });
-  const [aspectRatio, setAspectRatio] = useState<'1:1' | '16:9' | '9:16'>('1:1');
+  const [aspectRatio, setAspectRatio] = useState<'1:1' | '16:9' | '9:16' | '3:4' | '4:3'>('1:1');
   const [highQualityMode, setHighQualityMode] = useState(false);
   
   // ============================================================================
@@ -886,59 +886,55 @@ function App() {
   // ============================================================================
   
   /**
-   * Generate images using Imagen 3 Fast via Google AI API
-   * Fixed to use correct endpoint and parameters
+   * Generate images using Gemini 2.5 Flash Image - THE CORRECT WAY
+   * Uses the actual working API from Google GenAI
    */
   async function generateCampaignImage(opts: {
     apiKey: string;
     prompt: string;
-    aspectRatio?: '1:1' | '16:9' | '9:16';
+    aspectRatio?: '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
   }): Promise<string> {
     const { apiKey, prompt, aspectRatio = '1:1' } = opts;
 
     try {
-      // Correct Imagen 3 Fast endpoint
-      const response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey,
-          },
-          body: JSON.stringify({
-            instances: [
-              {
-                prompt: prompt,
-              }
-            ],
-            parameters: {
-              sampleCount: 1,
-              aspectRatio: aspectRatio,
-              safetyFilterLevel: 'block_some',
-              personGeneration: 'allow_adult',
-            }
-          })
+      // Use the CORRECT Google GenAI initialization
+      const genAI = new GoogleGenerativeAI(apiKey);
+      
+      // Use Gemini 2.5 Flash Image model - this actually works!
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash-image"
+      });
+
+      // Generate content with image config
+      const result = await model.generateContent({
+        contents: [{
+          parts: [
+            { text: prompt }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 8192,
+        },
+        // Image-specific config
+        imageConfig: {
+          aspectRatio: aspectRatio,
         }
-      );
+      });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Imagen API Error:', errorText);
-        throw new Error(`Image generation failed: ${response.status} ${response.statusText}`);
+      const response = await result.response;
+      
+      // Extract image from response parts
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          const base64Image = part.inlineData.data;
+          return `data:image/png;base64,${base64Image}`;
+        } else if (part.text) {
+          console.log("Model feedback:", part.text);
+        }
       }
 
-      const data = await response.json();
-      
-      // Extract base64 image from response
-      const imageBase64 = data.predictions?.[0]?.bytesBase64Encoded;
-      
-      if (!imageBase64) {
-        console.error('No image in response:', data);
-        throw new Error('No image data returned from API');
-      }
-
-      return `data:image/png;base64,${imageBase64}`;
+      throw new Error('No image data returned from API');
 
     } catch (error) {
       console.error('Image generation error:', error);
@@ -1662,7 +1658,7 @@ Output only the enhanced prompt, no explanations.`
         {
           role: 'ai',
           text:
-            "✅ Visual generated! Image created with Imagen 3 at " +
+            "✅ Visual generated! Image created with Gemini 2.5 Flash at " +
             (highQualityMode ? "HD" : "standard") +
             " quality in " +
             aspectRatio +
