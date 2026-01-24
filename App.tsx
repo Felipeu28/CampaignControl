@@ -3419,12 +3419,12 @@ Return ONLY valid JSON with verified/enhanced data:
           </div>
         </Card>
 
-        {/* Threat Matrix - Opponent Cards */}
+        {/* Threat Matrix - UPGRADED TACTICAL DASHBOARD */}
         <Card 
           title="Threat Matrix" 
-          icon="fa-user-shield" 
-          subtitle="Priority Competitor Audit" 
-          className="border-indigo-500/30 overflow-visible" 
+          icon="fa-crosshairs" 
+          subtitle="Opposition Intelligence & Target Tracking" 
+          className="border-red-500/30 overflow-visible" 
           action={
             <div className="flex gap-3">
               <button 
@@ -3435,69 +3435,238 @@ Return ONLY valid JSON with verified/enhanced data:
                 }`}
               >
                 <i className={`fas ${loadingStates.extractRivals ? 'fa-circle-notch fa-spin' : 'fa-robot'}`}></i> 
-                {loadingStates.extractRivals ? 'Scanning...' : 'Extract Rivals'}
+                {loadingStates.extractRivals ? 'Scanning...' : 'Auto-Extract Rivals'}
               </button>
               <button 
                 onClick={() => setIsCompetitorModalOpen(true)} 
-                className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg"
+                className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg"
               >
-                + Register Target
+                <i className="fas fa-plus mr-2"></i>
+                Register Target
+              </button>
+              <button 
+                onClick={() => setIsReviewRivalsModalOpen(true)} 
+                className="bg-white text-slate-700 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all border-2 border-slate-200"
+              >
+                <i className="fas fa-list mr-2"></i>
+                Review All
               </button>
             </div>
           }
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4 auto-rows-fr">
-            {profile.metadata.opponents.length > 0 ? (
-              profile.metadata.opponents.map((o, i) => (
-                <div 
-                  key={i} 
-                  onClick={() => setDossierTarget(o)} 
-                  className="p-10 bg-slate-900 rounded-[3rem] text-white space-y-8 relative overflow-hidden group shadow-2xl border border-slate-800 hover:scale-[1.03] transition-all cursor-pointer"
-                >
-                  <div className="relative z-10 flex justify-between items-start">
+          {profile.metadata.opponents.length > 0 ? (
+            <>
+              {/* Threat Level Summary */}
+              <div className="grid grid-cols-3 gap-4 mb-8 pt-4">
+                <div className="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-2xl border-2 border-red-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
+                      <i className="fas fa-exclamation-triangle text-white"></i>
+                    </div>
                     <div>
-                      <h4 className="text-3xl font-black italic uppercase tracking-tighter leading-none mb-2 group-hover:text-indigo-400 transition-colors">
-                        {o.name}
-                      </h4>
-                      <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                        {o.party} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {o.incumbent ? 'Incumbent Threat' : 'Challenger Threat'}
+                      <p className="text-2xl font-black text-red-700">
+                        {profile.metadata.opponents.filter(o => o.incumbent || o.weaknesses.length < 3).length}
                       </p>
-                    </div>
-                    <div className="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all">
-                      <i className="fas fa-crosshairs"></i>
+                      <p className="text-xs font-black uppercase tracking-wider text-red-600">High Threat</p>
                     </div>
                   </div>
-                  <div className="space-y-6 relative z-10">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      <span>Target Vulnerabilities</span> 
-                      <span className="text-red-500">{o.weaknesses.length} Registered</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {o.weaknesses.slice(0, 3).map((w, idx) => (
-                        <span key={idx} className="bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest">
-                          {w}
-                        </span>
-                      ))}
-                      {o.weaknesses.length > 3 && (
-                        <span className="text-slate-500 text-[8px] font-black uppercase py-1.5">
-                          +{o.weaknesses.length - 3} More
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-red-600/5 rounded-full blur-[60px]" />
                 </div>
-              ))
-            ) : (
-              <div className="col-span-full p-20 border-4 border-dashed border-slate-100 rounded-[3rem] text-center opacity-30">
-                <i className="fas fa-user-ninja text-6xl text-slate-300 mb-6"></i>
-                <p className="text-sm font-black uppercase tracking-widest text-slate-400">
-                  No Opponents Registered
-                </p>
-                <p className="text-xs text-slate-400 mt-2">
-                  Click "Register Target" or "Extract Rivals" to begin
-                </p>
+                <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-2xl border-2 border-amber-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center">
+                      <i className="fas fa-shield-halved text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black text-amber-700">
+                        {profile.metadata.opponents.filter(o => !o.incumbent && o.weaknesses.length >= 3 && o.weaknesses.length < 5).length}
+                      </p>
+                      <p className="text-xs font-black uppercase tracking-wider text-amber-600">Medium Threat</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-2xl border-2 border-emerald-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center">
+                      <i className="fas fa-check-circle text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black text-emerald-700">
+                        {profile.metadata.opponents.filter(o => o.weaknesses.length >= 5).length}
+                      </p>
+                      <p className="text-xs font-black uppercase tracking-wider text-emerald-600">Low Threat</p>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Opponent Cards - Enhanced */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {profile.metadata.opponents.map((o, i) => {
+                  // Calculate threat level
+                  const isHighThreat = o.incumbent || o.weaknesses.length < 3;
+                  const isMediumThreat = !o.incumbent && o.weaknesses.length >= 3 && o.weaknesses.length < 5;
+                  const threatColor = isHighThreat ? 'red' : isMediumThreat ? 'amber' : 'emerald';
+                  const threatLabel = isHighThreat ? 'HIGH THREAT' : isMediumThreat ? 'MEDIUM THREAT' : 'LOW THREAT';
+                  
+                  return (
+                    <div 
+                      key={i} 
+                      className={`group relative bg-white rounded-3xl border-2 overflow-hidden transition-all hover:shadow-2xl ${
+                        isHighThreat ? 'border-red-300 hover:border-red-500' : 
+                        isMediumThreat ? 'border-amber-300 hover:border-amber-500' : 
+                        'border-emerald-300 hover:border-emerald-500'
+                      }`}
+                    >
+                      {/* Threat Level Banner */}
+                      <div className={`px-6 py-3 flex items-center justify-between ${
+                        isHighThreat ? 'bg-gradient-to-r from-red-600 to-red-700' :
+                        isMediumThreat ? 'bg-gradient-to-r from-amber-600 to-amber-700' :
+                        'bg-gradient-to-r from-emerald-600 to-emerald-700'
+                      }`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            isHighThreat ? 'bg-red-500' : isMediumThreat ? 'bg-amber-500' : 'bg-emerald-500'
+                          }`}>
+                            <i className={`fas ${
+                              isHighThreat ? 'fa-exclamation-triangle' : 
+                              isMediumThreat ? 'fa-shield-halved' : 
+                              'fa-check-circle'
+                            } text-white text-sm`}></i>
+                          </div>
+                          <span className="text-xs font-black uppercase tracking-widest text-white">
+                            {threatLabel}
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-white/80">
+                          {o.party} • {o.incumbent ? 'INCUMBENT' : 'CHALLENGER'}
+                        </span>
+                      </div>
+
+                      {/* Main Content */}
+                      <div className="p-6 space-y-6">
+                        {/* Name & Status */}
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="text-2xl font-black text-slate-800 mb-1">
+                              {o.name}
+                            </h3>
+                            {o.incumbent && (
+                              <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900 text-white rounded-lg">
+                                <i className="fas fa-crown text-amber-400 text-xs"></i>
+                                <span className="text-xs font-black uppercase tracking-wider">Incumbent</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Intelligence Stats Grid */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">Strengths</p>
+                            <p className="text-2xl font-black text-indigo-600">{o.strengths.length}</p>
+                          </div>
+                          <div className="bg-red-50 p-3 rounded-xl border border-red-200">
+                            <p className="text-xs font-black uppercase tracking-wider text-red-600 mb-1">Weaknesses</p>
+                            <p className="text-2xl font-black text-red-600">{o.weaknesses.length}</p>
+                          </div>
+                        </div>
+
+                        {/* Latest Intel Highlight */}
+                        {o.weaknesses.length > 0 && (
+                          <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-200">
+                            <div className="flex items-start gap-3">
+                              <i className="fas fa-bolt text-amber-600 mt-1"></i>
+                              <div className="flex-1">
+                                <p className="text-xs font-black uppercase tracking-wider text-amber-800 mb-1">
+                                  Latest Intel
+                                </p>
+                                <p className="text-sm text-slate-700 font-medium">
+                                  "{o.weaknesses[0]}" - Exploit in contrast messaging
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Top Weaknesses */}
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3">
+                            Exploitable Weaknesses
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {o.weaknesses.slice(0, 3).map((w, idx) => (
+                              <span 
+                                key={idx} 
+                                className="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-200"
+                              >
+                                {w}
+                              </span>
+                            ))}
+                            {o.weaknesses.length > 3 && (
+                              <span className="text-slate-500 text-xs font-bold py-1.5">
+                                +{o.weaknesses.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Quick Actions */}
+                        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); runNeuralProbe('OPPOSITION'); }}
+                            disabled={loadingStates.probe}
+                            className="px-4 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center justify-center gap-2"
+                          >
+                            <i className="fas fa-magnifying-glass-chart"></i>
+                            Deep Scan
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setDossierTarget(o); }}
+                            className="px-4 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                          >
+                            <i className="fas fa-folder-open"></i>
+                            Full Dossier
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="py-20">
+              <div className="max-w-md mx-auto text-center">
+                <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <i className="fas fa-crosshairs text-4xl text-slate-300"></i>
+                </div>
+                <h3 className="text-xl font-black text-slate-800 mb-3">
+                  No Opposition Targets Registered
+                </h3>
+                <p className="text-sm text-slate-500 mb-8">
+                  Start tracking your competition to build tactical advantages
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button 
+                    onClick={() => setIsCompetitorModalOpen(true)}
+                    className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-slate-800 transition-all shadow-lg"
+                  >
+                    <i className="fas fa-plus mr-2"></i>
+                    Register First Target
+                  </button>
+                  <button 
+                    onClick={startSyncRivals}
+                    disabled={!activeResearch || loadingStates.extractRivals}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-indigo-700 transition-all disabled:opacity-50"
+                  >
+                    <i className="fas fa-robot mr-2"></i>
+                    Auto-Extract from Intel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </Card>
             )}
           </div>
         </Card>
