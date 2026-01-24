@@ -910,16 +910,12 @@ function App() {
         contents: [{
           role: 'user',
           parts: [
-            { text: prompt }
+            { text: `${prompt}. Image aspect ratio: ${aspectRatio}` }
           ]
         }],
         generationConfig: {
           temperature: 0.8,
           maxOutputTokens: 8192,
-        },
-        // Image-specific config
-        imageConfig: {
-          aspectRatio: aspectRatio,
         }
       });
 
