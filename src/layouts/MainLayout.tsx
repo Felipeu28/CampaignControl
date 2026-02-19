@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SidebarItem } from './SidebarItem';
-import { useCampaign } from '../../context/CampaignContext';
+import { useCampaign } from '../context/CampaignContext';
 
 interface MainLayoutProps {
     children: React.ReactNode;

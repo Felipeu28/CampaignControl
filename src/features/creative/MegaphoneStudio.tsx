@@ -14,8 +14,7 @@ export const MegaphoneStudio: React.FC = () => {
         setCreativeAssets,
         activeCreativeAsset,
         setActiveCreativeAsset,
-        addChatMessage,
-        setChatMessages // Need this? No, we have addChatMessage
+        addChatMessage
     } = useCampaign();
 
     const { generateText } = useGemini();
@@ -298,8 +297,8 @@ Focus on the candidate's story and vision for ${profile.district_id}.`
                                     disabled={loadingStates.generateCreative}
                                     onClick={() => setActiveCreativeAsset(asset)}
                                     className={`w-full p-6 rounded-3xl border text-left transition-all flex justify-between items-center ${activeCreativeAsset?.id === asset.id
-                                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl scale-[1.02]'
-                                            : 'bg-white border-slate-100 hover:border-indigo-300'
+                                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl scale-[1.02]'
+                                        : 'bg-white border-slate-100 hover:border-indigo-300'
                                         } disabled:opacity-50`}
                                 >
                                     <div className="overflow-hidden">
@@ -368,8 +367,8 @@ Focus on the candidate's story and vision for ${profile.district_id}.`
                                                 key={mode.id}
                                                 onClick={() => setPreviewMode(mode.id as any)}
                                                 className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${previewMode === mode.id
-                                                        ? 'bg-indigo-600 text-white shadow-lg'
-                                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                                    ? 'bg-indigo-600 text-white shadow-lg'
+                                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                                     }`}
                                             >
                                                 <i className={`fas ${mode.icon} mr-1.5`}></i>
